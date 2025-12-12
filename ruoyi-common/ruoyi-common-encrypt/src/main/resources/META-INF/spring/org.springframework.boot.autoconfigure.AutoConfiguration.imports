@@ -1,3 +1,3 @@
-org.dromara.common.encrypt.config.EncryptorAutoConfiguration
-org.dromara.common.encrypt.config.ApiDecryptAutoConfiguration
+com.han.common.encrypt.config.EncryptorAutoConfiguration
+com.han.common.encrypt.config.ApiDecryptAutoConfiguration
 

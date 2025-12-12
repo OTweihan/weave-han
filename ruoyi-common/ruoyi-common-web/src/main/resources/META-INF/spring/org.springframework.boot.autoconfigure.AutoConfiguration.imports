@@ -1,5 +1,5 @@
-org.dromara.common.web.config.CaptchaConfig
-org.dromara.common.web.config.FilterConfig
-org.dromara.common.web.config.I18nConfig
-org.dromara.common.web.config.ResourcesConfig
-org.dromara.common.web.config.UndertowConfig
+com.han.common.web.config.CaptchaConfig
+com.han.common.web.config.FilterConfig
+com.han.common.web.config.I18nConfig
+com.han.common.web.config.ResourcesConfig
+com.han.common.web.config.UndertowConfig

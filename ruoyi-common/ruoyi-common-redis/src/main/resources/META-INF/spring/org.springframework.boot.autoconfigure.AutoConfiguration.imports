@@ -1,2 +1,2 @@
-org.dromara.common.redis.config.RedisConfig
-org.dromara.common.redis.config.CacheConfig
+com.han.common.redis.config.RedisConfig
+com.han.common.redis.config.CacheConfig
