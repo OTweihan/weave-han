@@ -49,29 +49,6 @@
         </dependency>
 
         <dependency>
-            <groupId>com.han</groupId>
-            <artifactId>han-job</artifactId>
-        </dependency>
-
-        <!-- 代码生成-->
-        <dependency>
-            <groupId>com.han</groupId>
-            <artifactId>han-generator</artifactId>
-        </dependency>
-
-        <!--  demo模块  -->
-        <dependency>
-            <groupId>com.han</groupId>
-            <artifactId>han-demo</artifactId>
-        </dependency>
-
-        <!--  工作流模块  -->
-        <dependency>
-            <groupId>com.han</groupId>
-            <artifactId>han-workflow</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>de.codecentric</groupId>
             <artifactId>spring-boot-admin-starter-client</artifactId>
         </dependency>
