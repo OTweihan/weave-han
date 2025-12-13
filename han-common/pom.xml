@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>WeaveHan</artifactId>
+        <groupId>com.han</groupId>
+        <version>${revision}</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <modules>
+        <module>han-common-bom</module>
+        <module>han-common-social</module>
+        <module>han-common-core</module>
+        <module>han-common-doc</module>
+        <module>han-common-excel</module>
+        <module>han-common-idempotent</module>
+        <module>han-common-job</module>
+        <module>han-common-log</module>
+        <module>han-common-mail</module>
+        <module>han-common-mybatis</module>
+        <module>han-common-oss</module>
+        <module>han-common-ratelimiter</module>
+        <module>han-common-redis</module>
+        <module>han-common-satoken</module>
+        <module>han-common-security</module>
+        <module>han-common-sms</module>
+        <module>han-common-web</module>
+        <module>han-common-translation</module>
+        <module>han-common-sensitive</module>
+        <module>han-common-json</module>
+        <module>han-common-encrypt</module>
+        <module>han-common-websocket</module>
+        <module>han-common-sse</module>
+    </modules>
+
+    <artifactId>han-common</artifactId>
+    <packaging>pom</packaging>
+
+    <description>
+        common 通用模块
+    </description>
+
+</project>

@@ -119,7 +119,7 @@
             <!-- common 的依赖配置-->
             <dependency>
                 <groupId>com.han</groupId>
-                <artifactId>ruoyi-common-bom</artifactId>
+                <artifactId>han-common-bom</artifactId>
                 <version>${revision}</version>
                 <type>pom</type>
                 <scope>import</scope>
@@ -326,32 +326,32 @@
 
             <dependency>
                 <groupId>com.han</groupId>
-                <artifactId>ruoyi-system</artifactId>
+                <artifactId>han-system</artifactId>
                 <version>${revision}</version>
             </dependency>
 
             <dependency>
                 <groupId>com.han</groupId>
-                <artifactId>ruoyi-job</artifactId>
+                <artifactId>han-job</artifactId>
                 <version>${revision}</version>
             </dependency>
 
             <dependency>
                 <groupId>com.han</groupId>
-                <artifactId>ruoyi-generator</artifactId>
+                <artifactId>han-generator</artifactId>
                 <version>${revision}</version>
             </dependency>
 
             <dependency>
                 <groupId>com.han</groupId>
-                <artifactId>ruoyi-demo</artifactId>
+                <artifactId>han-demo</artifactId>
                 <version>${revision}</version>
             </dependency>
 
             <!--  工作流模块  -->
             <dependency>
                 <groupId>com.han</groupId>
-                <artifactId>ruoyi-workflow</artifactId>
+                <artifactId>han-workflow</artifactId>
                 <version>${revision}</version>
             </dependency>
 
@@ -359,10 +359,10 @@
     </dependencyManagement>
 
     <modules>
-        <module>ruoyi-admin</module>
-        <module>ruoyi-common</module>
-        <module>ruoyi-extend</module>
-        <module>ruoyi-modules</module>
+        <module>han-admin</module>
+        <module>han-common</module>
+        <module>han-extend</module>
+        <module>han-modules</module>
     </modules>
     <packaging>pom</packaging>
 
