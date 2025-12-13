@@ -2,25 +2,31 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <!-- ================================ 父项目配置 ================================ -->
     <parent>
         <groupId>com.han</groupId>
         <artifactId>han-common</artifactId>
         <version>${revision}</version>
     </parent>
-    <modelVersion>4.0.0</modelVersion>
 
+    <!-- ================================ 项目基础信息 ================================ -->
+    <modelVersion>4.0.0</modelVersion>
     <artifactId>han-common-security</artifactId>
 
     <description>
-        han-common-security 安全模块
+        应用安全增强模块
+        基于Sa-Token提供应用安全控制功能，支持多租户数据隔离
+        提供数据权限控制、接口安全验证和操作审计等企业级安全特性
     </description>
 
+    <!-- ================================ 依赖配置 ================================ -->
     <dependencies>
+        <!-- ==================== 内部模块依赖 ==================== -->
+        <!-- Sa-Token认证模块 - 提供认证授权基础支持 -->
         <dependency>
             <groupId>com.han</groupId>
             <artifactId>han-common-satoken</artifactId>
         </dependency>
-
     </dependencies>
-
 </project>

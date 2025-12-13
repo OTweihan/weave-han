@@ -1,31 +1,42 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xmlns="http://maven.apache.org/POM/4.0.0"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <!-- ================================ 父项目配置 ================================ -->
     <parent>
         <groupId>com.han</groupId>
         <artifactId>han-common</artifactId>
         <version>${revision}</version>
     </parent>
-    <modelVersion>4.0.0</modelVersion>
 
+    <!-- ================================ 项目基础信息 ================================ -->
+    <modelVersion>4.0.0</modelVersion>
     <artifactId>han-common-social</artifactId>
 
     <description>
-        han-common-social 授权认证
+        社交登录集成模块
+        基于JustAuth授权框架，支持第三方社交登录功能
+        提供统一的OAuth2.0登录接口，支持多平台账号绑定和解绑
     </description>
 
+    <!-- ================================ 依赖配置 ================================ -->
     <dependencies>
+        <!-- ==================== 社交登录框架 ==================== -->
+        <!-- JustAuth授权框架 - 支持多平台第三方登录 -->
         <dependency>
             <groupId>me.zhyd.oauth</groupId>
             <artifactId>JustAuth</artifactId>
         </dependency>
 
+        <!-- ==================== 内部模块依赖 ==================== -->
+        <!-- JSON处理模块 - 处理第三方平台用户信息 -->
         <dependency>
             <groupId>com.han</groupId>
             <artifactId>han-common-json</artifactId>
         </dependency>
 
+        <!-- Redis缓存模块 - 存储OAuth授权状态 -->
         <dependency>
             <groupId>com.han</groupId>
             <artifactId>han-common-redis</artifactId>

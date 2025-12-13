@@ -2,44 +2,84 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <!-- ================================ 父项目配置 ================================ -->
     <parent>
         <artifactId>WeaveHan</artifactId>
         <groupId>com.han</groupId>
         <version>${revision}</version>
     </parent>
+
+    <!-- ================================ 项目基础信息 ================================ -->
     <modelVersion>4.0.0</modelVersion>
-
-    <modules>
-        <module>han-common-bom</module>
-        <module>han-common-social</module>
-        <module>han-common-core</module>
-        <module>han-common-doc</module>
-        <module>han-common-excel</module>
-        <module>han-common-idempotent</module>
-        <module>han-common-job</module>
-        <module>han-common-log</module>
-        <module>han-common-mail</module>
-        <module>han-common-mybatis</module>
-        <module>han-common-oss</module>
-        <module>han-common-ratelimiter</module>
-        <module>han-common-redis</module>
-        <module>han-common-satoken</module>
-        <module>han-common-security</module>
-        <module>han-common-sms</module>
-        <module>han-common-web</module>
-        <module>han-common-translation</module>
-        <module>han-common-sensitive</module>
-        <module>han-common-json</module>
-        <module>han-common-encrypt</module>
-        <module>han-common-websocket</module>
-        <module>han-common-sse</module>
-    </modules>
-
     <artifactId>han-common</artifactId>
     <packaging>pom</packaging>
 
     <description>
-        common 通用模块
+        公共模块父模块 - 统一管理所有公共子模块
+        包含系统所需的各种通用功能组件，如核心工具、安全认证、数据库操作、文件处理等
     </description>
 
+    <!-- ================================ 子模块配置 ================================ -->
+    <modules>
+        <!-- ==================== 基础配置模块 ==================== -->
+        <!-- BOM依赖管理模块 - 统一管理公共模块版本 -->
+        <module>han-common-bom</module>
+
+        <!-- ==================== 核心功能模块 ==================== -->
+        <!-- 核心工具模块 - 提供基础工具类和常量定义 -->
+        <module>han-common-core</module>
+        <!-- Web框架模块 - Web相关配置和工具 -->
+        <module>han-common-web</module>
+        <!-- MyBatis增强模块 - 数据库操作增强 -->
+        <module>han-common-mybatis</module>
+        <!-- Redis缓存模块 - Redis操作和缓存管理 -->
+        <module>han-common-redis</module>
+
+        <!-- ==================== 安全与认证模块 ==================== -->
+        <!-- Sa-Token权限模块 - 基于Sa-Token的权限认证 -->
+        <module>han-common-satoken</module>
+        <!-- 安全模块 - 加密解密等安全相关功能 -->
+        <module>han-common-security</module>
+        <!-- 加密模块 - 数据加密和解密功能 -->
+        <module>han-common-encrypt</module>
+
+        <!-- ==================== 文件与数据处理 ==================== -->
+        <!-- OSS对象存储模块 - 文件上传下载 -->
+        <module>han-common-oss</module>
+        <!-- Excel处理模块 - Excel导入导出 -->
+        <module>han-common-excel</module>
+        <!-- JSON处理模块 - JSON序列化和反序列化 -->
+        <module>han-common-json</module>
+
+        <!-- ==================== 业务功能模块 ==================== -->
+        <!-- 社交登录模块 - 第三方登录集成 -->
+        <module>han-common-social</module>
+        <!-- 邮件服务模块 - 邮件发送功能 -->
+        <module>han-common-mail</module>
+        <!-- 短信服务模块 - 短信发送功能 -->
+        <module>han-common-sms</module>
+        <!-- 任务调度模块 - 定时任务和异步任务 -->
+        <module>han-common-job</module>
+        <!-- 日志模块 - 日志记录和管理 -->
+        <module>han-common-log</module>
+
+        <!-- ==================== 接口增强模块 ==================== -->
+        <!-- API文档模块 - 接口文档生成和展示 -->
+        <module>han-common-doc</module>
+        <!-- 限流模块 - 接口访问频率限制 -->
+        <module>han-common-ratelimiter</module>
+        <!-- 幂等模块 - 防止重复提交 -->
+        <module>han-common-idempotent</module>
+
+        <!-- ==================== 高级功能模块 ==================== -->
+        <!-- 翻译模块 - 多语言翻译支持 -->
+        <module>han-common-translation</module>
+        <!-- 敏感词模块 - 敏感词过滤 -->
+        <module>han-common-sensitive</module>
+        <!-- WebSocket模块 - WebSocket实时通信 -->
+        <module>han-common-websocket</module>
+        <!-- SSE模块 - 服务端推送事件 -->
+        <module>han-common-sse</module>
+    </modules>
 </project>

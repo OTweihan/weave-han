@@ -2,51 +2,63 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <!-- ================================ 父项目配置 ================================ -->
     <parent>
         <groupId>com.han</groupId>
         <artifactId>han-common</artifactId>
         <version>${revision}</version>
     </parent>
-    <modelVersion>4.0.0</modelVersion>
 
+    <!-- ================================ 项目基础信息 ================================ -->
+    <modelVersion>4.0.0</modelVersion>
     <artifactId>han-common-mybatis</artifactId>
 
     <description>
-        han-common-mybatis 数据库服务
+        数据库服务模块 - 提供数据库操作的基础功能和增强
+        基于MyBatis Plus框架，支持动态数据源、分页查询、性能分析等
+        提供数据权限控制、多租户支持等企业级功能
     </description>
 
+    <!-- ================================ 依赖配置 ================================ -->
     <dependencies>
+        <!-- ==================== 内部模块依赖 ==================== -->
+        <!-- 核心模块 - 提供基础工具类和异常处理 -->
         <dependency>
             <groupId>com.han</groupId>
             <artifactId>han-common-core</artifactId>
         </dependency>
 
+        <!-- Sa-Token权限模块 - 提供数据权限控制支持 -->
         <dependency>
             <groupId>com.han</groupId>
             <artifactId>han-common-satoken</artifactId>
         </dependency>
 
-        <!-- dynamic-datasource 多数据源-->
+        <!-- ==================== MyBatis Plus框架 ==================== -->
+        <!-- 动态数据源 - 支持多数据源的动态切换和路由 -->
         <dependency>
             <groupId>com.baomidou</groupId>
             <artifactId>dynamic-datasource-spring-boot3-starter</artifactId>
         </dependency>
 
+        <!-- MyBatis Plus核心 - 提供增强的MyBatis功能，如分页、条件构造器等 -->
         <dependency>
             <groupId>com.baomidou</groupId>
             <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
         </dependency>
 
+        <!-- MyBatis Plus SQL解析器 - 提供SQL解析功能，支持分页方言等 -->
         <dependency>
             <groupId>com.baomidou</groupId>
             <artifactId>mybatis-plus-jsqlparser</artifactId>
         </dependency>
 
-        <!-- sql性能分析插件 -->
+        <!-- ==================== SQL性能监控 ==================== -->
+        <!-- P6Spy - SQL性能分析插件，监控SQL执行情况 -->
         <dependency>
             <groupId>p6spy</groupId>
             <artifactId>p6spy</artifactId>
         </dependency>
     </dependencies>
-
 </project>

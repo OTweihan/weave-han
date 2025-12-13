@@ -2,18 +2,31 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <!-- ================================ 父项目配置 ================================ -->
     <parent>
         <artifactId>WeaveHan</artifactId>
         <groupId>com.han</groupId>
         <version>${revision}</version>
     </parent>
+
+    <!-- ================================ 项目基础信息 ================================ -->
     <modelVersion>4.0.0</modelVersion>
     <artifactId>han-extend</artifactId>
     <packaging>pom</packaging>
 
+    <description>
+        扩展模块父模块 - 管理项目扩展功能
+        包含监控管理、任务调度等服务端应用
+        提供独立部署的服务，支持系统的高级功能需求
+    </description>
+
+    <!-- ================================ 子模块配置 ================================ -->
     <modules>
+        <!-- 监控管理服务端 - Spring Boot Admin服务端应用 -->
         <module>han-monitor-admin</module>
+
+        <!-- 任务调度服务端 - SnailJob分布式任务调度服务端 -->
         <module>han-snailjob-server</module>
     </modules>
-
 </project>

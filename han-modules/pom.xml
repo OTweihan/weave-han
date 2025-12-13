@@ -2,22 +2,28 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <!-- ================================ 父项目配置 ================================ -->
     <parent>
         <artifactId>WeaveHan</artifactId>
         <groupId>com.han</groupId>
         <version>${revision}</version>
     </parent>
+
+    <!-- ================================ 项目基础信息 ================================ -->
     <modelVersion>4.0.0</modelVersion>
-
-    <modules>
-        <module>han-system</module>
-    </modules>
-
     <artifactId>han-modules</artifactId>
     <packaging>pom</packaging>
 
     <description>
-        han-modules 业务模块
+        业务模块父模块 - 管理系统核心业务功能
+        包含系统管理、业务处理、接口服务等核心业务模块
+        实现系统的具体业务逻辑和功能实现
     </description>
 
+    <!-- ================================ 子模块配置 ================================ -->
+    <modules>
+        <!-- 系统核心模块 - 系统管理、权限控制、用户管理等核心功能 -->
+        <module>han-system</module>
+    </modules>
 </project>

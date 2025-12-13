@@ -2,49 +2,69 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <!-- ================================ 父项目配置 ================================ -->
     <parent>
         <artifactId>han-extend</artifactId>
         <groupId>com.han</groupId>
         <version>${revision}</version>
     </parent>
-    <modelVersion>4.0.0</modelVersion>
-    <packaging>jar</packaging>
-    <artifactId>han-monitor-admin</artifactId>
 
+    <!-- ================================ 项目基础信息 ================================ -->
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>han-monitor-admin</artifactId>
+    <packaging>jar</packaging>
+
+    <description>
+        监控管理服务端 - Spring Boot Admin服务端应用
+        用于监控和管理所有微服务实例的健康状况、性能指标、日志等
+        提供集中化的监控管理界面，支持服务注册发现、实时监控告警
+    </description>
+
+    <!-- ================================ 依赖配置 ================================ -->
     <dependencies>
-        <!-- SpringBoot Web容器 -->
+        <!-- ==================== Spring Boot Web组件 ==================== -->
+        <!-- Spring Boot Web启动器 - 提供Web应用基础功能 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
             <exclusions>
+                <!-- 排除默认的Tomcat容器，改用Undertow -->
                 <exclusion>
                     <artifactId>spring-boot-starter-tomcat</artifactId>
                     <groupId>org.springframework.boot</groupId>
                 </exclusion>
             </exclusions>
         </dependency>
-        <!-- web 容器使用 undertow 性能更强 -->
+
+        <!-- Undertow Web容器 - 高性能的NIO Web容器 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-undertow</artifactId>
         </dependency>
 
-        <!-- spring security 安全认证 -->
+        <!-- ==================== 安全认证组件 ==================== -->
+        <!-- Spring Security - 提供安全认证和授权功能 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
 
+        <!-- ==================== Spring Boot Admin组件 ==================== -->
+        <!-- Spring Boot Admin服务端 - 提供监控管理服务端功能 -->
         <dependency>
             <groupId>de.codecentric</groupId>
             <artifactId>spring-boot-admin-starter-server</artifactId>
         </dependency>
 
+        <!-- Spring Boot Admin客户端 - 自身监控支持 -->
         <dependency>
             <groupId>de.codecentric</groupId>
             <artifactId>spring-boot-admin-starter-client</artifactId>
         </dependency>
 
+        <!-- ==================== 开发工具 ==================== -->
+        <!-- Lombok - 简化Java代码编写 -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
@@ -52,14 +72,20 @@
 
     </dependencies>
 
+    <!-- ================================ 构建配置 ================================ -->
     <build>
+        <!-- 定义最终输出的文件名 -->
         <finalName>${project.artifactId}</finalName>
+
+        <!-- Maven插件配置 -->
         <plugins>
+            <!-- Spring Boot打包插件 - 创建可执行的JAR包 -->
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <version>${spring-boot.version}</version>
                 <executions>
+                    <!-- 执行repackage目标，将依赖打包进去 -->
                     <execution>
                         <goals>
                             <goal>repackage</goal>
@@ -69,5 +95,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>

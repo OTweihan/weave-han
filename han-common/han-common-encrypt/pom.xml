@@ -2,53 +2,67 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <!-- ================================ 父项目配置 ================================ -->
     <parent>
         <groupId>com.han</groupId>
         <artifactId>han-common</artifactId>
         <version>${revision}</version>
     </parent>
-    <modelVersion>4.0.0</modelVersion>
 
+    <!-- ================================ 项目基础信息 ================================ -->
+    <modelVersion>4.0.0</modelVersion>
     <artifactId>han-common-encrypt</artifactId>
 
     <description>
-        han-common-encrypt 数据加解密模块
+        数据加解密模块 - 提供全面的数据加密和解密功能
+        支持对称加密、非对称加密、摘要算法、数据库字段透明加密等
+        用于保护敏感数据，确保数据传输和存储的安全性
     </description>
 
+    <!-- ================================ 依赖配置 ================================ -->
     <dependencies>
-
+        <!-- ==================== 内部模块依赖 ==================== -->
+        <!-- 核心模块 - 提供基础工具类和常量定义 -->
         <dependency>
             <groupId>com.han</groupId>
             <artifactId>han-common-core</artifactId>
         </dependency>
 
+        <!-- ==================== 加密算法库 ==================== -->
+        <!-- BouncyCastle加密库 - 提供全面的加密算法实现，支持各种加密标准和协议 -->
         <dependency>
             <groupId>org.bouncycastle</groupId>
             <artifactId>bcprov-jdk15to18</artifactId>
         </dependency>
 
+        <!-- ==================== 加密工具集 ==================== -->
+        <!-- Hutool加密模块 - 简化加密操作的工具类，提供常用加密算法的封装 -->
         <dependency>
             <groupId>cn.hutool</groupId>
             <artifactId>hutool-crypto</artifactId>
         </dependency>
 
+        <!-- ==================== Web框架支持 ==================== -->
+        <!-- Spring WebMVC - 提供Web层的加密拦截器和处理器支持 -->
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-webmvc</artifactId>
         </dependency>
 
+        <!-- ==================== 数据库集成（可选） ==================== -->
+        <!-- MyBatis Plus - 用于数据库字段透明的加密解密处理（可选依赖） -->
         <dependency>
             <groupId>com.baomidou</groupId>
             <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
             <optional>true</optional>
             <exclusions>
+                <!-- 排除mybatis-spring，避免版本冲突 -->
                 <exclusion>
                     <groupId>org.mybatis</groupId>
                     <artifactId>mybatis-spring</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
-
     </dependencies>
-
 </project>

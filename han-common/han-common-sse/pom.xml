@@ -2,32 +2,46 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <!-- ================================ 父项目配置 ================================ -->
     <parent>
         <groupId>com.han</groupId>
         <artifactId>han-common</artifactId>
         <version>${revision}</version>
     </parent>
-    <modelVersion>4.0.0</modelVersion>
 
+    <!-- ================================ 项目基础信息 ================================ -->
+    <modelVersion>4.0.0</modelVersion>
     <artifactId>han-common-sse</artifactId>
 
     <description>
-        han-common-sse 模块
+        服务端推送事件模块
+        基于SSE（Server-Sent Events）实现服务端主动推送功能
+        支持实时数据流传输、事件订阅发布和分布式事件广播
     </description>
 
+    <!-- ================================ 依赖配置 ================================ -->
     <dependencies>
+        <!-- ==================== 内部模块依赖 ==================== -->
+        <!-- 核心工具模块 - 提供基础工具类和常量定义 -->
         <dependency>
             <groupId>com.han</groupId>
             <artifactId>han-common-core</artifactId>
         </dependency>
+
+        <!-- Redis缓存模块 - 用于SSE事件的分布式广播 -->
         <dependency>
             <groupId>com.han</groupId>
             <artifactId>han-common-redis</artifactId>
         </dependency>
+
+        <!-- Sa-Token认证模块 - 用于SSE连接的用户身份验证 -->
         <dependency>
             <groupId>com.han</groupId>
             <artifactId>han-common-satoken</artifactId>
         </dependency>
+
+        <!-- JSON处理模块 - 用于SSE消息的JSON格式化 -->
         <dependency>
             <groupId>com.han</groupId>
             <artifactId>han-common-json</artifactId>

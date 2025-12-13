@@ -2,56 +2,70 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <!-- ================================ 父项目配置 ================================ -->
     <parent>
         <groupId>com.han</groupId>
         <artifactId>han-common</artifactId>
         <version>${revision}</version>
     </parent>
-    <modelVersion>4.0.0</modelVersion>
 
+    <!-- ================================ 项目基础信息 ================================ -->
+    <modelVersion>4.0.0</modelVersion>
     <artifactId>han-common-web</artifactId>
 
     <description>
-        han-common-web web服务
+        Web服务模块 - 提供Web应用的基础功能和配置
+        包含Web服务器配置、拦截器、过滤器、异常处理等Web层核心功能
+        使用Undertow作为Web容器以获得更好的性能
     </description>
 
+    <!-- ================================ 依赖配置 ================================ -->
     <dependencies>
+        <!-- ==================== 内部模块依赖 ==================== -->
+        <!-- JSON处理模块 - 提供JSON序列化和反序列化支持 -->
         <dependency>
             <groupId>com.han</groupId>
             <artifactId>han-common-json</artifactId>
         </dependency>
 
-        <!-- SpringBoot Web容器 -->
+        <!-- ==================== Spring Boot Web组件 ==================== -->
+        <!-- Spring Boot Web启动器 - 提供Web应用开发的基础功能 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
             <exclusions>
+                <!-- 排除默认的Tomcat容器，改用Undertow -->
                 <exclusion>
                     <artifactId>spring-boot-starter-tomcat</artifactId>
                     <groupId>org.springframework.boot</groupId>
                 </exclusion>
             </exclusions>
         </dependency>
-        <!-- web 容器使用 undertow 性能更强 -->
+
+        <!-- Undertow Web容器 - 高性能的NIO Web容器，性能优于Tomcat -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-undertow</artifactId>
         </dependency>
 
+        <!-- Spring Boot Actuator - 提供应用监控和管理端点 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
 
+        <!-- ==================== 工具库 ==================== -->
+        <!-- Hutool验证码模块 - 提供图形验证码、算术验证码等功能 -->
         <dependency>
             <groupId>cn.hutool</groupId>
             <artifactId>hutool-captcha</artifactId>
         </dependency>
 
+        <!-- Hutool加密模块 - 提供加密解密工具，支持密码加密、签名等 -->
         <dependency>
             <groupId>cn.hutool</groupId>
             <artifactId>hutool-crypto</artifactId>
         </dependency>
     </dependencies>
-
 </project>

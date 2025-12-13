@@ -2,40 +2,50 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <!-- ================================ 父项目配置 ================================ -->
     <parent>
         <groupId>com.han</groupId>
         <artifactId>han-common</artifactId>
         <version>${revision}</version>
     </parent>
-    <modelVersion>4.0.0</modelVersion>
 
+    <!-- ================================ 项目基础信息 ================================ -->
+    <modelVersion>4.0.0</modelVersion>
     <artifactId>han-common-idempotent</artifactId>
 
     <description>
-        han-common-idempotent 幂等功能
+        接口幂等性控制模块
+        防止接口重复提交，保证业务操作的幂等性
+        支持基于Redis的分布式幂等控制和多种幂等策略
     </description>
 
+    <!-- ================================ 依赖配置 ================================ -->
     <dependencies>
+        <!-- ==================== 内部模块依赖 ==================== -->
+        <!-- JSON处理模块 - 支持幂等key的序列化存储 -->
         <dependency>
             <groupId>com.han</groupId>
             <artifactId>han-common-json</artifactId>
         </dependency>
 
+        <!-- Redis缓存模块 - 用于幂等token的存储和校验 -->
         <dependency>
             <groupId>com.han</groupId>
             <artifactId>han-common-redis</artifactId>
         </dependency>
 
+        <!-- ==================== 第三方依赖 ==================== -->
+        <!-- Hutool加密工具包 - 用于生成请求参数的摘要签名 -->
         <dependency>
             <groupId>cn.hutool</groupId>
             <artifactId>hutool-crypto</artifactId>
         </dependency>
 
+        <!-- Sa-Token核心模块 - 获取当前登录用户信息 -->
         <dependency>
             <groupId>cn.dev33</groupId>
             <artifactId>sa-token-core</artifactId>
         </dependency>
-
     </dependencies>
-
 </project>

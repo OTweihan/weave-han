@@ -2,46 +2,54 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <!-- ================================ 父项目配置 ================================ -->
     <parent>
         <groupId>com.han</groupId>
         <artifactId>han-common</artifactId>
         <version>${revision}</version>
     </parent>
-    <modelVersion>4.0.0</modelVersion>
 
+    <!-- ================================ 项目基础信息 ================================ -->
+    <modelVersion>4.0.0</modelVersion>
     <artifactId>han-common-oss</artifactId>
 
     <description>
-        han-common-oss oss服务
+        对象存储服务模块
+        基于AWS S3 SDK提供统一的对象存储接口，兼容主流云存储服务
+        支持大文件分片上传、断点续传、预签名URL等企业级功能
     </description>
 
+    <!-- ================================ 依赖配置 ================================ -->
     <dependencies>
+        <!-- ==================== 内部模块依赖 ==================== -->
+        <!-- JSON处理模块 - 支持文件元数据的JSON存储 -->
         <dependency>
             <groupId>com.han</groupId>
             <artifactId>han-common-json</artifactId>
         </dependency>
 
+        <!-- Redis缓存模块 - 用于缓存文件访问权限 -->
         <dependency>
             <groupId>com.han</groupId>
             <artifactId>han-common-redis</artifactId>
         </dependency>
 
-        <!--  AWS SDK for Java 2.x  -->
+        <!-- ==================== AWS SDK依赖 ==================== -->
+        <!-- AWS S3 SDK核心模块 - 提供S3协议的对象存储接口 -->
         <dependency>
             <groupId>software.amazon.awssdk</groupId>
             <artifactId>s3</artifactId>
             <exclusions>
-                <!-- 将基于 CRT 的 HTTP 客户端从类路径中移除 -->
+                <!-- 排除不必要的客户端，使用Netty客户端 -->
                 <exclusion>
                     <groupId>software.amazon.awssdk</groupId>
                     <artifactId>aws-crt-client</artifactId>
                 </exclusion>
-                <!-- 将基于 Apache 的 HTTP 客户端从类路径中移除 -->
                 <exclusion>
                     <groupId>software.amazon.awssdk</groupId>
                     <artifactId>apache-client</artifactId>
                 </exclusion>
-                <!-- 将配置基于 URL 连接的 HTTP 客户端从类路径中移除 -->
                 <exclusion>
                     <groupId>software.amazon.awssdk</groupId>
                     <artifactId>url-connection-client</artifactId>
@@ -49,18 +57,16 @@
             </exclusions>
         </dependency>
 
-        <!-- 将基于 Netty 的 HTTP 客户端从类路径中移除 -->
+        <!-- AWS Netty NIO客户端 - 提供高性能异步HTTP客户端 -->
         <dependency>
             <groupId>software.amazon.awssdk</groupId>
             <artifactId>netty-nio-client</artifactId>
         </dependency>
 
-        <!-- 基于 AWS CRT 的 S3 客户端的性能增强的 S3 传输管理器 -->
+        <!-- AWS S3传输管理器 - 支持大文件分片和断点续传 -->
         <dependency>
             <groupId>software.amazon.awssdk</groupId>
             <artifactId>s3-transfer-manager</artifactId>
         </dependency>
-
     </dependencies>
-
 </project>

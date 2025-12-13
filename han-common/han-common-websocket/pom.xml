@@ -2,40 +2,58 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <!-- ================================ 父项目配置 ================================ -->
     <parent>
         <groupId>com.han</groupId>
         <artifactId>han-common</artifactId>
         <version>${revision}</version>
     </parent>
-    <modelVersion>4.0.0</modelVersion>
 
+    <!-- ================================ 项目基础信息 ================================ -->
+    <modelVersion>4.0.0</modelVersion>
     <artifactId>han-common-websocket</artifactId>
 
     <description>
-        han-common-websocket 模块
+        WebSocket实时通信模块
+        基于Spring Boot WebSocket实现双向实时通信功能
+        支持连接管理、消息广播、权限控制和集群部署
     </description>
 
+    <!-- ================================ 依赖配置 ================================ -->
     <dependencies>
+        <!-- ==================== 内部模块依赖 ==================== -->
+        <!-- 核心工具模块 - 提供基础工具类和常量定义 -->
         <dependency>
             <groupId>com.han</groupId>
             <artifactId>han-common-core</artifactId>
         </dependency>
+
+        <!-- Redis缓存模块 - 用于WebSocket消息的分布式广播 -->
         <dependency>
             <groupId>com.han</groupId>
             <artifactId>han-common-redis</artifactId>
         </dependency>
+
+        <!-- Sa-Token认证模块 - 用于WebSocket连接的用户身份验证 -->
         <dependency>
             <groupId>com.han</groupId>
             <artifactId>han-common-satoken</artifactId>
         </dependency>
+
+        <!-- JSON处理模块 - 用于WebSocket消息的JSON格式化 -->
         <dependency>
             <groupId>com.han</groupId>
             <artifactId>han-common-json</artifactId>
         </dependency>
+
+        <!-- ==================== Spring WebSocket框架 ==================== -->
+        <!-- Spring Boot WebSocket启动器 - 提供WebSocket服务端支持 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-websocket</artifactId>
             <exclusions>
+                <!-- 排除内置Tomcat，使用外部容器 -->
                 <exclusion>
                     <groupId>org.springframework.boot</groupId>
                     <artifactId>spring-boot-starter-tomcat</artifactId>

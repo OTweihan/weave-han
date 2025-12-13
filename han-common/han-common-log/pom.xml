@@ -2,31 +2,37 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <!-- ================================ 父项目配置 ================================ -->
     <parent>
         <groupId>com.han</groupId>
         <artifactId>han-common</artifactId>
         <version>${revision}</version>
     </parent>
-    <modelVersion>4.0.0</modelVersion>
 
+    <!-- ================================ 项目基础信息 ================================ -->
+    <modelVersion>4.0.0</modelVersion>
     <artifactId>han-common-log</artifactId>
 
     <description>
-        han-common-log 日志记录
+        增强日志记录模块
+        提供统一的日志记录接口，支持操作日志、审计日志、用户行为追踪
+        集成用户上下文信息，支持日志结构化存储和敏感信息脱敏
     </description>
 
+    <!-- ================================ 依赖配置 ================================ -->
     <dependencies>
-
+        <!-- ==================== 内部模块依赖 ==================== -->
+        <!-- Sa-Token认证模块 - 提供用户上下文获取功能 -->
         <dependency>
             <groupId>com.han</groupId>
             <artifactId>han-common-satoken</artifactId>
         </dependency>
 
+        <!-- JSON处理模块 - 支持日志数据结构化处理 -->
         <dependency>
             <groupId>com.han</groupId>
             <artifactId>han-common-json</artifactId>
         </dependency>
-
     </dependencies>
-
 </project>

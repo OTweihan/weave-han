@@ -2,21 +2,35 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <!-- ================================ 父项目配置 ================================ -->
     <parent>
         <groupId>com.han</groupId>
         <artifactId>han-extend</artifactId>
         <version>${revision}</version>
     </parent>
-    <modelVersion>4.0.0</modelVersion>
-    <packaging>jar</packaging>
-    <artifactId>han-snailjob-server</artifactId>
 
+    <!-- ================================ 项目基础信息 ================================ -->
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>han-snailjob-server</artifactId>
+    <packaging>jar</packaging>
+
+    <description>
+        任务调度服务端 - SnailJob分布式任务调度服务端
+        提供分布式任务调度、执行、监控、告警等功能
+        支持定时任务、延时任务、依赖任务等多种任务类型
+    </description>
+
+    <!-- ================================ 依赖配置 ================================ -->
     <dependencies>
+        <!-- ==================== SnailJob任务调度框架 ==================== -->
+        <!-- SnailJob服务端启动器 - 提供任务调度服务端核心功能 -->
         <dependency>
             <groupId>com.aizuda</groupId>
             <artifactId>snail-job-server-starter</artifactId>
             <version>${snailjob.version}</version>
             <exclusions>
+                <!-- 排除默认的Scala库，使用指定版本 -->
                 <exclusion>
                     <groupId>org.scala-lang</groupId>
                     <artifactId>scala-library</artifactId>
@@ -24,27 +38,37 @@
             </exclusions>
         </dependency>
 
+        <!-- Scala语言库 - SnailJob框架依赖的Scala运行时 -->
         <dependency>
             <groupId>org.scala-lang</groupId>
             <artifactId>scala-library</artifactId>
             <version>2.13.9</version>
         </dependency>
 
+        <!-- ==================== 监控管理 ==================== -->
+        <!-- Spring Boot Admin客户端 - 支持监控管理 -->
         <dependency>
             <groupId>de.codecentric</groupId>
             <artifactId>spring-boot-admin-starter-client</artifactId>
             <version>${spring-boot-admin.version}</version>
         </dependency>
+
     </dependencies>
 
+    <!-- ================================ 构建配置 ================================ -->
     <build>
+        <!-- 定义最终输出的文件名 -->
         <finalName>${project.artifactId}</finalName>
+
+        <!-- Maven插件配置 -->
         <plugins>
+            <!-- Spring Boot打包插件 - 创建可执行的JAR包 -->
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <version>${spring-boot.version}</version>
                 <executions>
+                    <!-- 执行repackage目标，将依赖打包进去 -->
                     <execution>
                         <goals>
                             <goal>repackage</goal>
@@ -54,5 +78,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>

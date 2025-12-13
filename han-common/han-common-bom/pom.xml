@@ -2,177 +2,196 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
 
+    <!-- ================================ 项目基础信息 ================================ -->
+    <modelVersion>4.0.0</modelVersion>
     <groupId>com.han</groupId>
     <artifactId>han-common-bom</artifactId>
     <version>${revision}</version>
     <packaging>pom</packaging>
 
     <description>
-        han-common-bom common依赖项
+        公共模块BOM（Bill of Materials）
+        统一管理所有han-common子模块的版本，确保依赖版本的一致性
+        使用方只需要引入此BOM，即可省去版本号的配置
     </description>
 
+    <!-- ================================ 属性配置 ================================ -->
     <properties>
+        <!-- 继承父项目的版本号 -->
         <revision>5.5.1</revision>
     </properties>
 
+    <!-- ================================ 依赖版本管理 ================================ -->
+    <!--
+        BOM的作用：提供一个中心化的依赖版本管理地方
+        优点：
+        1. 统一版本管理，避免版本冲突
+        2. 简化子模块的依赖配置，无需指定版本
+        3. 方便批量升级版本
+    -->
     <dependencyManagement>
         <dependencies>
-            <!-- 核心模块 -->
+            <!-- ==================== 基础核心模块 ==================== -->
+            <!-- 核心模块 - 提供基础工具类、常量定义、异常处理等 -->
             <dependency>
                 <groupId>com.han</groupId>
                 <artifactId>han-common-core</artifactId>
                 <version>${revision}</version>
             </dependency>
 
-            <!-- 接口模块 -->
-            <dependency>
-                <groupId>com.han</groupId>
-                <artifactId>han-common-doc</artifactId>
-                <version>${revision}</version>
-            </dependency>
-
-            <!-- excel -->
-            <dependency>
-                <groupId>com.han</groupId>
-                <artifactId>han-common-excel</artifactId>
-                <version>${revision}</version>
-            </dependency>
-
-            <!-- 幂等 -->
-            <dependency>
-                <groupId>com.han</groupId>
-                <artifactId>han-common-idempotent</artifactId>
-                <version>${revision}</version>
-            </dependency>
-
-            <!-- 调度模块 -->
-            <dependency>
-                <groupId>com.han</groupId>
-                <artifactId>han-common-job</artifactId>
-                <version>${revision}</version>
-            </dependency>
-
-            <!-- 日志记录 -->
-            <dependency>
-                <groupId>com.han</groupId>
-                <artifactId>han-common-log</artifactId>
-                <version>${revision}</version>
-            </dependency>
-
-            <!-- 邮件服务 -->
-            <dependency>
-                <groupId>com.han</groupId>
-                <artifactId>han-common-mail</artifactId>
-                <version>${revision}</version>
-            </dependency>
-
-            <!-- 数据库服务 -->
-            <dependency>
-                <groupId>com.han</groupId>
-                <artifactId>han-common-mybatis</artifactId>
-                <version>${revision}</version>
-            </dependency>
-
-            <!-- OSS -->
-            <dependency>
-                <groupId>com.han</groupId>
-                <artifactId>han-common-oss</artifactId>
-                <version>${revision}</version>
-            </dependency>
-
-            <!-- 限流 -->
-            <dependency>
-                <groupId>com.han</groupId>
-                <artifactId>han-common-ratelimiter</artifactId>
-                <version>${revision}</version>
-            </dependency>
-
-            <!-- 缓存服务 -->
-            <dependency>
-                <groupId>com.han</groupId>
-                <artifactId>han-common-redis</artifactId>
-                <version>${revision}</version>
-            </dependency>
-
-            <!-- satoken -->
-            <dependency>
-                <groupId>com.han</groupId>
-                <artifactId>han-common-satoken</artifactId>
-                <version>${revision}</version>
-            </dependency>
-
-            <!-- 安全模块 -->
-            <dependency>
-                <groupId>com.han</groupId>
-                <artifactId>han-common-security</artifactId>
-                <version>${revision}</version>
-            </dependency>
-
-            <!-- 短信模块 -->
-            <dependency>
-                <groupId>com.han</groupId>
-                <artifactId>han-common-sms</artifactId>
-                <version>${revision}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.han</groupId>
-                <artifactId>han-common-social</artifactId>
-                <version>${revision}</version>
-            </dependency>
-
-            <!-- web服务 -->
+            <!-- Web服务模块 - Web相关配置、拦截器、过滤器等 -->
             <dependency>
                 <groupId>com.han</groupId>
                 <artifactId>han-common-web</artifactId>
                 <version>${revision}</version>
             </dependency>
 
-            <!-- 翻译模块 -->
+            <!-- ==================== 数据库与缓存模块 ==================== -->
+            <!-- MyBatis增强模块 - 数据库操作增强、分页、动态数据源等 -->
             <dependency>
                 <groupId>com.han</groupId>
-                <artifactId>han-common-translation</artifactId>
+                <artifactId>han-common-mybatis</artifactId>
                 <version>${revision}</version>
             </dependency>
 
-            <!-- 脱敏模块 -->
+            <!-- Redis缓存模块 - Redis操作工具、缓存注解、分布式锁等 -->
             <dependency>
                 <groupId>com.han</groupId>
-                <artifactId>han-common-sensitive</artifactId>
+                <artifactId>han-common-redis</artifactId>
                 <version>${revision}</version>
             </dependency>
 
-            <!-- 序列化模块 -->
+            <!-- ==================== 安全与认证模块 ==================== -->
+            <!-- Sa-Token权限模块 - 基于Sa-Token的权限认证、会话管理 -->
             <dependency>
                 <groupId>com.han</groupId>
-                <artifactId>han-common-json</artifactId>
+                <artifactId>han-common-satoken</artifactId>
                 <version>${revision}</version>
             </dependency>
 
-            <!-- 数据库加解密模块 -->
+            <!-- 安全模块 - 数据脱敏、密码加密、接口签名等 -->
+            <dependency>
+                <groupId>com.han</groupId>
+                <artifactId>han-common-security</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
+            <!-- 数据库加解密模块 - 敏感数据存储加密、透明加解密 -->
             <dependency>
                 <groupId>com.han</groupId>
                 <artifactId>han-common-encrypt</artifactId>
                 <version>${revision}</version>
             </dependency>
 
-            <!-- WebSocket模块 -->
+            <!-- ==================== 文件与数据处理模块 ==================== -->
+            <!-- Excel处理模块 - Excel导入导出、大数据量处理 -->
+            <dependency>
+                <groupId>com.han</groupId>
+                <artifactId>han-common-excel</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
+            <!-- JSON处理模块 - JSON序列化、反序列化、格式化 -->
+            <dependency>
+                <groupId>com.han</groupId>
+                <artifactId>han-common-json</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
+            <!-- OSS对象存储模块 - 文件上传下载、云存储集成 -->
+            <dependency>
+                <groupId>com.han</groupId>
+                <artifactId>han-common-oss</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
+            <!-- ==================== 业务功能模块 ==================== -->
+            <!-- 社交登录模块 - 第三方登录（QQ、微信、GitHub等） -->
+            <dependency>
+                <groupId>com.han</groupId>
+                <artifactId>han-common-social</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
+            <!-- 邮件服务模块 - 邮件发送、模板邮件、异步发送 -->
+            <dependency>
+                <groupId>com.han</groupId>
+                <artifactId>han-common-mail</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
+            <!-- 短信服务模块 - 短信发送、验证码、短信模板 -->
+            <dependency>
+                <groupId>com.han</groupId>
+                <artifactId>han-common-sms</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
+            <!-- 任务调度模块 - 定时任务、异步任务、分布式任务 -->
+            <dependency>
+                <groupId>com.han</groupId>
+                <artifactId>han-common-job</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
+            <!-- 日志记录模块 - 操作日志、异常日志、审计日志 -->
+            <dependency>
+                <groupId>com.han</groupId>
+                <artifactId>han-common-log</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
+            <!-- ==================== 接口增强模块 ==================== -->
+            <!-- API文档模块 - Swagger文档生成、接口测试 -->
+            <dependency>
+                <groupId>com.han</groupId>
+                <artifactId>han-common-doc</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
+            <!-- 限流模块 - 接口访问频率限制、分布式限流 -->
+            <dependency>
+                <groupId>com.han</groupId>
+                <artifactId>han-common-ratelimiter</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
+            <!-- 幂等模块 - 防止重复提交、接口幂等保证 -->
+            <dependency>
+                <groupId>com.han</groupId>
+                <artifactId>han-common-idempotent</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
+            <!-- ==================== 高级功能模块 ==================== -->
+            <!-- 翻译模块 - 多语言翻译、国际化支持 -->
+            <dependency>
+                <groupId>com.han</groupId>
+                <artifactId>han-common-translation</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
+            <!-- 脱敏模块 - 敏感信息脱敏、数据隐私保护 -->
+            <dependency>
+                <groupId>com.han</groupId>
+                <artifactId>han-common-sensitive</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
+            <!-- WebSocket模块 - 实时通信、消息推送、在线聊天 -->
             <dependency>
                 <groupId>com.han</groupId>
                 <artifactId>han-common-websocket</artifactId>
                 <version>${revision}</version>
             </dependency>
 
-            <!-- SSE模块 -->
+            <!-- SSE模块 - 服务端推送事件、实时数据推送 -->
             <dependency>
                 <groupId>com.han</groupId>
                 <artifactId>han-common-sse</artifactId>
                 <version>${revision}</version>
             </dependency>
-
         </dependencies>
     </dependencyManagement>
-
 </project>

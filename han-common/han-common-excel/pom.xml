@@ -2,29 +2,38 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <!-- ================================ 父项目配置 ================================ -->
     <parent>
         <groupId>com.han</groupId>
         <artifactId>han-common</artifactId>
         <version>${revision}</version>
     </parent>
-    <modelVersion>4.0.0</modelVersion>
 
+    <!-- ================================ 项目基础信息 ================================ -->
+    <modelVersion>4.0.0</modelVersion>
     <artifactId>han-common-excel</artifactId>
 
     <description>
-        han-common-excel
+        Excel处理模块 - 提供Excel文件的导入导出功能
+        基于FastExcel框架，支持大数据量的Excel操作
+        提供简洁易用的API，支持注解方式和编程方式
     </description>
 
+    <!-- ================================ 依赖配置 ================================ -->
     <dependencies>
+        <!-- ==================== 内部模块依赖 ==================== -->
+        <!-- JSON处理模块 - Excel操作中的JSON序列化支持 -->
         <dependency>
             <groupId>com.han</groupId>
             <artifactId>han-common-json</artifactId>
         </dependency>
 
+        <!-- ==================== Excel处理框架 ==================== -->
+        <!-- FastExcel - 高性能的Excel处理框架，支持大文件读写 -->
         <dependency>
             <groupId>cn.idev.excel</groupId>
             <artifactId>fastexcel</artifactId>
         </dependency>
     </dependencies>
-
 </project>

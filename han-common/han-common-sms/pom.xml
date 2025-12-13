@@ -2,32 +2,38 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <!-- ================================ 父项目配置 ================================ -->
     <parent>
         <groupId>com.han</groupId>
         <artifactId>han-common</artifactId>
         <version>${revision}</version>
     </parent>
-    <modelVersion>4.0.0</modelVersion>
 
+    <!-- ================================ 项目基础信息 ================================ -->
+    <modelVersion>4.0.0</modelVersion>
     <artifactId>han-common-sms</artifactId>
 
     <description>
-        han-common-sms 短信模块
+        短信服务模块
+        基于Sms4j短信聚合框架，支持多厂商短信服务接入
+        提供短信验证码、模板短信、发送限制等功能
     </description>
 
+    <!-- ================================ 依赖配置 ================================ -->
     <dependencies>
-
+        <!-- ==================== 短信服务框架 ==================== -->
+        <!-- Sms4j Spring Boot启动器 - 提供短信聚合服务 -->
         <dependency>
             <groupId>org.dromara.sms4j</groupId>
             <artifactId>sms4j-spring-boot-starter</artifactId>
         </dependency>
 
-        <!-- RuoYi Common Redis-->
+        <!-- ==================== 内部模块依赖 ==================== -->
+        <!-- Redis缓存模块 - 用于短信验证码缓存 -->
         <dependency>
             <groupId>com.han</groupId>
             <artifactId>han-common-redis</artifactId>
         </dependency>
-
     </dependencies>
-
 </project>

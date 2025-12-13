@@ -2,40 +2,51 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <!-- ================================ 父项目配置 ================================ -->
     <parent>
         <groupId>com.han</groupId>
         <artifactId>han-common</artifactId>
         <version>${revision}</version>
     </parent>
-    <modelVersion>4.0.0</modelVersion>
 
+    <!-- ================================ 项目基础信息 ================================ -->
+    <modelVersion>4.0.0</modelVersion>
     <artifactId>han-common-doc</artifactId>
 
     <description>
-        han-common-doc 系统接口
+        API文档模块 - 系统接口文档生成和管理
+        基于SpringDoc OpenAPI 3.0规范，自动生成和展示RESTful API文档
+        提供在线测试、接口调试、参数说明等功能
     </description>
 
+    <!-- ================================ 依赖配置 ================================ -->
     <dependencies>
+        <!-- ==================== 内部模块依赖 ==================== -->
+        <!-- 核心模块 - 依赖核心工具类和基础功能 -->
         <dependency>
             <groupId>com.han</groupId>
             <artifactId>han-common-core</artifactId>
         </dependency>
 
+        <!-- ==================== API文档框架 ==================== -->
+        <!-- SpringDoc OpenAPI WebMVC API - 自动生成OpenAPI 3.0规范的API文档 -->
         <dependency>
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-starter-webmvc-api</artifactId>
         </dependency>
 
+        <!-- ==================== 文档增强功能 ==================== -->
+        <!-- Therapi Runtime Javadoc - 运行时读取JavaDoc注释，增强文档内容 -->
         <dependency>
             <groupId>com.github.therapi</groupId>
             <artifactId>therapi-runtime-javadoc</artifactId>
         </dependency>
 
+        <!-- Jackson Kotlin模块 - 支持Kotlin数据类型的JSON序列化（虽然项目是Java，但为兼容性引入） -->
         <dependency>
             <groupId>com.fasterxml.jackson.module</groupId>
             <artifactId>jackson-module-kotlin</artifactId>
         </dependency>
-
     </dependencies>
-
 </project>

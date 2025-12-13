@@ -2,36 +2,44 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <!-- ================================ 父项目配置 ================================ -->
     <parent>
         <groupId>com.han</groupId>
         <artifactId>han-common</artifactId>
         <version>${revision}</version>
     </parent>
-    <modelVersion>4.0.0</modelVersion>
 
+    <!-- ================================ 项目基础信息 ================================ -->
+    <modelVersion>4.0.0</modelVersion>
     <artifactId>han-common-json</artifactId>
 
     <description>
-        han-common-json 序列化模块
+        JSON序列化模块 - 提供JSON数据的序列化和反序列化功能
+        基于Jackson框架，支持Java 8时间类型的JSON处理
+        提供统一的JSON工具类，简化JSON操作
     </description>
 
+    <!-- ================================ 依赖配置 ================================ -->
     <dependencies>
+        <!-- ==================== 内部模块依赖 ==================== -->
+        <!-- 核心模块 - 提供基础工具类支持 -->
         <dependency>
             <groupId>com.han</groupId>
             <artifactId>han-common-core</artifactId>
         </dependency>
 
-        <!-- JSON工具类 -->
+        <!-- ==================== JSON处理框架 ==================== -->
+        <!-- Jackson核心库 - 提供JSON序列化和反序列化功能 -->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
         </dependency>
 
+        <!-- Jackson时间类型支持 - 支持Java 8日期时间类型的JSON处理 -->
         <dependency>
             <groupId>com.fasterxml.jackson.datatype</groupId>
             <artifactId>jackson-datatype-jsr310</artifactId>
         </dependency>
-
     </dependencies>
-
 </project>

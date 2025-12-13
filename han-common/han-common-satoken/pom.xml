@@ -2,45 +2,57 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <!-- ================================ 父项目配置 ================================ -->
     <parent>
         <groupId>com.han</groupId>
         <artifactId>han-common</artifactId>
         <version>${revision}</version>
     </parent>
-    <modelVersion>4.0.0</modelVersion>
 
+    <!-- ================================ 项目基础信息 ================================ -->
+    <modelVersion>4.0.0</modelVersion>
     <artifactId>han-common-satoken</artifactId>
 
-    <dependencies>
+    <description>
+        Sa-Token认证授权集成模块
+        基于Sa-Token轻量级认证授权框架，提供统一的认证和权限管理
+        支持多种登录模式、JWT令牌、分布式会话和注解式权限控制
+    </description>
 
+    <!-- ================================ 依赖配置 ================================ -->
+    <dependencies>
+        <!-- ==================== 内部模块依赖 ==================== -->
+        <!-- 核心工具模块 - 提供基础工具类和常量定义 -->
         <dependency>
             <groupId>com.han</groupId>
             <artifactId>han-common-core</artifactId>
         </dependency>
 
-        <!-- RuoYi Common Redis-->
+        <!-- Redis缓存模块 - 用于Sa-Token分布式会话存储 -->
         <dependency>
             <groupId>com.han</groupId>
             <artifactId>han-common-redis</artifactId>
         </dependency>
 
-        <!-- Sa-Token 权限认证, 在线文档：http://sa-token.dev33.cn/ -->
+        <!-- ==================== Sa-Token认证框架 ==================== -->
+        <!-- Sa-Token Spring Boot 3.x启动器 - 提供自动配置和AOP支持 -->
         <dependency>
             <groupId>cn.dev33</groupId>
             <artifactId>sa-token-spring-boot3-starter</artifactId>
         </dependency>
 
-        <!-- Sa-Token 整合 jwt -->
+        <!-- Sa-Token JWT集成 - 提供JWT令牌生成和验证 -->
         <dependency>
             <groupId>cn.dev33</groupId>
             <artifactId>sa-token-jwt</artifactId>
         </dependency>
 
+        <!-- ==================== 本地缓存 ==================== -->
+        <!-- Caffeine本地缓存 - 用于缓存用户权限信息 -->
         <dependency>
             <groupId>com.github.ben-manes.caffeine</groupId>
             <artifactId>caffeine</artifactId>
         </dependency>
-
     </dependencies>
-
 </project>
