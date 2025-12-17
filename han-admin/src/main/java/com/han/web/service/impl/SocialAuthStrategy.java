@@ -103,5 +103,4 @@ public class SocialAuthStrategy implements IAuthStrategy {
         }
         return user;
     }
-
 }

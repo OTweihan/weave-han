@@ -21,5 +21,4 @@ public class CaptchaVo {
      * 验证码图片
      */
     private String img;
-
 }

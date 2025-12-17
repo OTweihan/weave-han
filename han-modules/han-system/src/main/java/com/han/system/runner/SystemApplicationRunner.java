@@ -24,5 +24,4 @@ public class SystemApplicationRunner implements ApplicationRunner {
         ossConfigService.init();
         log.info("初始化OSS配置成功");
     }
-
 }

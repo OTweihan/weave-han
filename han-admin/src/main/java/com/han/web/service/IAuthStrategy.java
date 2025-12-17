@@ -41,5 +41,4 @@ public interface IAuthStrategy {
      * @return 登录验证信息
      */
     LoginVo login(String body, SysClientVo client);
-
 }

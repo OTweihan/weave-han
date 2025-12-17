@@ -52,11 +52,11 @@ user:
 # Spring配置
 spring:
   application:
-    name: RuoYi-Vue-Plus
+    name: Weave-Han
   threads:
     # 开启虚拟线程 仅jdk21可用
     virtual:
-      enabled: false
+      enabled: true
   task:
     execution:
       # 从 springboot 3.5 开始 spring自带线程池
@@ -233,16 +233,3 @@ websocket:
   path: /resource/websocket
   # 设置访问源地址
   allowedOrigins: '*'
-
---- # warm-flow工作流配置
-warm-flow:
-  # 是否开启工作流，默认true
-  enabled: true
-  # 是否开启设计器ui
-  ui: true
-  # 是否显示流程图顶部文字
-  top-text-show: true
-  # 是否渲染节点悬浮提示，默认true
-  node-tooltip: true
-  # 默认Authorization，如果有多个token，用逗号分隔
-  token-name: ${sa-token.token-name},clientid

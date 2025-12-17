@@ -1,15 +1,12 @@
 package com.han.system.controller.system;
 
 import cn.dev33.satoken.annotation.SaCheckPermission;
-import cn.hutool.core.lang.tree.Tree;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.crypto.digest.BCrypt;
 import com.han.system.domain.vo.*;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
-import com.han.common.core.constant.SystemConstants;
 import com.han.common.core.domain.R;
 import com.han.common.core.domain.model.LoginUser;
 import com.han.common.core.utils.StreamUtils;
@@ -25,13 +22,9 @@ import com.han.common.mybatis.core.page.TableDataInfo;
 import com.han.common.mybatis.helper.DataPermissionHelper;
 import com.han.common.satoken.utils.LoginHelper;
 import com.han.common.web.core.BaseController;
-import com.han.system.domain.bo.SysDeptBo;
-import com.han.system.domain.bo.SysPostBo;
 import com.han.system.domain.bo.SysRoleBo;
 import com.han.system.domain.bo.SysUserBo;
 import com.han.system.listener.SysUserImportListener;
-import com.han.system.service.ISysDeptService;
-import com.han.system.service.ISysPostService;
 import com.han.system.service.ISysRoleService;
 import com.han.system.service.ISysUserService;
 import org.springframework.http.MediaType;
@@ -55,8 +48,6 @@ public class SysUserController extends BaseController {
 
     private final ISysUserService userService;
     private final ISysRoleService roleService;
-    private final ISysPostService postService;
-    private final ISysDeptService deptService;
 
     /**
      * 获取用户列表
@@ -133,16 +124,8 @@ public class SysUserController extends BaseController {
             SysUserVo sysUser = userService.selectUserById(userId);
             userInfoVo.setUser(sysUser);
             userInfoVo.setRoleIds(roleService.selectRoleListByUserId(userId));
-            Long deptId = sysUser.getDeptId();
-            if (ObjectUtil.isNotNull(deptId)) {
-                SysPostBo postBo = new SysPostBo();
-                postBo.setDeptId(deptId);
-                userInfoVo.setPosts(postService.selectPostList(postBo));
-                userInfoVo.setPostIds(postService.selectPostListByUserId(userId));
-            }
         }
         SysRoleBo roleBo = new SysRoleBo();
-        roleBo.setStatus(SystemConstants.NORMAL);
         List<SysRoleVo> roles = roleService.selectRoleList(roleBo);
         userInfoVo.setRoles(LoginHelper.isSuperAdmin(userId) ? roles : StreamUtils.filter(roles, r -> !r.isSuperAdmin()));
         return R.ok(userInfoVo);
@@ -156,7 +139,6 @@ public class SysUserController extends BaseController {
     @RepeatSubmit()
     @PostMapping
     public R<Void> add(@Validated @RequestBody SysUserBo user) {
-        deptService.checkDeptDataScope(user.getDeptId());
         if (!userService.checkUserNameUnique(user)) {
             return R.fail("新增用户'" + user.getUserName() + "'失败，登录账号已存在");
         } else if (StringUtils.isNotEmpty(user.getPhonenumber()) && !userService.checkPhoneUnique(user)) {
@@ -178,7 +160,6 @@ public class SysUserController extends BaseController {
     public R<Void> edit(@Validated @RequestBody SysUserBo user) {
         userService.checkUserAllowed(user.getUserId());
         userService.checkUserDataScope(user.getUserId());
-        deptService.checkDeptDataScope(user.getDeptId());
         if (!userService.checkUserNameUnique(user)) {
             return R.fail("修改用户'" + user.getUserName() + "'失败，登录账号已存在");
         } else if (StringUtils.isNotEmpty(user.getPhonenumber()) && !userService.checkPhoneUnique(user)) {
@@ -208,13 +189,11 @@ public class SysUserController extends BaseController {
      * 根据用户ID串批量获取用户基础信息
      *
      * @param userIds 用户ID串
-     * @param deptId  部门ID
      */
     @SaCheckPermission("system:user:query")
     @GetMapping("/optionselect")
-    public R<List<SysUserVo>> optionselect(@RequestParam(required = false) Long[] userIds,
-                                           @RequestParam(required = false) Long deptId) {
-        return R.ok(userService.selectUserByIds(ArrayUtil.isEmpty(userIds) ? null : List.of(userIds), deptId));
+    public R<List<SysUserVo>> optionselect(@RequestParam(required = false) Long[] userIds) {
+        return R.ok(userService.selectUserByIds(ArrayUtil.isEmpty(userIds) ? null : List.of(userIds)));
     }
 
     /**
@@ -277,23 +256,4 @@ public class SysUserController extends BaseController {
         userService.insertUserAuth(userId, roleIds);
         return R.ok();
     }
-
-    /**
-     * 获取部门树列表
-     */
-    @SaCheckPermission("system:user:list")
-    @GetMapping("/deptTree")
-    public R<List<Tree<Long>>> deptTree(SysDeptBo dept) {
-        return R.ok(deptService.selectDeptTreeList(dept));
-    }
-
-    /**
-     * 获取部门下的所有用户信息
-     */
-    @SaCheckPermission("system:user:list")
-    @GetMapping("/list/dept/{deptId}")
-    public R<List<SysUserVo>> listByDept(@PathVariable @NotNull Long deptId) {
-        return R.ok(userService.selectUserListByDept(deptId));
-    }
-
 }

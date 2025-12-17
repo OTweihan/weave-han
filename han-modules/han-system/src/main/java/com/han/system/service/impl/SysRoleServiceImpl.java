@@ -23,12 +23,10 @@ import com.han.common.mybatis.core.page.PageQuery;
 import com.han.common.mybatis.core.page.TableDataInfo;
 import com.han.common.satoken.utils.LoginHelper;
 import com.han.system.domain.SysRole;
-import com.han.system.domain.SysRoleDept;
 import com.han.system.domain.SysRoleMenu;
 import com.han.system.domain.SysUserRole;
 import com.han.system.domain.bo.SysRoleBo;
 import com.han.system.domain.vo.SysRoleVo;
-import com.han.system.mapper.SysRoleDeptMapper;
 import com.han.system.mapper.SysRoleMapper;
 import com.han.system.mapper.SysRoleMenuMapper;
 import com.han.system.mapper.SysUserRoleMapper;
@@ -51,7 +49,6 @@ public class SysRoleServiceImpl implements ISysRoleService, RoleService {
     private final SysRoleMapper baseMapper;
     private final SysRoleMenuMapper roleMenuMapper;
     private final SysUserRoleMapper userRoleMapper;
-    private final SysRoleDeptMapper roleDeptMapper;
 
     /**
      * 分页查询角色列表
@@ -350,11 +347,7 @@ public class SysRoleServiceImpl implements ISysRoleService, RoleService {
     public int authDataScope(SysRoleBo bo) {
         SysRole role = MapstructUtils.convert(bo, SysRole.class);
         // 修改角色信息
-        baseMapper.updateById(role);
-        // 删除角色与部门关联
-        roleDeptMapper.delete(new LambdaQueryWrapper<SysRoleDept>().eq(SysRoleDept::getRoleId, role.getRoleId()));
-        // 新增角色和部门信息（数据权限）
-        return insertRoleDept(bo);
+        return baseMapper.updateById(role);
     }
 
     /**
@@ -379,27 +372,6 @@ public class SysRoleServiceImpl implements ISysRoleService, RoleService {
     }
 
     /**
-     * 新增角色部门信息(数据权限)
-     *
-     * @param role 角色对象
-     */
-    private int insertRoleDept(SysRoleBo role) {
-        int rows = 1;
-        // 新增角色与部门（数据权限）管理
-        List<SysRoleDept> list = new ArrayList<>();
-        for (Long deptId : role.getDeptIds()) {
-            SysRoleDept rd = new SysRoleDept();
-            rd.setRoleId(role.getRoleId());
-            rd.setDeptId(deptId);
-            list.add(rd);
-        }
-        if (CollUtil.isNotEmpty(list)) {
-            rows = roleDeptMapper.insertBatch(list) ? list.size() : 0;
-        }
-        return rows;
-    }
-
-    /**
      * 通过角色ID删除角色
      *
      * @param roleId 角色ID
@@ -411,8 +383,6 @@ public class SysRoleServiceImpl implements ISysRoleService, RoleService {
     public int deleteRoleById(Long roleId) {
         // 删除角色与菜单关联
         roleMenuMapper.delete(new LambdaQueryWrapper<SysRoleMenu>().eq(SysRoleMenu::getRoleId, roleId));
-        // 删除角色与部门关联
-        roleDeptMapper.delete(new LambdaQueryWrapper<SysRoleDept>().eq(SysRoleDept::getRoleId, roleId));
         return baseMapper.deleteById(roleId);
     }
 
@@ -436,8 +406,6 @@ public class SysRoleServiceImpl implements ISysRoleService, RoleService {
         }
         // 删除角色与菜单关联
         roleMenuMapper.delete(new LambdaQueryWrapper<SysRoleMenu>().in(SysRoleMenu::getRoleId, roleIds));
-        // 删除角色与部门关联
-        roleDeptMapper.delete(new LambdaQueryWrapper<SysRoleDept>().in(SysRoleDept::getRoleId, roleIds));
         return baseMapper.deleteByIds(roleIds);
     }
 
@@ -609,5 +577,4 @@ public class SysRoleServiceImpl implements ISysRoleService, RoleService {
         );
         return StreamUtils.toMap(list, SysRole::getRoleId, SysRole::getRoleName);
     }
-
 }

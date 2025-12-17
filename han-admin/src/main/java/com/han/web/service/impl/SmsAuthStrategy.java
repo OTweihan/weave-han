@@ -96,5 +96,4 @@ public class SmsAuthStrategy implements IAuthStrategy {
         }
         return user;
     }
-
 }

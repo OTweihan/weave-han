@@ -96,5 +96,4 @@ public class EmailAuthStrategy implements IAuthStrategy {
         }
         return user;
     }
-
 }

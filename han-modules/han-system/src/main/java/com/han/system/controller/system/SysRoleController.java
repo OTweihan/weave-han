@@ -1,7 +1,6 @@
 package com.han.system.controller.system;
 
 import cn.dev33.satoken.annotation.SaCheckPermission;
-import cn.hutool.core.lang.tree.Tree;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import com.han.common.core.domain.R;
@@ -13,12 +12,10 @@ import com.han.common.mybatis.core.page.PageQuery;
 import com.han.common.mybatis.core.page.TableDataInfo;
 import com.han.common.web.core.BaseController;
 import com.han.system.domain.SysUserRole;
-import com.han.system.domain.bo.SysDeptBo;
 import com.han.system.domain.bo.SysRoleBo;
 import com.han.system.domain.bo.SysUserBo;
 import com.han.system.domain.vo.SysRoleVo;
 import com.han.system.domain.vo.SysUserVo;
-import com.han.system.service.ISysDeptService;
 import com.han.system.service.ISysRoleService;
 import com.han.system.service.ISysUserService;
 import org.springframework.validation.annotation.Validated;
@@ -39,7 +36,6 @@ public class SysRoleController extends BaseController {
 
     private final ISysRoleService roleService;
     private final ISysUserService userService;
-    private final ISysDeptService deptService;
 
     /**
      * 获取角色信息列表
@@ -220,27 +216,4 @@ public class SysRoleController extends BaseController {
         roleService.checkRoleDataScope(roleId);
         return toAjax(roleService.insertAuthUsers(roleId, userIds));
     }
-
-    /**
-     * 获取对应角色部门树列表
-     *
-     * @param roleId 角色ID
-     */
-    @SaCheckPermission("system:role:list")
-    @GetMapping(value = "/deptTree/{roleId}")
-    public R<DeptTreeSelectVo> roleDeptTreeselect(@PathVariable("roleId") Long roleId) {
-        DeptTreeSelectVo selectVo = new DeptTreeSelectVo(
-            deptService.selectDeptListByRoleId(roleId),
-            deptService.selectDeptTreeList(new SysDeptBo()));
-        return R.ok(selectVo);
-    }
-
-    /**
-     * 角色部门列表树信息
-     *
-     * @param checkedKeys 选中部门列表
-     * @param depts       下拉树结构列表
-     */
-    public record DeptTreeSelectVo(List<Long> checkedKeys, List<Tree<Long>> depts) {}
-
 }

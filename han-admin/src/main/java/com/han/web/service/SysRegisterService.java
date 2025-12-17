@@ -94,7 +94,6 @@ public class SysRegisterService {
      * @param username 用户名
      * @param status   状态
      * @param message  消息内容
-     * @return
      */
     private void recordLogininfor(String username, String status, String message) {
         LogininforEvent logininforEvent = new LogininforEvent();
@@ -104,5 +103,4 @@ public class SysRegisterService {
         logininforEvent.setRequest(ServletUtils.getRequest());
         SpringUtils.context().publishEvent(logininforEvent);
     }
-
 }

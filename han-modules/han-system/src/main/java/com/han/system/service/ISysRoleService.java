@@ -232,5 +232,4 @@ public interface ISysRoleService {
      * @param userIds 需要清除的用户ID列表
      */
     void cleanOnlineUser(List<Long> userIds);
-
 }

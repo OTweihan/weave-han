@@ -34,5 +34,4 @@ public class SysSocialController extends BaseController {
     public R<List<SysSocialVo>> list() {
         return R.ok(socialUserService.queryListByUserId(LoginHelper.getUserId()));
     }
-
 }

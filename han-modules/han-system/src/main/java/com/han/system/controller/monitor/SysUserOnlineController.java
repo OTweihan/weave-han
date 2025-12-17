@@ -130,5 +130,4 @@ public class SysUserOnlineController extends BaseController {
         }
         return R.ok();
     }
-
 }

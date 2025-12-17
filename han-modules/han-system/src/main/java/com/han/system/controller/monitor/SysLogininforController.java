@@ -89,5 +89,4 @@ public class SysLogininforController extends BaseController {
         }
         return R.ok();
     }
-
 }

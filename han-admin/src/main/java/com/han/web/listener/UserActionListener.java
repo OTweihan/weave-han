@@ -20,6 +20,7 @@ import com.han.web.service.SysLoginService;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
+import java.util.Objects;
 
 /**
  * 用户行为 侦听器的实现
@@ -38,7 +39,7 @@ public class UserActionListener implements SaTokenListener {
      */
     @Override
     public void doLogin(String loginType, Object loginId, String tokenValue, SaLoginParameter loginParameter) {
-        UserAgent userAgent = UserAgentUtil.parse(ServletUtils.getRequest().getHeader("User-Agent"));
+        UserAgent userAgent = UserAgentUtil.parse(Objects.requireNonNull(ServletUtils.getRequest()).getHeader("User-Agent"));
         String ip = ServletUtils.getClientIP();
         UserOnlineDTO dto = new UserOnlineDTO();
         dto.setIpaddr(ip);

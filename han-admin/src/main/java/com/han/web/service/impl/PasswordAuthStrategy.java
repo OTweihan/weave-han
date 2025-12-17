@@ -117,5 +117,4 @@ public class PasswordAuthStrategy implements IAuthStrategy {
         }
         return user;
     }
-
 }

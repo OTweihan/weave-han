@@ -61,5 +61,4 @@ public class CacheController {
      * @param commandStats 命令统计
      */
     public record CacheListInfoVo(Properties info, Long dbSize, List<Map<String, String>> commandStats) {}
-
 }

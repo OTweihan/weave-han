@@ -106,5 +106,4 @@ public class XcxAuthStrategy implements IAuthStrategy {
         }
         return user;
     }
-
 }
