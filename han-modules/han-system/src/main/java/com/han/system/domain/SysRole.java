@@ -13,7 +13,6 @@ import com.han.common.mybatis.core.domain.BaseEntity;
  *
  * @author Lion Li
  */
-
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
@@ -52,11 +51,6 @@ public class SysRole extends BaseEntity {
     private Boolean menuCheckStrictly;
 
     /**
-     * 部门树选择项是否关联显示（0：父子不互相关联显示 1：父子互相关联显示 ）
-     */
-    private Boolean deptCheckStrictly;
-
-    /**
      * 角色状态（0正常 1停用）
      */
     private String status;
@@ -75,5 +69,4 @@ public class SysRole extends BaseEntity {
     public SysRole(Long roleId) {
         this.roleId = roleId;
     }
-
 }

@@ -77,6 +77,4 @@ public class SysLogininforBo {
      * 请求参数
      */
     private Map<String, Object> params = new HashMap<>();
-
-
 }

@@ -8,7 +8,6 @@ import lombok.Data;
 import java.io.Serial;
 import java.io.Serializable;
 
-
 /**
  * 对象存储配置视图对象 sys_oss_config
  *
@@ -93,5 +92,4 @@ public class SysOssConfigVo implements Serializable {
      * 桶权限类型(0private 1public 2custom)
      */
     private String accessPolicy;
-
 }

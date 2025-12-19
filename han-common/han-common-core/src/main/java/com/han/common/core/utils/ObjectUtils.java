@@ -56,5 +56,4 @@ public class ObjectUtils extends ObjectUtil {
         }
         return defaultValue;
     }
-
 }

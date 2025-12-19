@@ -136,7 +136,4 @@ public class SysSocialBo extends BaseEntity {
      * Twitter平台用户的附带属性，部分平台可能没有
      */
     private String oauthTokenSecret;
-
-
-
 }

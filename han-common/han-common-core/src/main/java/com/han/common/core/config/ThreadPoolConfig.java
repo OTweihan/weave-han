@@ -108,5 +108,4 @@ public class ThreadPoolConfig {
             log.error(t.getMessage(), t);
         }
     }
-
 }

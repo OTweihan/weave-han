@@ -25,5 +25,4 @@ public class ProcessDeleteEvent implements Serializable {
      * 业务id
      */
     private String businessId;
-
 }

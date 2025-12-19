@@ -35,5 +35,4 @@ public @interface Translation {
      * 其他条件 例如: 字典type(sys_user_sex)
      */
     String other() default "";
-
 }

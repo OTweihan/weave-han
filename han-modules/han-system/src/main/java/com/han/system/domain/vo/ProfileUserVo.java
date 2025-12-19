@@ -26,16 +26,6 @@ public class ProfileUserVo implements Serializable {
     private Long userId;
 
     /**
-     * 租户ID
-     */
-    private String tenantId;
-
-    /**
-     * 部门ID
-     */
-    private Long deptId;
-
-    /**
      * 用户账号
      */
     private String userName;
@@ -80,11 +70,4 @@ public class ProfileUserVo implements Serializable {
      * 最后登录时间
      */
     private Date loginDate;
-
-    /**
-     * 部门名
-     */
-    @Translation(type = TransConstant.DEPT_ID_TO_NAME, mapper = "deptId")
-    private String deptName;
-
 }

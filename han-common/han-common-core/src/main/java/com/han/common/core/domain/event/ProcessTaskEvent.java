@@ -61,5 +61,4 @@ public class ProcessTaskEvent implements Serializable {
      * 办理参数
      */
     private Map<String, Object> params;
-
 }

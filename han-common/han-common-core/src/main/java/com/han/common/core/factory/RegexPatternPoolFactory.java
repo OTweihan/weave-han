@@ -48,5 +48,4 @@ public class RegexPatternPoolFactory extends PatternPool {
      * 通用状态（0表示正常，1表示停用）
      */
     public static final Pattern STATUS = get(RegexConstants.STATUS);
-
 }

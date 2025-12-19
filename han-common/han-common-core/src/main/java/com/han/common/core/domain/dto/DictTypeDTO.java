@@ -37,5 +37,4 @@ public class DictTypeDTO implements Serializable {
      * 备注
      */
     private String remark;
-
 }

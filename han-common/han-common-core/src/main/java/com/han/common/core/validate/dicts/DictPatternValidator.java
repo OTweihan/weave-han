@@ -51,5 +51,4 @@ public class DictPatternValidator implements ConstraintValidator<DictPattern, St
         String dictLabel = SpringUtils.getBean(DictService.class).getDictLabel(dictType, value, separator);
         return StringUtils.isNotBlank(dictLabel);
     }
-
 }

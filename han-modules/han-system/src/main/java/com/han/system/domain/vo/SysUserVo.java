@@ -15,7 +15,6 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
-
 /**
  * 用户信息视图对象 sys_user
  *
@@ -32,11 +31,6 @@ public class SysUserVo implements Serializable {
      * 用户ID
      */
     private Long userId;
-
-    /**
-     * 部门ID
-     */
-    private Long deptId;
 
     /**
      * 用户账号
@@ -109,12 +103,6 @@ public class SysUserVo implements Serializable {
     private Date createTime;
 
     /**
-     * 部门名
-     */
-    @Translation(type = TransConstant.DEPT_ID_TO_NAME, mapper = "deptId")
-    private String deptName;
-
-    /**
      * 角色对象
      */
     private List<SysRoleVo> roles;
@@ -125,13 +113,7 @@ public class SysUserVo implements Serializable {
     private Long[] roleIds;
 
     /**
-     * 岗位组
-     */
-    private Long[] postIds;
-
-    /**
      * 数据权限 当前角色ID
      */
     private Long roleId;
-
 }

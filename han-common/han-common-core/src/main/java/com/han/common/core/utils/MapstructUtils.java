@@ -89,5 +89,4 @@ public class MapstructUtils {
         }
         return CONVERTER.convert(map, beanClass);
     }
-
 }

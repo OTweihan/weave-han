@@ -47,5 +47,4 @@ public @interface EnumPattern {
     @interface List {
         EnumPattern[] value();
     }
-
 }

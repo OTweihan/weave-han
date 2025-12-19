@@ -296,5 +296,4 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
             throw new ServiceException("最大时间跨度为 {} {}", maxValue, unit.toString().toLowerCase());
         }
     }
-
 }

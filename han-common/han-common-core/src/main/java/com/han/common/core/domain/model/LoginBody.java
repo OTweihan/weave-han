@@ -39,5 +39,4 @@ public class LoginBody implements Serializable {
      * 唯一标识
      */
     private String uuid;
-
 }

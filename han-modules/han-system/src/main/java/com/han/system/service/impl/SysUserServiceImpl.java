@@ -91,9 +91,6 @@ public class SysUserServiceImpl implements ISysUserService, UserService {
             .between(params.get("beginTime") != null && params.get("endTime") != null,
                 SysUser::getCreateTime, params.get("beginTime"), params.get("endTime"))
             .orderByAsc(SysUser::getUserId);
-        if (StringUtils.isNotBlank(user.getExcludeUserIds())) {
-            wrapper.notIn(SysUser::getUserId, StringUtils.splitTo(user.getExcludeUserIds(), Convert::toLong));
-        }
         return wrapper;
     }
 
@@ -580,7 +577,7 @@ public class SysUserServiceImpl implements ISysUserService, UserService {
             return List.of();
         }
         List<SysUserVo> list = baseMapper.selectVoList(new LambdaQueryWrapper<SysUser>()
-            .select(SysUser::getUserId, SysUser::getDeptId, SysUser::getUserName,
+            .select(SysUser::getUserId, SysUser::getUserName,
                 SysUser::getNickName, SysUser::getUserType, SysUser::getEmail,
                 SysUser::getPhonenumber, SysUser::getSex, SysUser::getStatus,
                 SysUser::getCreateTime)

@@ -13,7 +13,6 @@ import java.util.Date;
  *
  * @author Lion Li
  */
-
 @Data
 @TableName("sys_logininfor")
 public class SysLogininfor implements Serializable {
@@ -76,5 +75,4 @@ public class SysLogininfor implements Serializable {
      * 访问时间
      */
     private Date loginTime;
-
 }

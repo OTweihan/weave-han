@@ -52,5 +52,4 @@ public class TaskAssigneeBody implements Serializable {
      * 每页显示条数
      */
     private Integer pageSize = 10;
-
 }

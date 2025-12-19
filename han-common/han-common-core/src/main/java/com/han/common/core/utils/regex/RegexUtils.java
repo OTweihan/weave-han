@@ -27,5 +27,4 @@ public final class RegexUtils extends ReUtil {
             return defaultInput;
         }
     }
-
 }

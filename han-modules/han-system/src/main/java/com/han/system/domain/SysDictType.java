@@ -11,7 +11,6 @@ import com.han.common.mybatis.core.domain.BaseEntity;
  *
  * @author Lion Li
  */
-
 @Data
 @EqualsAndHashCode(callSuper = true)
 @TableName("sys_dict_type")
@@ -37,5 +36,4 @@ public class SysDictType extends BaseEntity {
      * 备注
      */
     private String remark;
-
 }

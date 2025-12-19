@@ -15,7 +15,6 @@ import java.util.Date;
  *
  * @author Lion Li
  */
-
 @Data
 @NoArgsConstructor
 public class SysUserExportVo implements Serializable {
@@ -80,15 +79,8 @@ public class SysUserExportVo implements Serializable {
     private Date loginDate;
 
     /**
-     * 部门名称
-     */
-    @ExcelProperty(value = "部门名称")
-    private String deptName;
-
-    /**
      * 负责人
      */
     @ExcelProperty(value = "部门负责人")
     private String leaderName;
-
 }

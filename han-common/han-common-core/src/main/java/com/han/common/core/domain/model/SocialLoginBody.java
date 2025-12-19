@@ -31,5 +31,4 @@ public class SocialLoginBody extends LoginBody {
      */
     @NotBlank(message = "{social.state.not.blank}")
     private String socialState;
-
 }

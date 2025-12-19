@@ -285,5 +285,4 @@ public class ServletUtils extends JakartaServletUtil {
     public static String urlDecode(String str) {
         return URLDecoder.decode(str, StandardCharsets.UTF_8);
     }
-
 }

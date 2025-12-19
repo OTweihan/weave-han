@@ -30,11 +30,6 @@ public class SysUserBo extends BaseEntity {
     private Long userId;
 
     /**
-     * 部门ID
-     */
-    private Long deptId;
-
-    /**
      * 用户账号
      */
     @Xss(message = "用户账号不能包含脚本字符")
@@ -94,11 +89,6 @@ public class SysUserBo extends BaseEntity {
     private Long[] roleIds;
 
     /**
-     * 岗位组
-     */
-    private Long[] postIds;
-
-    /**
      * 数据权限 当前角色ID
      */
     private Long roleId;
@@ -108,11 +98,6 @@ public class SysUserBo extends BaseEntity {
      */
     private String userIds;
 
-    /**
-     * 排除不查询的用户(工作流用)
-     */
-    private String excludeUserIds;
-
     public SysUserBo(Long userId) {
         this.userId = userId;
     }
@@ -120,5 +105,4 @@ public class SysUserBo extends BaseEntity {
     public boolean isSuperAdmin() {
         return SystemConstants.SUPER_ADMIN_ID.equals(this.userId);
     }
-
 }

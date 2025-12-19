@@ -76,6 +76,5 @@ public interface Constants {
      * 加密头
      */
     String ENCRYPT_HEADER = "ENC_";
-
 }
 

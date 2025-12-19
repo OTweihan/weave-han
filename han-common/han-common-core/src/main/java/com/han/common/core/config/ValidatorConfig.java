@@ -37,5 +37,4 @@ public class ValidatorConfig {
             return factoryBean.getValidator();
         }
     }
-
 }

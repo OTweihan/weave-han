@@ -71,5 +71,4 @@ public class SysOssExt implements Serializable {
      * 文件MD5值（可用于去重或校验）
      */
     private String md5;
-
 }

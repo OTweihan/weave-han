@@ -101,5 +101,4 @@ public class RegexValidator extends Validator {
         }
         return value;
     }
-
 }

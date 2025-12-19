@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-
 /**
  * 菜单权限视图对象 sys_menu
  *
@@ -94,11 +93,6 @@ public class SysMenuVo implements Serializable {
     private String icon;
 
     /**
-     * 创建部门
-     */
-    private Long createDept;
-
-    /**
      * 备注
      */
     private String remark;
@@ -112,5 +106,4 @@ public class SysMenuVo implements Serializable {
      * 子菜单
      */
     private List<SysMenuVo> children = new ArrayList<>();
-
 }

@@ -42,5 +42,4 @@ public class OssDTO implements Serializable {
      * URL地址
      */
     private String url;
-
 }

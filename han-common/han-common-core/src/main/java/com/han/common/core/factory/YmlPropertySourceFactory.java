@@ -27,5 +27,4 @@ public class YmlPropertySourceFactory extends DefaultPropertySourceFactory {
         }
         return super.createPropertySource(name, resource);
     }
-
 }

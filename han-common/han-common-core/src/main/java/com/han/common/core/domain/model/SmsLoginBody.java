@@ -25,5 +25,4 @@ public class SmsLoginBody extends LoginBody {
      */
     @NotBlank(message = "{sms.code.not.blank}")
     private String smsCode;
-
 }

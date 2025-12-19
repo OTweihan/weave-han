@@ -74,6 +74,4 @@ public class SysClient extends BaseEntity {
      */
     @TableLogic
     private String delFlag;
-
-
 }

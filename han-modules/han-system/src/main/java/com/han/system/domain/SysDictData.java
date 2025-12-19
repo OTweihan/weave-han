@@ -12,7 +12,6 @@ import com.han.common.mybatis.core.domain.BaseEntity;
  *
  * @author Lion Li
  */
-
 @Data
 @EqualsAndHashCode(callSuper = true)
 @TableName("sys_dict_data")
@@ -67,5 +66,4 @@ public class SysDictData extends BaseEntity {
     public boolean getDefault() {
         return SystemConstants.YES.equals(this.isDefault);
     }
-
 }

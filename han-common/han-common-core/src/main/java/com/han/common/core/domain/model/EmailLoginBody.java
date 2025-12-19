@@ -27,5 +27,4 @@ public class EmailLoginBody extends LoginBody {
      */
     @NotBlank(message = "{email.code.not.blank}")
     private String emailCode;
-
 }

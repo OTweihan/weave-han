@@ -26,5 +26,4 @@ public class ThreadPoolProperties {
      * 线程池维护线程所允许的空闲时间
      */
     private int keepAliveSeconds;
-
 }

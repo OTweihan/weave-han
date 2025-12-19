@@ -25,5 +25,4 @@ public class TranslationBeanSerializerModifier extends BeanSerializerModifier {
         }
         return beanProperties;
     }
-
 }

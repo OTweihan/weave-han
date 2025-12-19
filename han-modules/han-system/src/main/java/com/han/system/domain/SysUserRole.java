@@ -10,7 +10,6 @@ import lombok.Data;
  *
  * @author Lion Li
  */
-
 @Data
 @TableName("sys_user_role")
 public class SysUserRole {
@@ -25,5 +24,4 @@ public class SysUserRole {
      * 角色ID
      */
     private Long roleId;
-
 }

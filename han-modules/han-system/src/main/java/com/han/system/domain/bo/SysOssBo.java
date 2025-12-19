@@ -50,5 +50,4 @@ public class SysOssBo extends BaseEntity {
      * 服务商
      */
     private String service;
-
 }

@@ -14,7 +14,6 @@ import java.util.Date;
  *
  * @author Lion Li
  */
-
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
@@ -26,11 +25,6 @@ public class SysUser extends BaseEntity {
      */
     @TableId(value = "user_id")
     private Long userId;
-
-    /**
-     * 部门ID
-     */
-    private Long deptId;
 
     /**
      * 用户账号
@@ -111,5 +105,4 @@ public class SysUser extends BaseEntity {
     public boolean isSuperAdmin() {
         return SystemConstants.SUPER_ADMIN_ID.equals(this.userId);
     }
-
 }

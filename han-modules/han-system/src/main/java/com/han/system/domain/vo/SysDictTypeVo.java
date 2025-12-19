@@ -10,7 +10,6 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.util.Date;
 
-
 /**
  * 字典类型视图对象 sys_dict_type
  *
@@ -53,5 +52,4 @@ public class SysDictTypeVo implements Serializable {
      */
     @ExcelProperty(value = "创建时间")
     private Date createTime;
-
 }

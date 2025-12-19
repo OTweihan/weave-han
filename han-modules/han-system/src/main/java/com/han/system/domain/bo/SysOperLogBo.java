@@ -29,7 +29,6 @@ public class SysOperLogBo {
      */
     private Long operId;
 
-
     /**
      * 模块标题
      */
@@ -64,11 +63,6 @@ public class SysOperLogBo {
      * 操作人员
      */
     private String operName;
-
-    /**
-     * 部门名称
-     */
-    private String deptName;
 
     /**
      * 请求URL
@@ -119,5 +113,4 @@ public class SysOperLogBo {
      * 请求参数
      */
     private Map<String, Object> params = new HashMap<>();
-
 }

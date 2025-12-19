@@ -31,5 +31,4 @@ public class ValidatorUtils {
             throw new ConstraintViolationException("参数校验异常", validate);
         }
     }
-
 }

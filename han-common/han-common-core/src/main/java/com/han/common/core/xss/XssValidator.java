@@ -16,5 +16,4 @@ public class XssValidator implements ConstraintValidator<Xss, String> {
     public boolean isValid(String value, ConstraintValidatorContext constraintValidatorContext) {
         return !ReUtil.contains(HtmlUtil.RE_HTML_MARK, value);
     }
-
 }

@@ -6,6 +6,7 @@ package com.han.common.core.constant;
  * @author Lion Li
  */
 public interface HttpStatus {
+
     /**
      * 操作成功
      */

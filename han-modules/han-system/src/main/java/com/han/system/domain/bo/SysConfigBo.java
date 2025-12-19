@@ -54,6 +54,4 @@ public class SysConfigBo extends BaseEntity {
      * 备注
      */
     private String remark;
-
-
 }

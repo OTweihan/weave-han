@@ -55,5 +55,4 @@ public interface RegexConstants extends RegexPool {
      * 通用状态（0表示正常，1表示停用）
      */
     String STATUS = "^[01]$";
-
 }

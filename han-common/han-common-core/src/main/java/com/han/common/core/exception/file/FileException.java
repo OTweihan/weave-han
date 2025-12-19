@@ -17,5 +17,4 @@ public class FileException extends BaseException {
     public FileException(String code, Object[] args) {
         super("file", code, args, null);
     }
-
 }

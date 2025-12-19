@@ -80,5 +80,4 @@ public class NetUtils extends NetUtil {
     public static boolean isIPv4(String ip) {
         return RegexUtils.isMatch(PatternPool.IPV4, ip);
     }
-
 }

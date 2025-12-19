@@ -57,5 +57,4 @@ public class SysNoticeBo extends BaseEntity {
      * 创建人名称
      */
     private String createByName;
-
 }

@@ -324,5 +324,4 @@ public class StreamUtils {
         keySet.addAll(map2.keySet());
         return toMap(keySet, key -> key, key -> merge.apply(map1.get(key), map2.get(key)));
     }
-
 }

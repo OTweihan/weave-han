@@ -26,15 +26,4 @@ public class SysUserInfoVo {
      * 角色列表
      */
     private List<SysRoleVo> roles;
-
-    /**
-     * 岗位ID列表
-     */
-    private List<Long> postIds;
-
-    /**
-     * 岗位列表
-     */
-    private List<SysPostVo> posts;
-
 }

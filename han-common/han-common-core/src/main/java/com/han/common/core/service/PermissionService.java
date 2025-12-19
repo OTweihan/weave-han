@@ -24,5 +24,4 @@ public interface PermissionService {
      * @return 菜单权限信息
      */
     Set<String> getMenuPermission(Long userId);
-
 }

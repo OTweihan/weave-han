@@ -12,8 +12,6 @@ import lombok.Data;
 import java.io.Serial;
 import java.io.Serializable;
 
-
-
 /**
  * 系统访问记录视图对象 sys_logininfor
  *
@@ -84,7 +82,6 @@ public class SysLogininforVo implements Serializable {
     @ExcelProperty(value = "操作系统")
     private String os;
 
-
     /**
      * 提示消息
      */
@@ -96,6 +93,4 @@ public class SysLogininforVo implements Serializable {
      */
     @ExcelProperty(value = "访问时间")
     private Date loginTime;
-
-
 }

@@ -15,7 +15,6 @@ import lombok.extern.slf4j.Slf4j;
 import me.zhyd.oauth.model.AuthUser;
 import com.han.common.core.constant.CacheConstants;
 import com.han.common.core.constant.Constants;
-import com.han.common.core.domain.dto.PostDTO;
 import com.han.common.core.domain.dto.RoleDTO;
 import com.han.common.core.domain.model.LoginUser;
 import com.han.common.core.enums.LoginType;
@@ -87,10 +86,9 @@ public class SysLoginService {
             sysSocialService.insertByBo(bo);
         } else {
             // 更新用户信息
-            bo.setId(list.get(0).getId());
+            bo.setId(list.getFirst().getId());
             sysSocialService.updateByBo(bo);
-            // 如果要绑定的平台账号已经被绑定过了 是否抛异常自行决断
-            // throw new ServiceException("此平台账号已经被绑定!");
+            throw new ServiceException("此平台账号已经被绑定!");
         }
     }
 

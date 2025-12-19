@@ -2,7 +2,6 @@ package com.han.common.core.domain.model;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import com.han.common.core.domain.dto.PostDTO;
 import com.han.common.core.domain.dto.RoleDTO;
 
 import java.io.Serial;
@@ -26,21 +25,6 @@ public class LoginUser implements Serializable {
      * 用户ID
      */
     private Long userId;
-
-    /**
-     * 部门ID
-     */
-    private Long deptId;
-
-    /**
-     * 部门类别编码
-     */
-    private String deptCategory;
-
-    /**
-     * 部门名
-     */
-    private String deptName;
 
     /**
      * 用户唯一标识
@@ -108,11 +92,6 @@ public class LoginUser implements Serializable {
     private List<RoleDTO> roles;
 
     /**
-     * 岗位对象
-     */
-    private List<PostDTO> posts;
-
-    /**
      * 数据权限 当前角色ID
      */
     private Long roleId;
@@ -139,5 +118,4 @@ public class LoginUser implements Serializable {
         }
         return userType + ":" + userId;
     }
-
 }

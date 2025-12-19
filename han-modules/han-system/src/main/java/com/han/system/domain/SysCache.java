@@ -43,5 +43,4 @@ public class SysCache {
         this.cacheKey = StringUtils.replace(cacheKey, cacheName, "");
         this.cacheValue = cacheValue;
     }
-
 }

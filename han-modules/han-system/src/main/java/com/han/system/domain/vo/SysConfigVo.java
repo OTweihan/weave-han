@@ -12,7 +12,6 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.util.Date;
 
-
 /**
  * 参数配置视图对象 sys_config
  *
@@ -68,5 +67,4 @@ public class SysConfigVo implements Serializable {
      */
     @ExcelProperty(value = "创建时间")
     private Date createTime;
-
 }

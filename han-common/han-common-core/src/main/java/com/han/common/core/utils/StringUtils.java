@@ -380,5 +380,4 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
     public static String joinComma(Object[] array) {
         return StringUtils.join(array, SEPARATOR);
     }
-
 }

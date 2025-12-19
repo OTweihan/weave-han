@@ -81,15 +81,4 @@ public interface SystemConstants {
      * 超级管理员ID
      */
     Long SUPER_ADMIN_ID = 1L;
-
-    /**
-     * 根部门祖级列表
-     */
-    String ROOT_DEPT_ANCESTORS = "0";
-
-    /**
-     * 默认部门 ID
-     */
-    Long DEFAULT_DEPT_ID = 100L;
-
 }

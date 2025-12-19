@@ -74,5 +74,4 @@ public class MetaVo {
             this.activeMenu = activeMenu;
         }
     }
-
 }

@@ -26,11 +26,6 @@ public class UserDTO implements Serializable {
     private Long userId;
 
     /**
-     * 部门ID
-     */
-    private Long deptId;
-
-    /**
      * 用户账号
      */
     private String userName;
@@ -69,5 +64,4 @@ public class UserDTO implements Serializable {
      * 创建时间
      */
     private Date createTime;
-
 }

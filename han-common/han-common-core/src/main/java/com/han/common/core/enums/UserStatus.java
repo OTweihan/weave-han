@@ -26,5 +26,4 @@ public enum UserStatus {
 
     private final String code;
     private final String info;
-
 }

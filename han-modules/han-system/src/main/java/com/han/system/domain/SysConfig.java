@@ -11,7 +11,6 @@ import com.han.common.mybatis.core.domain.BaseEntity;
  *
  * @author Lion Li
  */
-
 @Data
 @EqualsAndHashCode(callSuper = true)
 @TableName("sys_config")
@@ -47,5 +46,4 @@ public class SysConfig extends BaseEntity {
      * 备注
      */
     private String remark;
-
 }

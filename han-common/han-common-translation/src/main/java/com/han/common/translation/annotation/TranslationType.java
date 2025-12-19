@@ -19,5 +19,4 @@ public @interface TranslationType {
      * 类型
      */
     String type();
-
 }

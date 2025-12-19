@@ -16,11 +16,6 @@ package com.han.common.core.constant;
 public interface CacheNames {
 
     /**
-     * 演示案例
-     */
-    String DEMO_CACHE = "demo:cache#60s#10m#20";
-
-    /**
      * 系统配置
      */
     String SYS_CONFIG = "sys_config";
@@ -51,11 +46,6 @@ public interface CacheNames {
     String SYS_NICKNAME = "sys_nickname#30d";
 
     /**
-     * 部门
-     */
-    String SYS_DEPT = "sys_dept#30d";
-
-    /**
      * OSS内容
      */
     String SYS_OSS = "sys_oss#30d";
@@ -66,11 +56,6 @@ public interface CacheNames {
     String SYS_ROLE_CUSTOM = "sys_role_custom#30d";
 
     /**
-     * 部门及以下权限
-     */
-    String SYS_DEPT_AND_CHILD = "sys_dept_and_child#30d";
-
-    /**
      * OSS配置
      */
     String SYS_OSS_CONFIG = GlobalConstants.GLOBAL_REDIS_KEY + "sys_oss_config";
@@ -79,5 +64,4 @@ public interface CacheNames {
      * 在线用户
      */
     String ONLINE_TOKEN = "online_tokens";
-
 }

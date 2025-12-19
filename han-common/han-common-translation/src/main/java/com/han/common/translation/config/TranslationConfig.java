@@ -2,6 +2,7 @@ package com.han.common.translation.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.PostConstruct;
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import com.han.common.translation.annotation.TranslationType;
 import com.han.common.translation.core.TranslationInterface;
@@ -23,10 +24,10 @@ import java.util.Map;
 @AutoConfiguration
 public class TranslationConfig {
 
-    @Autowired
+    @Resource
     private List<TranslationInterface<?>> list;
 
-    @Autowired
+    @Resource
     private ObjectMapper objectMapper;
 
     @PostConstruct
@@ -46,5 +47,4 @@ public class TranslationConfig {
             objectMapper.getSerializerFactory()
                 .withSerializerModifier(new TranslationBeanSerializerModifier()));
     }
-
 }

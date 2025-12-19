@@ -33,5 +33,4 @@ public class EnumPatternValidator implements ConstraintValidator<EnumPattern, St
         }
         return false;
     }
-
 }

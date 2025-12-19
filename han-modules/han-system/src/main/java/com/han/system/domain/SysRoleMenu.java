@@ -10,7 +10,6 @@ import lombok.Data;
  *
  * @author Lion Li
  */
-
 @Data
 @TableName("sys_role_menu")
 public class SysRoleMenu {
@@ -25,5 +24,4 @@ public class SysRoleMenu {
      * 菜单ID
      */
     private Long menuId;
-
 }

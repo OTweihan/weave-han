@@ -23,5 +23,4 @@ public class XcxLoginUser extends LoginUser {
      * openid
      */
     private String openid;
-
 }

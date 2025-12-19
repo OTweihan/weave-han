@@ -25,11 +25,6 @@ public class UserOnlineDTO implements Serializable {
     private String tokenId;
 
     /**
-     * 部门名称
-     */
-    private String deptName;
-
-    /**
      * 用户名称
      */
     private String userName;
@@ -68,5 +63,4 @@ public class UserOnlineDTO implements Serializable {
      * 登录时间
      */
     private Long loginTime;
-
 }

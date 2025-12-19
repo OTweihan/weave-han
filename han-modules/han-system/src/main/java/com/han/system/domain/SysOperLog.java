@@ -13,7 +13,6 @@ import java.util.Date;
  *
  * @author Lion Li
  */
-
 @Data
 @TableName("sys_oper_log")
 public class SysOperLog implements Serializable {
@@ -26,7 +25,6 @@ public class SysOperLog implements Serializable {
      */
     @TableId(value = "oper_id")
     private Long operId;
-
 
     /**
      * 操作模块
@@ -107,5 +105,4 @@ public class SysOperLog implements Serializable {
      * 消耗时间
      */
     private Long costTime;
-
 }
