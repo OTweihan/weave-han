@@ -129,5 +129,4 @@ public interface SysUserMapper extends BaseMapperPlus<SysUser, SysUserVo> {
         @DataColumn(key = "userName", value = "create_by")
     })
     int updateById(@Param(Constants.ENTITY) SysUser user);
-
 }

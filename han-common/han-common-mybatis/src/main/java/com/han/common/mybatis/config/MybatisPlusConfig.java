@@ -129,5 +129,4 @@ public class MybatisPlusConfig {
      * DynamicTableNameInnerInterceptor 动态表名插件
      * https://baomidou.com/pages/2a45ff/
      */
-
 }
