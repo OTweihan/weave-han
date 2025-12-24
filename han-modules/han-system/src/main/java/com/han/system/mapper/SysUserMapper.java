@@ -31,7 +31,6 @@ public interface SysUserMapper extends BaseMapperPlus<SysUser, SysUserVo> {
      * @return 分页的用户信息
      */
     @DataPermission({
-        @DataColumn(key = "deptName", value = "dept_id"),
         @DataColumn(key = "userName", value = "create_by")
     })
     default Page<SysUserVo> selectPageUserList(Page<SysUser> page, Wrapper<SysUser> queryWrapper) {
@@ -45,7 +44,6 @@ public interface SysUserMapper extends BaseMapperPlus<SysUser, SysUserVo> {
      * @return 用户信息集合
      */
     @DataPermission({
-        @DataColumn(key = "deptName", value = "dept_id"),
         @DataColumn(key = "userName", value = "create_by")
     })
     default List<SysUserVo> selectUserList(Wrapper<SysUser> queryWrapper) {
@@ -59,7 +57,6 @@ public interface SysUserMapper extends BaseMapperPlus<SysUser, SysUserVo> {
      * @return 用户信息集合信息
      */
     @DataPermission({
-        @DataColumn(key = "deptName", value = "d.dept_id"),
         @DataColumn(key = "userName", value = "u.create_by")
     })
     List<SysUserExportVo> selectUserExportList(@Param(Constants.WRAPPER) Wrapper<SysUser> queryWrapper);
@@ -72,7 +69,6 @@ public interface SysUserMapper extends BaseMapperPlus<SysUser, SysUserVo> {
      * @return 用户信息集合信息
      */
     @DataPermission({
-        @DataColumn(key = "deptName", value = "d.dept_id"),
         @DataColumn(key = "userName", value = "u.create_by")
     })
     Page<SysUserVo> selectAllocatedList(@Param("page") Page<SysUser> page, @Param(Constants.WRAPPER) Wrapper<SysUser> queryWrapper);
@@ -84,7 +80,6 @@ public interface SysUserMapper extends BaseMapperPlus<SysUser, SysUserVo> {
      * @return 用户信息集合信息
      */
     @DataPermission({
-        @DataColumn(key = "deptName", value = "d.dept_id"),
         @DataColumn(key = "userName", value = "u.create_by")
     })
     Page<SysUserVo> selectUnallocatedList(@Param("page") Page<SysUser> page, @Param(Constants.WRAPPER) Wrapper<SysUser> queryWrapper);
@@ -96,7 +91,6 @@ public interface SysUserMapper extends BaseMapperPlus<SysUser, SysUserVo> {
      * @return 用户数量
      */
     @DataPermission({
-        @DataColumn(key = "deptName", value = "dept_id"),
         @DataColumn(key = "userName", value = "create_by")
     })
     default long countUserById(Long userId) {
@@ -112,7 +106,6 @@ public interface SysUserMapper extends BaseMapperPlus<SysUser, SysUserVo> {
      */
     @Override
     @DataPermission({
-        @DataColumn(key = "deptName", value = "dept_id"),
         @DataColumn(key = "userName", value = "create_by")
     })
     int update(@Param(Constants.ENTITY) SysUser user, @Param(Constants.WRAPPER) Wrapper<SysUser> updateWrapper);
@@ -125,7 +118,6 @@ public interface SysUserMapper extends BaseMapperPlus<SysUser, SysUserVo> {
      */
     @Override
     @DataPermission({
-        @DataColumn(key = "deptName", value = "dept_id"),
         @DataColumn(key = "userName", value = "create_by")
     })
     int updateById(@Param(Constants.ENTITY) SysUser user);
