@@ -47,3 +47,9 @@ nbdist/
 !*/build/*.xml
 
 .flattened-pom.xml
+
+# Project Specific
+.vscode/
+.spec-workflow/
+.serenar/
+logs/
