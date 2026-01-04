@@ -20,8 +20,6 @@ import com.han.common.core.utils.StringUtils;
 import com.han.common.core.utils.ValidatorUtils;
 import com.han.common.encrypt.annotation.ApiEncrypt;
 import com.han.common.json.utils.JsonUtils;
-import com.han.common.ratelimiter.annotation.RateLimiter;
-import com.han.common.ratelimiter.enums.LimitType;
 import com.han.common.satoken.utils.LoginHelper;
 import com.han.common.social.config.properties.SocialLoginConfigProperties;
 import com.han.common.social.config.properties.SocialProperties;

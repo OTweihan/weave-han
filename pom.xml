@@ -434,34 +434,19 @@
                 <version>${revision}</version>
             </dependency>
 
+            <!-- 博客模块 -->
+            <dependency>
+                <groupId>com.han</groupId>
+                <artifactId>han-blog</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
             <!-- 任务调度模块 -->
             <dependency>
                 <groupId>com.han</groupId>
                 <artifactId>han-job</artifactId>
                 <version>${revision}</version>
             </dependency>
-
-            <!-- 代码生成器模块 -->
-            <dependency>
-                <groupId>com.han</groupId>
-                <artifactId>han-generator</artifactId>
-                <version>${revision}</version>
-            </dependency>
-
-            <!-- 示例演示模块 -->
-            <dependency>
-                <groupId>com.han</groupId>
-                <artifactId>han-demo</artifactId>
-                <version>${revision}</version>
-            </dependency>
-
-            <!-- 工作流模块 -->
-            <dependency>
-                <groupId>com.han</groupId>
-                <artifactId>han-workflow</artifactId>
-                <version>${revision}</version>
-            </dependency>
-
         </dependencies>
     </dependencyManagement>
 

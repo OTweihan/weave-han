@@ -25,5 +25,7 @@
     <modules>
         <!-- 系统核心模块 - 系统管理、权限控制、用户管理等核心功能 -->
         <module>han-system</module>
+        <!-- 博客业务模块 - 文章管理、分类管理、标签管理等博客功能 -->
+        <module>han-blog</module>
     </modules>
 </project>
