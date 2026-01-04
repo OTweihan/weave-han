@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <!-- ================================ 父项目配置 ================================ -->
+    <parent>
+        <groupId>com.han</groupId>
+        <artifactId>han-modules</artifactId>
+        <version>${revision}</version>
+    </parent>
+
+    <!-- ================================ 项目基础信息 ================================ -->
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>han-blog</artifactId>
+
+    <description>
+        博客业务模块 - 实现博客系统核心功能
+        包含文章管理、分类管理、标签管理、评论管理、页面管理等博客功能
+        作为博客系统的核心业务模块，提供完整的博客管理功能实现
+    </description>
+
+    <!-- ================================ 依赖配置 ================================ -->
+    <dependencies>
+        <!-- ==================== 基础核心模块 ==================== -->
+        <!-- 核心工具模块 - 提供基础工具类和常量定义 -->
+        <dependency>
+            <groupId>com.han</groupId>
+            <artifactId>han-common-core</artifactId>
+        </dependency>
+
+        <!-- Web服务模块 - 提供Web层的基础功能支持 -->
+        <dependency>
+            <groupId>com.han</groupId>
+            <artifactId>han-common-web</artifactId>
+        </dependency>
+
+        <!-- ==================== 数据库相关模块 ==================== -->
+        <!-- MyBatis增强模块 - 提供数据库操作和分页功能 -->
+        <dependency>
+            <groupId>com.han</groupId>
+            <artifactId>han-common-mybatis</artifactId>
+        </dependency>
+
+        <!-- ==================== 文件处理模块 ==================== -->
+        <!-- Excel处理模块 - 提供Excel导入导出功能 -->
+        <dependency>
+            <groupId>com.han</groupId>
+            <artifactId>han-common-excel</artifactId>
+        </dependency>
+
+        <!-- OSS对象存储模块 - 提供文件上传下载功能 -->
+        <dependency>
+            <groupId>com.han</groupId>
+            <artifactId>han-common-oss</artifactId>
+        </dependency>
+
+        <!-- ==================== 安全与加密模块 ==================== -->
+        <!-- 安全模块 - 提供数据脱敏、密码加密等功能 -->
+        <dependency>
+            <groupId>com.han</groupId>
+            <artifactId>han-common-security</artifactId>
+        </dependency>
+
+        <!-- 加密模块 - 提供数据加密解密功能 -->
+        <dependency>
+            <groupId>com.han</groupId>
+            <artifactId>han-common-encrypt</artifactId>
+        </dependency>
+
+        <!-- 脱敏模块 - 提供敏感信息脱敏功能 -->
+        <dependency>
+            <groupId>com.han</groupId>
+            <artifactId>han-common-sensitive</artifactId>
+        </dependency>
+
+        <!-- ==================== 接口增强模块 ==================== -->
+        <!-- API文档模块 - 提供接口文档生成功能 -->
+        <dependency>
+            <groupId>com.han</groupId>
+            <artifactId>han-common-doc</artifactId>
+        </dependency>
+
+        <!-- 幂等模块 - 提供接口幂等性控制 -->
+        <dependency>
+            <groupId>com.han</groupId>
+            <artifactId>han-common-idempotent</artifactId>
+        </dependency>
+
+        <!-- 限流模块 - 提供接口访问频率限制 -->
+        <dependency>
+            <groupId>com.han</groupId>
+            <artifactId>han-common-ratelimiter</artifactId>
+        </dependency>
+
+        <!-- ==================== 通信与推送模块 ==================== -->
+        <!-- WebSocket模块 - 提供实时通信功能 -->
+        <dependency>
+            <groupId>com.han</groupId>
+            <artifactId>han-common-websocket</artifactId>
+        </dependency>
+
+        <!-- SSE模块 - 提供服务端推送事件功能 -->
+        <dependency>
+            <groupId>com.han</groupId>
+            <artifactId>han-common-sse</artifactId>
+        </dependency>
+
+        <!-- ==================== 业务功能模块 ==================== -->
+        <!-- 翻译模块 - 提供多语言翻译功能 -->
+        <dependency>
+            <groupId>com.han</groupId>
+            <artifactId>han-common-translation</artifactId>
+        </dependency>
+
+        <!-- 日志模块 - 提供日志记录和管理功能 -->
+        <dependency>
+            <groupId>com.han</groupId>
+            <artifactId>han-common-log</artifactId>
+        </dependency>
+
+        <!-- 短信服务模块 - 提供短信发送功能 -->
+        <dependency>
+            <groupId>com.han</groupId>
+            <artifactId>han-common-sms</artifactId>
+        </dependency>
+    </dependencies>
+</project>
+
