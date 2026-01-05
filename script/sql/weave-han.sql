@@ -80,37 +80,6 @@ CREATE TABLE `blog_comment`  (
 -- ----------------------------
 
 -- ----------------------------
--- Table structure for blog_config
--- ----------------------------
-DROP TABLE IF EXISTS `blog_config`;
-CREATE TABLE `blog_config`  (
-  `config_id` bigint NOT NULL COMMENT '配置ID',
-  `config_key` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '配置键',
-  `config_value` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT '配置值',
-  `config_type` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT 'STRING' COMMENT '配置类型（STRING NUMBER BOOLEAN JSON）',
-  `description` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '配置描述',
-  `is_public` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '1' COMMENT '是否公开（0私有 1公开）',
-  `create_by` bigint NULL DEFAULT NULL COMMENT '创建者',
-  `create_time` datetime NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  `update_by` bigint NULL DEFAULT NULL COMMENT '更新者',
-  `update_time` datetime NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-  PRIMARY KEY (`config_id`) USING BTREE,
-  UNIQUE INDEX `uk_config_key`(`config_key` ASC) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '博客配置表' ROW_FORMAT = DYNAMIC;
-
--- ----------------------------
--- Records of blog_config
--- ----------------------------
-INSERT INTO `blog_config` VALUES (1, 'site_name', '我的博客', 'STRING', '网站名称', '1', 1, '2025-12-20 10:14:19', NULL, '2025-12-20 10:14:19');
-INSERT INTO `blog_config` VALUES (2, 'site_description', '基于若依开发的个人博客系统', 'STRING', '网站描述', '1', 1, '2025-12-20 10:14:19', NULL, '2025-12-20 10:14:19');
-INSERT INTO `blog_config` VALUES (3, 'site_keywords', '博客,技术,分享', 'STRING', '网站关键词', '1', 1, '2025-12-20 10:14:19', NULL, '2025-12-20 10:14:19');
-INSERT INTO `blog_config` VALUES (4, 'site_author', '管理员', 'STRING', '网站作者', '1', 1, '2025-12-20 10:14:19', NULL, '2025-12-20 10:14:19');
-INSERT INTO `blog_config` VALUES (5, 'posts_per_page', '10', 'NUMBER', '每页文章数量', '1', 1, '2025-12-20 10:14:19', NULL, '2025-12-20 10:14:19');
-INSERT INTO `blog_config` VALUES (6, 'comment_enabled', 'true', 'BOOLEAN', '是否开启评论', '1', 1, '2025-12-20 10:14:19', NULL, '2025-12-20 10:14:19');
-INSERT INTO `blog_config` VALUES (7, 'comment_audit', 'false', 'BOOLEAN', '评论是否需要审核', '1', 1, '2025-12-20 10:14:19', NULL, '2025-12-20 10:14:19');
-INSERT INTO `blog_config` VALUES (8, 'visit_statistics', 'true', 'BOOLEAN', '是否开启访问统计', '1', 1, '2025-12-20 10:14:19', NULL, '2025-12-20 10:14:19');
-
--- ----------------------------
 -- Table structure for blog_draft
 -- ----------------------------
 DROP TABLE IF EXISTS `blog_draft`;
@@ -120,17 +89,32 @@ CREATE TABLE `blog_draft`  (
   `title` varchar(300) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '标题',
   `content` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT '内容',
   `category_id` bigint NULL DEFAULT NULL COMMENT '分类ID',
-  `tags` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '标签（逗号分隔）',
   `create_by` bigint NULL DEFAULT NULL COMMENT '创建者',
   `create_time` datetime NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `update_by` bigint NULL DEFAULT NULL COMMENT '更新者',
   `update_time` datetime NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   PRIMARY KEY (`draft_id`) USING BTREE,
   INDEX `idx_user_id`(`user_id` ASC) USING BTREE,
-  INDEX `fk_draft_category`(`category_id` ASC) USING BTREE,
+  INDEX `idx_category_id`(`category_id` ASC) USING BTREE,
+  INDEX `idx_create_time`(`create_time` ASC) USING BTREE,
   CONSTRAINT `fk_draft_category` FOREIGN KEY (`category_id`) REFERENCES `blog_category` (`category_id`) ON DELETE SET NULL ON UPDATE RESTRICT,
   CONSTRAINT `fk_draft_user` FOREIGN KEY (`user_id`) REFERENCES `sys_user` (`user_id`) ON DELETE RESTRICT ON UPDATE RESTRICT
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '草稿箱表' ROW_FORMAT = DYNAMIC;
+
+-- ----------------------------
+-- Table structure for blog_draft_tag
+-- ----------------------------
+DROP TABLE IF EXISTS `blog_draft_tag`;
+CREATE TABLE `blog_draft_tag`  (
+  `draft_id` bigint NOT NULL COMMENT '草稿ID',
+  `tag_id` bigint NOT NULL COMMENT '标签ID',
+  `create_by` bigint NULL DEFAULT NULL COMMENT '创建者',
+  `create_time` datetime NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  PRIMARY KEY (`draft_id`, `tag_id`) USING BTREE,
+  INDEX `fk_draft_tag_tag`(`tag_id` ASC) USING BTREE,
+  CONSTRAINT `fk_draft_tag_draft` FOREIGN KEY (`draft_id`) REFERENCES `blog_draft` (`draft_id`) ON DELETE CASCADE ON UPDATE RESTRICT,
+  CONSTRAINT `fk_draft_tag_tag` FOREIGN KEY (`tag_id`) REFERENCES `blog_tag` (`tag_id`) ON DELETE CASCADE ON UPDATE RESTRICT
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '草稿标签关联表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of blog_draft
@@ -144,7 +128,7 @@ CREATE TABLE `blog_image`  (
   `image_id` bigint NOT NULL COMMENT '图片ID',
   `oss_id` bigint NOT NULL COMMENT 'OSS文件ID',
   `image_name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '图片名称',
-  `image_type` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '图片类型',
+  `image_type` tinyint NOT NULL DEFAULT 0 COMMENT '图片类型（关联字典表blog_image_type）',
   `post_id` bigint NULL DEFAULT NULL COMMENT '关联文章ID',
   `category_id` bigint NULL DEFAULT NULL COMMENT '关联分类ID',
   `original_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '原始文件名',
@@ -152,7 +136,7 @@ CREATE TABLE `blog_image`  (
   `caption` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '图片标题/说明',
   `width` int NULL DEFAULT NULL COMMENT '图片宽度',
   `height` int NULL DEFAULT NULL COMMENT '图片高度',
-  `file_size` bigint NULL DEFAULT NULL COMMENT '文件大小（字节）',
+  `file_size` int NULL DEFAULT NULL COMMENT '文件大小（字节）',
   `mime_type` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT 'MIME类型',
   `sort_order` int NULL DEFAULT 0 COMMENT '排序',
   `is_public` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '1' COMMENT '是否公开（0私有 1公开）',
@@ -165,11 +149,12 @@ CREATE TABLE `blog_image`  (
   PRIMARY KEY (`image_id`) USING BTREE,
   UNIQUE INDEX `uk_oss_id`(`oss_id` ASC) USING BTREE,
   INDEX `idx_image_type`(`image_type` ASC) USING BTREE,
-  INDEX `idx_post_id`(`post_id` ASC) USING BTREE,
-  INDEX `idx_category_id`(`category_id` ASC) USING BTREE,
-  INDEX `idx_create_by`(`create_by` ASC) USING BTREE,
-  INDEX `idx_is_public`(`is_public` ASC) USING BTREE,
-  INDEX `idx_create_time`(`create_time` ASC) USING BTREE,
+  INDEX `idx_post_id`(`post_id` ASC, `del_flag` ASC) USING BTREE,
+  INDEX `idx_category_id`(`category_id` ASC, `del_flag` ASC) USING BTREE,
+  INDEX `idx_create_by`(`create_by` ASC, `del_flag` ASC) USING BTREE,
+  INDEX `idx_is_public`(`is_public` ASC, `del_flag` ASC) USING BTREE,
+  INDEX `idx_create_time`(`create_time` DESC, `del_flag` ASC) USING BTREE,
+  INDEX `idx_visit_count`(`visit_count` DESC, `del_flag` ASC) USING BTREE,
   CONSTRAINT `fk_blog_image_category` FOREIGN KEY (`category_id`) REFERENCES `blog_category` (`category_id`) ON DELETE SET NULL ON UPDATE RESTRICT,
   CONSTRAINT `fk_blog_image_oss` FOREIGN KEY (`oss_id`) REFERENCES `sys_oss` (`oss_id`) ON DELETE CASCADE ON UPDATE RESTRICT,
   CONSTRAINT `fk_blog_image_post` FOREIGN KEY (`post_id`) REFERENCES `blog_post` (`post_id`) ON DELETE SET NULL ON UPDATE RESTRICT
@@ -363,15 +348,14 @@ DROP TABLE IF EXISTS `blog_visit`;
 CREATE TABLE `blog_visit`  (
   `visit_id` bigint NOT NULL COMMENT '访问ID',
   `post_id` bigint NULL DEFAULT NULL COMMENT '文章ID',
-  `ip_address` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT 'IP地址',
-  `user_agent` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '用户代理',
+  `ip_address` varchar(45) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT 'IP地址',
+  `user_agent` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '用户代理',
   `referer` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '来源页面',
   `visit_time` datetime NULL DEFAULT CURRENT_TIMESTAMP COMMENT '访问时间',
   PRIMARY KEY (`visit_id`) USING BTREE,
-  INDEX `idx_post_id`(`post_id` ASC) USING BTREE,
-  INDEX `idx_ip_address`(`ip_address` ASC) USING BTREE,
-  INDEX `idx_visit_time`(`visit_time` ASC) USING BTREE,
-  INDEX `idx_post_time`(`post_id` ASC, `visit_time` ASC) USING BTREE,
+  INDEX `idx_post_time`(`post_id` ASC, `visit_time` DESC) USING BTREE,
+  INDEX `idx_visit_time`(`visit_time` DESC) USING BTREE,
+  INDEX `idx_ip_post`(`ip_address` ASC, `post_id` ASC, `visit_time` ASC) USING BTREE,
   CONSTRAINT `fk_visit_post` FOREIGN KEY (`post_id`) REFERENCES `blog_post` (`post_id`) ON DELETE SET NULL ON UPDATE RESTRICT
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '访问统计表' ROW_FORMAT = DYNAMIC;
 
@@ -433,6 +417,14 @@ INSERT INTO `sys_config` VALUES (2, '用户管理-账号初始密码', 'sys.user
 INSERT INTO `sys_config` VALUES (3, '主框架页-侧边栏主题', 'sys.index.sideTheme', 'theme-dark', 'Y', 1, '2025-12-20 10:28:34', NULL, NULL, '深色主题theme-dark，浅色主题theme-light');
 INSERT INTO `sys_config` VALUES (5, '账号自助-是否开启用户注册功能', 'sys.account.registerUser', 'false', 'Y', 1, '2025-12-20 10:28:34', NULL, NULL, '是否开启注册用户功能（true开启，false关闭）');
 INSERT INTO `sys_config` VALUES (11, 'OSS预览列表资源开关', 'sys.oss.previewListResource', 'true', 'Y', 1, '2025-12-20 10:28:34', NULL, NULL, 'true:开启, false:关闭');
+INSERT INTO `sys_config` VALUES (12, '网站名称', 'blog.site_name', '我的博客', 'N', 1, '2025-12-20 10:14:19', NULL, NULL, '博客网站名称');
+INSERT INTO `sys_config` VALUES (13, '网站描述', 'blog.site_description', '基于若依开发的个人博客系统', 'N', 1, '2025-12-20 10:14:19', NULL, NULL, '博客网站描述');
+INSERT INTO `sys_config` VALUES (14, '网站关键词', 'blog.site_keywords', '博客,技术,分享', 'N', 1, '2025-12-20 10:14:19', NULL, NULL, '博客网站关键词');
+INSERT INTO `sys_config` VALUES (15, '网站作者', 'blog.site_author', '管理员', 'N', 1, '2025-12-20 10:14:19', NULL, NULL, '博客网站作者');
+INSERT INTO `sys_config` VALUES (16, '每页文章数量', 'blog.posts_per_page', '10', 'N', 1, '2025-12-20 10:14:19', NULL, NULL, '博客每页显示的文章数量');
+INSERT INTO `sys_config` VALUES (17, '是否开启评论', 'blog.comment_enabled', 'true', 'N', 1, '2025-12-20 10:14:19', NULL, NULL, '博客是否允许评论');
+INSERT INTO `sys_config` VALUES (18, '评论是否需要审核', 'blog.comment_audit', 'false', 'N', 1, '2025-12-20 10:14:19', NULL, NULL, '博客评论是否需要审核');
+INSERT INTO `sys_config` VALUES (19, '是否开启访问统计', 'blog.visit_statistics', 'true', 'N', 1, '2025-12-20 10:14:19', NULL, NULL, '博客是否开启访问统计');
 
 -- ----------------------------
 -- Table structure for sys_dict_data
@@ -584,11 +576,16 @@ CREATE TABLE `sys_menu`  (
   `perms` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '权限标识',
   `icon` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '#' COMMENT '菜单图标',
   `create_by` bigint NULL DEFAULT NULL COMMENT '创建者',
-  `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
+  `create_time` datetime NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `update_by` bigint NULL DEFAULT NULL COMMENT '更新者',
-  `update_time` datetime NULL DEFAULT NULL COMMENT '更新时间',
+  `update_time` datetime NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   `remark` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '' COMMENT '备注',
-  PRIMARY KEY (`menu_id`) USING BTREE
+  PRIMARY KEY (`menu_id`) USING BTREE,
+  INDEX `idx_parent_id`(`parent_id` ASC) USING BTREE,
+  INDEX `idx_menu_type`(`menu_type` ASC) USING BTREE,
+  INDEX `idx_menu_status`(`status` ASC, `visible` ASC) USING BTREE,
+  INDEX `idx_order_num`(`order_num` ASC) USING BTREE,
+  INDEX `idx_path`(`path` ASC) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '菜单权限表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
@@ -677,14 +674,17 @@ CREATE TABLE `sys_notice`  (
   `notice_id` bigint NOT NULL COMMENT '公告ID',
   `notice_title` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '公告标题',
   `notice_type` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '公告类型（1通知 2公告）',
-  `notice_content` longblob NULL COMMENT '公告内容',
+  `notice_content` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT '公告内容',
   `status` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '0' COMMENT '公告状态（0正常 1关闭）',
   `create_by` bigint NULL DEFAULT NULL COMMENT '创建者',
-  `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
+  `create_time` datetime NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `update_by` bigint NULL DEFAULT NULL COMMENT '更新者',
-  `update_time` datetime NULL DEFAULT NULL COMMENT '更新时间',
+  `update_time` datetime NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   `remark` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '备注',
-  PRIMARY KEY (`notice_id`) USING BTREE
+  PRIMARY KEY (`notice_id`) USING BTREE,
+  INDEX `idx_notice_type`(`notice_type` ASC) USING BTREE,
+  INDEX `idx_notice_status`(`status` ASC) USING BTREE,
+  INDEX `idx_notice_create_time`(`create_time` DESC) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '通知公告表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
@@ -800,11 +800,15 @@ CREATE TABLE `sys_role`  (
   `status` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '角色状态（0正常 1停用）',
   `del_flag` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '0' COMMENT '删除标志（0代表存在 1代表删除）',
   `create_by` bigint NULL DEFAULT NULL COMMENT '创建者',
-  `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
+  `create_time` datetime NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `update_by` bigint NULL DEFAULT NULL COMMENT '更新者',
-  `update_time` datetime NULL DEFAULT NULL COMMENT '更新时间',
+  `update_time` datetime NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   `remark` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '备注',
-  PRIMARY KEY (`role_id`) USING BTREE
+  PRIMARY KEY (`role_id`) USING BTREE,
+  UNIQUE INDEX `uk_role_key`(`role_key` ASC) USING BTREE,
+  INDEX `idx_role_name`(`role_name` ASC) USING BTREE,
+  INDEX `idx_role_status`(`status` ASC, `del_flag` ASC) USING BTREE,
+  INDEX `idx_role_sort`(`role_sort` ASC) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '角色信息表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
@@ -936,7 +940,12 @@ CREATE TABLE `sys_social`  (
   `update_by` bigint NULL DEFAULT NULL COMMENT '更新者',
   `update_time` datetime NULL DEFAULT NULL COMMENT '更新时间',
   `del_flag` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '0' COMMENT '删除标志（0代表存在 1代表删除）',
-  PRIMARY KEY (`id`) USING BTREE
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `idx_user_id`(`user_id` ASC) USING BTREE,
+  INDEX `idx_auth_id`(`auth_id` ASC) USING BTREE,
+  INDEX `idx_source`(`source` ASC) USING BTREE,
+  INDEX `idx_open_id`(`open_id` ASC) USING BTREE,
+  CONSTRAINT `fk_social_user` FOREIGN KEY (`user_id`) REFERENCES `sys_user` (`user_id`) ON DELETE CASCADE ON UPDATE RESTRICT
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '社会化关系表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
@@ -956,17 +965,24 @@ CREATE TABLE `sys_user`  (
   `phonenumber` varchar(11) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '' COMMENT '手机号码',
   `sex` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '0' COMMENT '用户性别（0男 1女 2未知）',
   `avatar` bigint NULL DEFAULT NULL COMMENT '头像地址',
-  `password` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '' COMMENT '密码',
+  `password` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '' COMMENT '密码',
   `status` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '0' COMMENT '帐号状态（0正常 1停用）',
   `del_flag` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '0' COMMENT '删除标志（0代表存在 1代表删除）',
-  `login_ip` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '' COMMENT '最后登录IP',
+  `login_ip` varchar(45) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '' COMMENT '最后登录IP',
   `login_date` datetime NULL DEFAULT NULL COMMENT '最后登录时间',
   `create_by` bigint NULL DEFAULT NULL COMMENT '创建者',
-  `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
+  `create_time` datetime NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `update_by` bigint NULL DEFAULT NULL COMMENT '更新者',
-  `update_time` datetime NULL DEFAULT NULL COMMENT '更新时间',
+  `update_time` datetime NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   `remark` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '备注',
-  PRIMARY KEY (`user_id`) USING BTREE
+  PRIMARY KEY (`user_id`) USING BTREE,
+  UNIQUE INDEX `uk_user_name`(`user_name` ASC) USING BTREE,
+  INDEX `idx_nick_name`(`nick_name` ASC) USING BTREE,
+  INDEX `idx_email`(`email` ASC) USING BTREE,
+  INDEX `idx_phonenumber`(`phonenumber` ASC) USING BTREE,
+  INDEX `idx_status`(`status` ASC, `del_flag` ASC) USING BTREE,
+  INDEX `idx_create_time`(`create_time` DESC) USING BTREE,
+  INDEX `idx_login_date`(`login_date` DESC) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '用户信息表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
