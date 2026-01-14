@@ -1,13 +1,11 @@
 package com.han.blog.domain.vo;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.han.blog.domain.BlogPost;
 import io.github.linpeilie.annotations.AutoMapper;
 import lombok.Data;
 
 import java.io.Serial;
 import java.io.Serializable;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -43,24 +41,9 @@ public class BlogPostVo implements Serializable {
     private String summary;
 
     /**
-     * 文章内容
-     */
-    private String content;
-
-    /**
-     * 渲染后的HTML内容
-     */
-    private String contentHtml;
-
-    /**
      * 封面图片ID
      */
     private Long coverImage;
-
-    /**
-     * 封面图片URL
-     */
-    private String coverImageUrl;
 
     /**
      * 作者ID
@@ -68,29 +51,9 @@ public class BlogPostVo implements Serializable {
     private Long authorId;
 
     /**
-     * 作者名称
-     */
-    private String authorName;
-
-    /**
      * 分类ID
      */
     private Long categoryId;
-
-    /**
-     * 分类名称
-     */
-    private String categoryName;
-
-    /**
-     * 分类别名
-     */
-    private String categorySlug;
-
-    /**
-     * 标签列表
-     */
-    private List<BlogTagVo> tags;
 
     /**
      * 状态（0草稿 1发布 2下架 3回收站）
@@ -113,29 +76,9 @@ public class BlogPostVo implements Serializable {
     private String allowComment;
 
     /**
-     * 浏览量
+     * 文章访问密码
      */
-    private Integer viewCount;
-
-    /**
-     * 点赞数
-     */
-    private Integer likeCount;
-
-    /**
-     * 评论数
-     */
-    private Integer commentCount;
-
-    /**
-     * 字数统计
-     */
-    private Integer wordCount;
-
-    /**
-     * 预计阅读时间（分钟）
-     */
-    private Integer readingTime;
+    private String password;
 
     /**
      * 来源类型（ORIGINAL原创 REPRINT转载 TRANSLATION翻译）

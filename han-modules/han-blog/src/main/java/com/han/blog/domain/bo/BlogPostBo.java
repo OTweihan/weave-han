@@ -9,7 +9,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
+import java.util.Date;
 
 /**
  * @Author: WeiHan
@@ -48,25 +48,22 @@ public class BlogPostBo extends BaseEntity {
     private String summary;
 
     /**
-     * 文章内容
-     */
-    @NotBlank(message = "文章内容不能为空")
-    private String content;
-
-    /**
      * 封面图片ID
      */
+    @NotBlank(message = "封面图片ID不能为空")
     private Long coverImage;
+
+    /**
+     * 作者ID
+     */
+    @NotBlank(message = "作者ID不能为空")
+    private Long authorId;
 
     /**
      * 分类ID
      */
+    @NotBlank(message = "分类ID不能为空")
     private Long categoryId;
-
-    /**
-     * 标签ID列表
-     */
-    private List<Long> tagIds;
 
     /**
      * 状态（0草稿 1发布 2下架 3回收站）
@@ -92,12 +89,13 @@ public class BlogPostBo extends BaseEntity {
     /**
      * 文章访问密码
      */
-    @Size(max = 32, message = "文章访问密码不能超过32个字符")
+    @Size(max = 32, message = "文章访问密码不能超过100个字符")
     private String password;
 
     /**
      * 来源类型（ORIGINAL原创 REPRINT转载 TRANSLATION翻译）
      */
+    @NotBlank(message = "来源类型不能为空")
     private String sourceType;
 
     /**
@@ -117,4 +115,9 @@ public class BlogPostBo extends BaseEntity {
      */
     @Size(max = 300, message = "SEO描述不能超过300个字符")
     private String seoDescription;
+
+    /**
+     * 发布时间
+     */
+    private Date publishedTime;
 }

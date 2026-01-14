@@ -11,7 +11,7 @@ import java.util.Date;
 
 /**
  * @Author: WeiHan
- * @CreateTime: 2026-01-05
+ * @CreateTime: 2026-01-14
  * @Description: 博客文章表
  */
 @Data
@@ -42,16 +42,6 @@ public class BlogPost extends BaseEntity {
     private String summary;
 
     /**
-     * 文章内容
-     */
-    private String content;
-
-    /**
-     * 渲染后的HTML内容
-     */
-    private String contentHtml;
-
-    /**
      * 封面图片ID
      */
     private Long coverImage;
@@ -69,47 +59,22 @@ public class BlogPost extends BaseEntity {
     /**
      * 状态（0草稿 1发布 2下架 3回收站）
      */
-    private String status;
+    private Integer status;
 
     /**
      * 是否置顶（0否 1是）
      */
-    private String isTop;
+    private Integer isTop;
 
     /**
      * 是否推荐（0否 1是）
      */
-    private String isFeatured;
+    private Integer isFeatured;
 
     /**
      * 允许评论（0否 1是）
      */
-    private String allowComment;
-
-    /**
-     * 浏览量
-     */
-    private Integer viewCount;
-
-    /**
-     * 点赞数
-     */
-    private Integer likeCount;
-
-    /**
-     * 评论数
-     */
-    private Integer commentCount;
-
-    /**
-     * 字数统计
-     */
-    private Integer wordCount;
-
-    /**
-     * 预计阅读时间（分钟）
-     */
-    private Integer readingTime;
+    private Integer allowComment;
 
     /**
      * 文章访问密码
@@ -149,5 +114,5 @@ public class BlogPost extends BaseEntity {
     /**
      * 删除标志（0存在 1删除）
      */
-    private String delFlag;
+    private Integer delFlag;
 }

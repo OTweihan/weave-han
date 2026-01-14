@@ -10,18 +10,18 @@ import java.util.Date;
 /**
  * @Author: WeiHan
  * @CreateTime: 2026-01-14
- * @Description: 文章标签关联表
+ * @Description: 草稿标签关联表
  */
 @Data
 @NoArgsConstructor
-@TableName("blog_post_tag")
-public class BlogPostTag {
+@TableName("blog_draft_tag")
+public class BlogDraftTag {
 
     /**
-     * 文章ID
+     * 草稿ID
      */
     @TableId
-    private Long postId;
+    private Long draftId;
 
     /**
      * 标签ID
@@ -38,5 +38,9 @@ public class BlogPostTag {
      * 创建时间
      */
     private Date createTime;
-}
 
+    /**
+     * 删除标志（0存在 1删除）
+     */
+    private Integer delFlag;
+}
