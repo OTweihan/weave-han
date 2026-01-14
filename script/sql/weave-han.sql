@@ -11,7 +11,7 @@
  Target Server Version : 80030 (8.0.30-cynos)
  File Encoding         : 65001
 
- Date: 14/01/2026 10:18:46
+ Date: 14/01/2026 10:38:06
 */
 
 SET NAMES utf8mb4;
@@ -27,6 +27,7 @@ CREATE TABLE `blog_category`  (
   `slug` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '分类别名',
   `description` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '分类描述',
   `parent_id` bigint NULL DEFAULT 0 COMMENT '父分类ID',
+  `ancestors` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '0' COMMENT '祖先路径（如：0,1,2）',
   `sort_order` int NULL DEFAULT 0 COMMENT '排序',
   `cover_image` bigint NULL DEFAULT NULL COMMENT '分类封面图片ID',
   `post_count` int NULL DEFAULT 0 COMMENT '文章数量',
@@ -35,12 +36,10 @@ CREATE TABLE `blog_category`  (
   `update_by` bigint NULL DEFAULT NULL COMMENT '更新者',
   `update_time` datetime NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   `del_flag` tinyint NULL DEFAULT 0 COMMENT '删除标志（0存在 1删除）',
-  `del_flag` tinyint NULL DEFAULT 0 COMMENT '删除标志（0存在 1删除）',
   PRIMARY KEY (`category_id`) USING BTREE,
   UNIQUE INDEX `uk_slug`(`slug` ASC) USING BTREE,
   INDEX `idx_parent_id`(`parent_id` ASC) USING BTREE,
-
-  INDEX `fk_category_cover_image`(`cover_image` ASC) USING BTREE
+  INDEX `idx_ancestors`(`ancestors` ASC) USING BTREE,
   INDEX `fk_category_cover_image`(`cover_image` ASC) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '博客分类表' ROW_FORMAT = DYNAMIC;
 
@@ -61,25 +60,18 @@ CREATE TABLE `blog_comment`  (
   `user_email` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '邮箱（游客）',
   `user_ip` varchar(45) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT 'IP地址（支持IPv6）',
   `user_agent` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '用户代理',
-  `user_email` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '邮箱（游客）',
-  `user_ip` varchar(45) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT 'IP地址（支持IPv6）',
-  `user_agent` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '用户代理',
   `content` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '评论内容',
-  `status` tinyint NULL DEFAULT 0 COMMENT '状态（0待审核 1通过 2拒绝）',
   `status` tinyint NULL DEFAULT 0 COMMENT '状态（0待审核 1通过 2拒绝）',
   `like_count` int NULL DEFAULT 0 COMMENT '点赞数',
   `create_time` datetime NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `update_time` datetime NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-  `del_flag` tinyint NULL DEFAULT 0 COMMENT '删除标志（0存在 1删除）',
   `del_flag` tinyint NULL DEFAULT 0 COMMENT '删除标志（0存在 1删除）',
   PRIMARY KEY (`comment_id`) USING BTREE,
   INDEX `idx_post_id`(`post_id` ASC) USING BTREE,
   INDEX `idx_parent_id`(`parent_id` ASC) USING BTREE,
   INDEX `idx_user_id`(`user_id` ASC) USING BTREE,
   INDEX `idx_user_create_time`(`user_id` ASC, `create_time` DESC) USING BTREE,
-  INDEX `idx_user_create_time`(`user_id` ASC, `create_time` DESC) USING BTREE,
   INDEX `idx_status`(`status` ASC) USING BTREE,
-  INDEX `idx_post_status_time`(`post_id` ASC, `status` ASC, `create_time` ASC) USING BTREE
   INDEX `idx_post_status_time`(`post_id` ASC, `status` ASC, `create_time` ASC) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '博客评论表' ROW_FORMAT = DYNAMIC;
 
@@ -105,7 +97,6 @@ CREATE TABLE `blog_draft`  (
   INDEX `idx_user_id`(`user_id` ASC) USING BTREE,
   INDEX `idx_category_id`(`category_id` ASC) USING BTREE,
   INDEX `idx_create_time`(`create_time` ASC) USING BTREE
-  INDEX `idx_create_time`(`create_time` ASC) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '草稿箱表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
@@ -122,9 +113,7 @@ CREATE TABLE `blog_draft_tag`  (
   `create_by` bigint NULL DEFAULT NULL COMMENT '创建者',
   `create_time` datetime NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `del_flag` tinyint NULL DEFAULT 0 COMMENT '删除标志（0存在 1删除）',
-  `del_flag` tinyint NULL DEFAULT 0 COMMENT '删除标志（0存在 1删除）',
   PRIMARY KEY (`draft_id`, `tag_id`) USING BTREE,
-  INDEX `fk_draft_tag_tag`(`tag_id` ASC) USING BTREE
   INDEX `fk_draft_tag_tag`(`tag_id` ASC) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '草稿标签关联表' ROW_FORMAT = DYNAMIC;
 
@@ -152,24 +141,14 @@ CREATE TABLE `blog_image`  (
   `mime_type` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT 'MIME类型',
   `sort_order` int NULL DEFAULT 0 COMMENT '排序',
   `is_public` tinyint NULL DEFAULT 1 COMMENT '是否公开（0私有 1公开）',
-  `is_public` tinyint NULL DEFAULT 1 COMMENT '是否公开（0私有 1公开）',
   `visit_count` int NULL DEFAULT 0 COMMENT '访问次数',
   `create_by` bigint NULL DEFAULT NULL COMMENT '创建者',
   `create_time` datetime NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `update_by` bigint NULL DEFAULT NULL COMMENT '更新者',
   `update_time` datetime NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   `del_flag` tinyint NULL DEFAULT 0 COMMENT '删除标志（0存在 1删除）',
-  `del_flag` tinyint NULL DEFAULT 0 COMMENT '删除标志（0存在 1删除）',
   PRIMARY KEY (`image_id`) USING BTREE,
   UNIQUE INDEX `uk_oss_id`(`oss_id` ASC) USING BTREE,
-  INDEX `idx_image_type`(`image_type` ASC, `del_flag` ASC) USING BTREE,
-  INDEX `idx_post_id`(`post_id` ASC) USING BTREE,
-  INDEX `idx_category_id`(`category_id` ASC) USING BTREE,
-  INDEX `idx_create_by`(`create_by` ASC) USING BTREE,
-  INDEX `idx_is_public`(`is_public` ASC) USING BTREE,
-  INDEX `idx_create_time`(`create_time` DESC) USING BTREE,
-  INDEX `idx_visit_count`(`visit_count` DESC) USING BTREE,
-  INDEX `idx_del_flag`(`del_flag` ASC) USING BTREE
   INDEX `idx_image_type`(`image_type` ASC, `del_flag` ASC) USING BTREE,
   INDEX `idx_post_id`(`post_id` ASC) USING BTREE,
   INDEX `idx_category_id`(`category_id` ASC) USING BTREE,
@@ -202,21 +181,8 @@ CREATE TABLE `blog_like` (
     ) USING BTREE,
     INDEX `idx_post_id` (`post_id` ASC) USING BTREE,
     INDEX `idx_user_id` (`user_id` ASC) USING BTREE
-CREATE TABLE `blog_like` (
-    `like_id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '点赞ID',
-    `post_id` BIGINT NOT NULL COMMENT '文章ID',
-    `user_id` BIGINT NULL DEFAULT NULL COMMENT '用户ID（登录用户）',
-    `ip_address` VARCHAR(45) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT 'IP地址（游客，支持IPv6）',
-    `create_time` DATETIME NULL DEFAULT CURRENT_TIMESTAMP COMMENT '点赞时间',
-    PRIMARY KEY (`like_id`) USING BTREE,
-    UNIQUE INDEX `uk_post_user_ip` (
-        `post_id` ASC,
-        ((COALESCE(`user_id`, 0))) ASC,
-        ((COALESCE(`ip_address`, ''))) ASC
-    ) USING BTREE,
-    INDEX `idx_post_id` (`post_id` ASC) USING BTREE,
-    INDEX `idx_user_id` (`user_id` ASC) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '文章点赞表' ROW_FORMAT = DYNAMIC;
+
 -- ----------------------------
 -- Records of blog_like
 -- ----------------------------
@@ -234,7 +200,6 @@ CREATE TABLE `blog_link`  (
   `target` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '_blank' COMMENT '打开方式',
   `sort_order` int NULL DEFAULT 0 COMMENT '排序',
   `status` tinyint NULL DEFAULT 0 COMMENT '状态（0正常 1停用）',
-  `status` tinyint NULL DEFAULT 0 COMMENT '状态（0正常 1停用）',
   `create_by` bigint NULL DEFAULT NULL COMMENT '创建者',
   `create_time` datetime NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `update_by` bigint NULL DEFAULT NULL COMMENT '更新者',
@@ -242,7 +207,6 @@ CREATE TABLE `blog_link`  (
   PRIMARY KEY (`link_id`) USING BTREE,
   INDEX `idx_status`(`status` ASC) USING BTREE,
   INDEX `idx_sort_order`(`sort_order` ASC) USING BTREE,
-  INDEX `fk_link_logo`(`logo` ASC) USING BTREE
   INDEX `fk_link_logo`(`logo` ASC) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '友情链接表' ROW_FORMAT = DYNAMIC;
 
@@ -263,14 +227,11 @@ CREATE TABLE `blog_page`  (
   `template` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT 'default' COMMENT '页面模板',
   `status` tinyint NULL DEFAULT 0 COMMENT '状态（0草稿 1发布 2下架）',
   `comment_enabled` tinyint NULL DEFAULT 0 COMMENT '允许评论（0否 1是）',
-  `status` tinyint NULL DEFAULT 0 COMMENT '状态（0草稿 1发布 2下架）',
-  `comment_enabled` tinyint NULL DEFAULT 0 COMMENT '允许评论（0否 1是）',
   `sort_order` int NULL DEFAULT 0 COMMENT '排序',
   `create_by` bigint NULL DEFAULT NULL COMMENT '创建者',
   `create_time` datetime NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `update_by` bigint NULL DEFAULT NULL COMMENT '更新者',
   `update_time` datetime NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-  `del_flag` tinyint NULL DEFAULT 0 COMMENT '删除标志（0存在 1删除）',
   `del_flag` tinyint NULL DEFAULT 0 COMMENT '删除标志（0存在 1删除）',
   PRIMARY KEY (`page_id`) USING BTREE,
   UNIQUE INDEX `uk_slug`(`slug` ASC) USING BTREE,
@@ -280,22 +241,6 @@ CREATE TABLE `blog_page`  (
 -- ----------------------------
 -- Records of blog_page
 -- ----------------------------
-
--- ----------------------------
--- Table structure for blog_post_stats
--- ----------------------------
-DROP TABLE IF EXISTS `blog_post_stats`;
-CREATE TABLE `blog_post_stats`  (
-  `post_id` bigint NOT NULL COMMENT '文章ID',
-  `view_count` int NULL DEFAULT 0 COMMENT '浏览量',
-  `like_count` int NULL DEFAULT 0 COMMENT '点赞数',
-  `comment_count` int NULL DEFAULT 0 COMMENT '评论数',
-  `update_time` datetime NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-  PRIMARY KEY (`post_id`) USING BTREE,
-  INDEX `idx_view_count`(`view_count` DESC) USING BTREE,
-  INDEX `idx_like_count`(`like_count` DESC) USING BTREE,
-  INDEX `idx_comment_count`(`comment_count` DESC) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '博客文章统计表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Table structure for blog_post
@@ -314,11 +259,6 @@ CREATE TABLE `blog_post`  (
   `is_featured` tinyint NULL DEFAULT 0 COMMENT '是否推荐（0否 1是）',
   `allow_comment` tinyint NULL DEFAULT 1 COMMENT '允许评论（0否 1是）',
   `password` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '文章访问密码',
-  `status` tinyint NULL DEFAULT 0 COMMENT '状态（0草稿 1发布 2下架 3回收站）',
-  `is_top` tinyint NULL DEFAULT 0 COMMENT '是否置顶（0否 1是）',
-  `is_featured` tinyint NULL DEFAULT 0 COMMENT '是否推荐（0否 1是）',
-  `allow_comment` tinyint NULL DEFAULT 1 COMMENT '允许评论（0否 1是）',
-  `password` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '文章访问密码',
   `source_type` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT 'ORIGINAL' COMMENT '来源类型（ORIGINAL原创 REPRINT转载 TRANSLATION翻译）',
   `source_url` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '原文链接',
   `seo_keywords` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT 'SEO关键词',
@@ -330,7 +270,6 @@ CREATE TABLE `blog_post`  (
   `update_by` bigint NULL DEFAULT NULL COMMENT '更新者',
   `update_time` datetime NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   `del_flag` tinyint NULL DEFAULT 0 COMMENT '删除标志（0存在 1删除）',
-  `del_flag` tinyint NULL DEFAULT 0 COMMENT '删除标志（0存在 1删除）',
   PRIMARY KEY (`post_id`) USING BTREE,
   UNIQUE INDEX `uk_slug`(`slug` ASC) USING BTREE,
   INDEX `idx_author_id`(`author_id` ASC) USING BTREE,
@@ -340,13 +279,9 @@ CREATE TABLE `blog_post`  (
   INDEX `idx_author_time`(`author_id` ASC, `published_time` DESC) USING BTREE COMMENT '作者文章列表',
   INDEX `idx_category_time`(`category_id` ASC, `published_time` DESC) USING BTREE COMMENT '分类文章列表',
   INDEX `idx_status_top_featured_time`(`status` ASC, `is_top` DESC, `is_featured` DESC, `published_time` DESC) USING BTREE COMMENT '首页文章列表',
-  INDEX `idx_author_time`(`author_id` ASC, `published_time` DESC) USING BTREE COMMENT '作者文章列表',
-  INDEX `idx_category_time`(`category_id` ASC, `published_time` DESC) USING BTREE COMMENT '分类文章列表',
-  INDEX `idx_status_top_featured_time`(`status` ASC, `is_top` DESC, `is_featured` DESC, `published_time` DESC) USING BTREE COMMENT '首页文章列表',
   INDEX `idx_author_status`(`author_id` ASC, `status` ASC) USING BTREE,
   INDEX `idx_category_status`(`category_id` ASC, `status` ASC) USING BTREE,
   INDEX `idx_featured_status`(`is_featured` ASC, `status` ASC) USING BTREE,
-  INDEX `fk_post_cover_image`(`cover_image` ASC) USING BTREE
   INDEX `fk_post_cover_image`(`cover_image` ASC) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '博客文章表' ROW_FORMAT = DYNAMIC;
 
@@ -401,7 +336,6 @@ CREATE TABLE `blog_post_tag`  (
   `create_by` bigint NULL DEFAULT NULL COMMENT '创建者',
   `create_time` datetime NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   PRIMARY KEY (`post_id`, `tag_id`) USING BTREE,
-  INDEX `fk_tag_id`(`tag_id` ASC) USING BTREE
   INDEX `fk_tag_id`(`tag_id` ASC) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '文章标签关联表' ROW_FORMAT = DYNAMIC;
 
@@ -469,8 +403,6 @@ CREATE TABLE `sys_client`  (
   `timeout` int NULL DEFAULT 604800 COMMENT 'token固定超时',
   `status` tinyint NULL DEFAULT 0 COMMENT '状态（0正常 1停用）',
   `del_flag` tinyint NULL DEFAULT 0 COMMENT '删除标志（0代表存在 1代表删除）',
-  `status` tinyint NULL DEFAULT 0 COMMENT '状态（0正常 1停用）',
-  `del_flag` tinyint NULL DEFAULT 0 COMMENT '删除标志（0代表存在 1代表删除）',
   `create_by` bigint NULL DEFAULT NULL COMMENT '创建者',
   `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
   `update_by` bigint NULL DEFAULT NULL COMMENT '更新者',
@@ -481,8 +413,6 @@ CREATE TABLE `sys_client`  (
 -- ----------------------------
 -- Records of sys_client
 -- ----------------------------
-INSERT INTO `sys_client` VALUES (1, 'e5cd7e4891bf95d1d19206ce24a7b32e', 'pc', 'pc123', 'password,social', 'pc', 1800, 604800, 0, 0, 1, '2025-12-20 10:29:24', 1, '2025-12-20 10:29:24');
-INSERT INTO `sys_client` VALUES (2, '428a8310cd442757ae699df5d894f051', 'app', 'app123', 'password,sms,social', 'android', 1800, 604800, 0, 0, 1, '2025-12-20 10:29:24', 1, '2025-12-20 10:29:24');
 INSERT INTO `sys_client` VALUES (1, 'e5cd7e4891bf95d1d19206ce24a7b32e', 'pc', 'pc123', 'password,social', 'pc', 1800, 604800, 0, 0, 1, '2025-12-20 10:29:24', 1, '2025-12-20 10:29:24');
 INSERT INTO `sys_client` VALUES (2, '428a8310cd442757ae699df5d894f051', 'app', 'app123', 'password,sms,social', 'android', 1800, 604800, 0, 0, 1, '2025-12-20 10:29:24', 1, '2025-12-20 10:29:24');
 
@@ -639,7 +569,6 @@ CREATE TABLE `sys_logininfor`  (
   `browser` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '' COMMENT '浏览器类型',
   `os` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '' COMMENT '操作系统',
   `status` tinyint NULL DEFAULT 0 COMMENT '登录状态（0成功 1失败）',
-  `status` tinyint NULL DEFAULT 0 COMMENT '登录状态（0成功 1失败）',
   `msg` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '' COMMENT '提示消息',
   `login_time` datetime NULL DEFAULT NULL COMMENT '访问时间',
   PRIMARY KEY (`info_id`) USING BTREE,
@@ -650,7 +579,6 @@ CREATE TABLE `sys_logininfor`  (
 -- ----------------------------
 -- Records of sys_logininfor
 -- ----------------------------
-INSERT INTO `sys_logininfor` VALUES (2002206946838745089, 'admin', 'pc', 'pc', '0:0:0:0:0:0:0:1', '内网IP', 'Chrome', 'Windows 10 or Windows Server 2016', 0, '登录成功', '2025-12-20 10:38:30');
 INSERT INTO `sys_logininfor` VALUES (2002206946838745089, 'admin', 'pc', 'pc', '0:0:0:0:0:0:0:1', '内网IP', 'Chrome', 'Windows 10 or Windows Server 2016', 0, '登录成功', '2025-12-20 10:38:30');
 
 -- ----------------------------
@@ -668,8 +596,6 @@ CREATE TABLE `sys_menu`  (
   `is_frame` int NULL DEFAULT 1 COMMENT '是否为外链（0是 1否）',
   `is_cache` int NULL DEFAULT 0 COMMENT '是否缓存（0缓存 1不缓存）',
   `menu_type` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '' COMMENT '菜单类型（M目录 C菜单 F按钮）',
-  `visible` tinyint NULL DEFAULT 0 COMMENT '显示状态（0显示 1隐藏）',
-  `status` tinyint NULL DEFAULT 0 COMMENT '菜单状态（0正常 1停用）',
   `visible` tinyint NULL DEFAULT 0 COMMENT '显示状态（0显示 1隐藏）',
   `status` tinyint NULL DEFAULT 0 COMMENT '菜单状态（0正常 1停用）',
   `perms` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '权限标识',
@@ -773,9 +699,7 @@ CREATE TABLE `sys_notice`  (
   `notice_id` bigint NOT NULL COMMENT '公告ID',
   `notice_title` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '公告标题',
   `notice_type` tinyint NOT NULL COMMENT '公告类型（1通知 2公告）',
-  `notice_type` tinyint NOT NULL COMMENT '公告类型（1通知 2公告）',
   `notice_content` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT '公告内容',
-  `status` tinyint NULL DEFAULT 0 COMMENT '公告状态（0正常 1关闭）',
   `status` tinyint NULL DEFAULT 0 COMMENT '公告状态（0正常 1关闭）',
   `create_by` bigint NULL DEFAULT NULL COMMENT '创建者',
   `create_time` datetime NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
@@ -818,8 +742,6 @@ CREATE TABLE `sys_oper_log`  (
   PRIMARY KEY (`oper_id`) USING BTREE,
   INDEX `idx_sys_oper_log_bt`(`business_type` ASC) USING BTREE,
   INDEX `idx_sys_oper_log_s`(`status` ASC) USING BTREE,
-  INDEX `idx_sys_oper_log_ot`(`oper_time` ASC) USING BTREE,
-  INDEX `idx_oper_name_time`(`oper_name` ASC, `oper_time` DESC) USING BTREE
   INDEX `idx_sys_oper_log_ot`(`oper_time` ASC) USING BTREE,
   INDEX `idx_oper_name_time`(`oper_name` ASC, `oper_time` DESC) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '操作日志记录' ROW_FORMAT = DYNAMIC;
@@ -869,10 +791,7 @@ CREATE TABLE `sys_oss_config`  (
   `endpoint` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '' COMMENT '访问站点',
   `domain` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '' COMMENT '自定义域名',
   `is_https` tinyint NULL DEFAULT 0 COMMENT '是否https（0=否,1=是）',
-  `is_https` tinyint NULL DEFAULT 0 COMMENT '是否https（0=否,1=是）',
   `region` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '' COMMENT '域',
-  `access_policy` tinyint NOT NULL DEFAULT 1 COMMENT '桶权限类型(0=private 1=public 2=custom)',
-  `status` tinyint NULL DEFAULT 1 COMMENT '是否默认（0=是,1=否）',
   `access_policy` tinyint NOT NULL DEFAULT 1 COMMENT '桶权限类型(0=private 1=public 2=custom)',
   `status` tinyint NULL DEFAULT 1 COMMENT '是否默认（0=是,1=否）',
   `ext1` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '' COMMENT '扩展字段',
@@ -892,11 +811,6 @@ INSERT INTO `sys_oss_config` VALUES (2, 'qiniu', 'XXXXXXXXXXXXXXX', 'XXXXXXXXXXX
 INSERT INTO `sys_oss_config` VALUES (3, 'aliyun', 'XXXXXXXXXXXXXXX', 'XXXXXXXXXXXXXXX', 'ruoyi', '', 'oss-cn-beijing.aliyuncs.com', '', 0, '', 1, 1, '', 1, '2025-12-20 10:29:11', 1, '2025-12-20 10:29:11', NULL);
 INSERT INTO `sys_oss_config` VALUES (4, 'qcloud', 'XXXXXXXXXXXXXXX', 'XXXXXXXXXXXXXXX', 'ruoyi-1240000000', '', 'cos.ap-beijing.myqcloud.com', '', 0, 'ap-beijing', 1, 1, '', 1, '2025-12-20 10:29:11', 1, '2025-12-20 10:29:11', NULL);
 INSERT INTO `sys_oss_config` VALUES (5, 'image', 'ruoyi', 'ruoyi123', 'ruoyi', 'image', '127.0.0.1:9000', '', 0, '', 1, 1, '', 1, '2025-12-20 10:29:12', 1, '2025-12-20 10:29:12', NULL);
-INSERT INTO `sys_oss_config` VALUES (1, 'minio', 'ruoyi', 'ruoyi123', 'ruoyi', '', '127.0.0.1:9000', '', 0, '', 1, 0, '', 1, '2025-12-20 10:29:11', 1, '2025-12-20 10:29:11', NULL);
-INSERT INTO `sys_oss_config` VALUES (2, 'qiniu', 'XXXXXXXXXXXXXXX', 'XXXXXXXXXXXXXXX', 'ruoyi', '', 's3-cn-north-1.qiniucs.com', '', 0, '', 1, 1, '', 1, '2025-12-20 10:29:11', 1, '2025-12-20 10:29:11', NULL);
-INSERT INTO `sys_oss_config` VALUES (3, 'aliyun', 'XXXXXXXXXXXXXXX', 'XXXXXXXXXXXXXXX', 'ruoyi', '', 'oss-cn-beijing.aliyuncs.com', '', 0, '', 1, 1, '', 1, '2025-12-20 10:29:11', 1, '2025-12-20 10:29:11', NULL);
-INSERT INTO `sys_oss_config` VALUES (4, 'qcloud', 'XXXXXXXXXXXXXXX', 'XXXXXXXXXXXXXXX', 'ruoyi-1240000000', '', 'cos.ap-beijing.myqcloud.com', '', 0, 'ap-beijing', 1, 1, '', 1, '2025-12-20 10:29:11', 1, '2025-12-20 10:29:11', NULL);
-INSERT INTO `sys_oss_config` VALUES (5, 'image', 'ruoyi', 'ruoyi123', 'ruoyi', 'image', '127.0.0.1:9000', '', 0, '', 1, 1, '', 1, '2025-12-20 10:29:12', 1, '2025-12-20 10:29:12', NULL);
 
 -- ----------------------------
 -- Table structure for sys_role
@@ -908,10 +822,7 @@ CREATE TABLE `sys_role`  (
   `role_key` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '角色权限字符串',
   `role_sort` int NOT NULL COMMENT '显示顺序',
   `data_scope` tinyint NULL DEFAULT 1 COMMENT '数据范围（1：全部数据权限 2：自定数据权限 3：本部门数据权限 4：本部门及以下数据权限 5：仅本人数据权限 6：部门及以下或本人数据权限）',
-  `data_scope` tinyint NULL DEFAULT 1 COMMENT '数据范围（1：全部数据权限 2：自定数据权限 3：本部门数据权限 4：本部门及以下数据权限 5：仅本人数据权限 6：部门及以下或本人数据权限）',
   `menu_check_strictly` tinyint(1) NULL DEFAULT 1 COMMENT '菜单树选择项是否关联显示',
-  `status` tinyint NOT NULL COMMENT '角色状态（0正常 1停用）',
-  `del_flag` tinyint NULL DEFAULT 0 COMMENT '删除标志（0代表存在 1代表删除）',
   `status` tinyint NOT NULL COMMENT '角色状态（0正常 1停用）',
   `del_flag` tinyint NULL DEFAULT 0 COMMENT '删除标志（0代表存在 1代表删除）',
   `create_by` bigint NULL DEFAULT NULL COMMENT '创建者',
@@ -929,9 +840,6 @@ CREATE TABLE `sys_role`  (
 -- ----------------------------
 -- Records of sys_role
 -- ----------------------------
-INSERT INTO `sys_role` VALUES (1, '超级管理员', 'superadmin', 1, 1, 1, 0, 0, 1, '2025-12-20 10:22:38', NULL, NULL, '超级管理员');
-INSERT INTO `sys_role` VALUES (3, '本部门及以下', 'test1', 3, 4, 1, 0, 0, 1, '2025-12-20 10:22:38', NULL, NULL, '');
-INSERT INTO `sys_role` VALUES (4, '仅本人', 'test2', 4, 5, 1, 0, 0, 1, '2025-12-20 10:22:38', NULL, NULL, '');
 INSERT INTO `sys_role` VALUES (1, '超级管理员', 'superadmin', 1, 1, 1, 0, 0, 1, '2025-12-20 10:22:38', NULL, NULL, '超级管理员');
 INSERT INTO `sys_role` VALUES (3, '本部门及以下', 'test1', 3, 4, 1, 0, 0, 1, '2025-12-20 10:22:38', NULL, NULL, '');
 INSERT INTO `sys_role` VALUES (4, '仅本人', 'test2', 4, 5, 1, 0, 0, 1, '2025-12-20 10:22:38', NULL, NULL, '');
@@ -1058,13 +966,10 @@ CREATE TABLE `sys_social`  (
   `update_by` bigint NULL DEFAULT NULL COMMENT '更新者',
   `update_time` datetime NULL DEFAULT NULL COMMENT '更新时间',
   `del_flag` tinyint NULL DEFAULT 0 COMMENT '删除标志（0代表存在 1代表删除）',
-  `del_flag` tinyint NULL DEFAULT 0 COMMENT '删除标志（0代表存在 1代表删除）',
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `idx_user_id`(`user_id` ASC) USING BTREE,
   INDEX `idx_auth_id`(`auth_id` ASC) USING BTREE,
   INDEX `idx_source`(`source` ASC) USING BTREE,
-  INDEX `idx_open_id`(`open_id` ASC) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '社会化关系表（已移除外键约束，提升性能）' ROW_FORMAT = DYNAMIC;
   INDEX `idx_open_id`(`open_id` ASC) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '社会化关系表（已移除外键约束，提升性能）' ROW_FORMAT = DYNAMIC;
 
@@ -1084,11 +989,8 @@ CREATE TABLE `sys_user`  (
   `email` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '' COMMENT '用户邮箱',
   `phonenumber` varchar(11) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '' COMMENT '手机号码',
   `sex` tinyint NULL DEFAULT 0 COMMENT '用户性别（0男 1女 2未知）',
-  `sex` tinyint NULL DEFAULT 0 COMMENT '用户性别（0男 1女 2未知）',
   `avatar` bigint NULL DEFAULT NULL COMMENT '头像地址',
   `password` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '' COMMENT '密码',
-  `status` tinyint NULL DEFAULT 0 COMMENT '帐号状态（0正常 1停用）',
-  `del_flag` tinyint NULL DEFAULT 0 COMMENT '删除标志（0代表存在 1代表删除）',
   `status` tinyint NULL DEFAULT 0 COMMENT '帐号状态（0正常 1停用）',
   `del_flag` tinyint NULL DEFAULT 0 COMMENT '删除标志（0代表存在 1代表删除）',
   `login_ip` varchar(45) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '' COMMENT '最后登录IP',
@@ -1111,9 +1013,6 @@ CREATE TABLE `sys_user`  (
 -- ----------------------------
 -- Records of sys_user
 -- ----------------------------
-INSERT INTO `sys_user` VALUES (1, 'admin', '疯狂的狮子Li', 'sys_user', 'crazyLionLi@163.com', '15888888888', 1, NULL, '$2a$10$7JB720yubVSZvUI0rEqK/.VqGOZTH.ulu33dHOiBE8ByOhJIrdAu2', 0, 0, '0:0:0:0:0:0:0:1', '2025-12-20 10:38:30', 1, '2025-12-20 10:21:11', -1, '2025-12-20 10:38:30', '管理员');
-INSERT INTO `sys_user` VALUES (3, 'test', '本部门及以下 密码666666', 'sys_user', '', '', 0, NULL, '$2a$10$b8yUzN0C71sbz.PhNOCgJe.Tu1yWC3RNrTyjSQ8p1W0.aaUXUJ.Ne', 0, 0, '127.0.0.1', '2025-12-20 10:21:11', 1, '2025-12-20 10:21:11', 3, '2025-12-20 10:21:11', NULL);
-INSERT INTO `sys_user` VALUES (4, 'test1', '仅本人 密码666666', 'sys_user', '', '', 0, NULL, '$2a$10$b8yUzN0C71sbz.PhNOCgJe.Tu1yWC3RNrTyjSQ8p1W0.aaUXUJ.Ne', 0, 0, '127.0.0.1', '2025-12-20 10:21:11', 1, '2025-12-20 10:21:11', 4, '2025-12-20 10:21:11', NULL);
 INSERT INTO `sys_user` VALUES (1, 'admin', '疯狂的狮子Li', 'sys_user', 'crazyLionLi@163.com', '15888888888', 1, NULL, '$2a$10$7JB720yubVSZvUI0rEqK/.VqGOZTH.ulu33dHOiBE8ByOhJIrdAu2', 0, 0, '0:0:0:0:0:0:0:1', '2025-12-20 10:38:30', 1, '2025-12-20 10:21:11', -1, '2025-12-20 10:38:30', '管理员');
 INSERT INTO `sys_user` VALUES (3, 'test', '本部门及以下 密码666666', 'sys_user', '', '', 0, NULL, '$2a$10$b8yUzN0C71sbz.PhNOCgJe.Tu1yWC3RNrTyjSQ8p1W0.aaUXUJ.Ne', 0, 0, '127.0.0.1', '2025-12-20 10:21:11', 1, '2025-12-20 10:21:11', 3, '2025-12-20 10:21:11', NULL);
 INSERT INTO `sys_user` VALUES (4, 'test1', '仅本人 密码666666', 'sys_user', '', '', 0, NULL, '$2a$10$b8yUzN0C71sbz.PhNOCgJe.Tu1yWC3RNrTyjSQ8p1W0.aaUXUJ.Ne', 0, 0, '127.0.0.1', '2025-12-20 10:21:11', 1, '2025-12-20 10:21:11', 4, '2025-12-20 10:21:11', NULL);
