@@ -48,7 +48,9 @@ import java.util.*;
 public class SysUserServiceImpl implements ISysUserService, UserService {
 
     private final SysUserMapper baseMapper;
+
     private final SysRoleMapper roleMapper;
+
     private final SysUserRoleMapper userRoleMapper;
 
     @Override

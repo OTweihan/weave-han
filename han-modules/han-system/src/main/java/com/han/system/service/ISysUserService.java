@@ -15,7 +15,6 @@ import java.util.List;
  */
 public interface ISysUserService {
 
-
     /**
      * 根据条件分页查询用户列表
      *
@@ -91,7 +90,7 @@ public interface ISysUserService {
      */
     String selectUserRoleGroup(Long userId);
 
-    
+
     /**
      * 校验用户名称是否唯一
      *

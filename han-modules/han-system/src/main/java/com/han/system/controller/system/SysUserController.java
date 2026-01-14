@@ -47,6 +47,7 @@ import java.util.List;
 public class SysUserController extends BaseController {
 
     private final ISysUserService userService;
+
     private final ISysRoleService roleService;
 
     /**
@@ -117,7 +118,7 @@ public class SysUserController extends BaseController {
      */
     @SaCheckPermission("system:user:query")
     @GetMapping(value = {"/", "/{userId}"})
-    public R<SysUserInfoVo> getInfo(@PathVariable(value = "userId", required = false) Long userId) {
+    public R<SysUserInfoVo> getInfo(@PathVariable(required = false) Long userId) {
         SysUserInfoVo userInfoVo = new SysUserInfoVo();
         if (ObjectUtil.isNotNull(userId)) {
             userService.checkUserDataScope(userId);
