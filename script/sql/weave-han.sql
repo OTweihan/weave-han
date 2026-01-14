@@ -11,7 +11,7 @@
  Target Server Version : 80030 (8.0.30-cynos)
  File Encoding         : 65001
 
- Date: 20/12/2025 11:15:06
+ Date: 14/01/2026 10:18:46
 */
 
 SET NAMES utf8mb4;
@@ -27,6 +27,7 @@ CREATE TABLE `blog_category`  (
   `slug` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '分类别名',
   `description` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '分类描述',
   `parent_id` bigint NULL DEFAULT 0 COMMENT '父分类ID',
+  `ancestors` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '0' COMMENT '祖先路径（如：0,1,2）',
   `sort_order` int NULL DEFAULT 0 COMMENT '排序',
   `cover_image` bigint NULL DEFAULT NULL COMMENT '分类封面图片ID',
   `post_count` int NULL DEFAULT 0 COMMENT '文章数量',
@@ -34,12 +35,12 @@ CREATE TABLE `blog_category`  (
   `create_time` datetime NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `update_by` bigint NULL DEFAULT NULL COMMENT '更新者',
   `update_time` datetime NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-  `del_flag` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '0' COMMENT '删除标志（0存在 1删除）',
+  `del_flag` tinyint NULL DEFAULT 0 COMMENT '删除标志（0存在 1删除）',
   PRIMARY KEY (`category_id`) USING BTREE,
   UNIQUE INDEX `uk_slug`(`slug` ASC) USING BTREE,
   INDEX `idx_parent_id`(`parent_id` ASC) USING BTREE,
-  INDEX `fk_category_cover_image`(`cover_image` ASC) USING BTREE,
-  CONSTRAINT `fk_category_cover_image` FOREIGN KEY (`cover_image`) REFERENCES `blog_image` (`image_id`) ON DELETE SET NULL ON UPDATE RESTRICT
+  INDEX `idx_ancestors`(`ancestors` ASC) USING BTREE,
+  INDEX `fk_category_cover_image`(`cover_image` ASC) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '博客分类表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
@@ -56,23 +57,22 @@ CREATE TABLE `blog_comment`  (
   `parent_id` bigint NULL DEFAULT 0 COMMENT '父评论ID',
   `user_id` bigint NULL DEFAULT NULL COMMENT '用户ID（登录用户）',
   `user_name` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '用户名（游客）',
-  `user_email` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '邮箱（游客）',
-  `user_ip` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT 'IP地址',
-  `user_agent` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '用户代理',
+  `user_email` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '邮箱（游客）',
+  `user_ip` varchar(45) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT 'IP地址（支持IPv6）',
+  `user_agent` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '用户代理',
   `content` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '评论内容',
-  `status` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '0' COMMENT '状态（0待审核 1通过 2拒绝）',
+  `status` tinyint NULL DEFAULT 0 COMMENT '状态（0待审核 1通过 2拒绝）',
   `like_count` int NULL DEFAULT 0 COMMENT '点赞数',
   `create_time` datetime NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `update_time` datetime NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-  `del_flag` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '0' COMMENT '删除标志（0存在 1删除）',
+  `del_flag` tinyint NULL DEFAULT 0 COMMENT '删除标志（0存在 1删除）',
   PRIMARY KEY (`comment_id`) USING BTREE,
   INDEX `idx_post_id`(`post_id` ASC) USING BTREE,
   INDEX `idx_parent_id`(`parent_id` ASC) USING BTREE,
   INDEX `idx_user_id`(`user_id` ASC) USING BTREE,
+  INDEX `idx_user_create_time`(`user_id` ASC, `create_time` DESC) USING BTREE,
   INDEX `idx_status`(`status` ASC) USING BTREE,
-  INDEX `idx_post_status_time`(`post_id` ASC, `status` ASC, `create_time` ASC) USING BTREE,
-  CONSTRAINT `fk_comment_post` FOREIGN KEY (`post_id`) REFERENCES `blog_post` (`post_id`) ON DELETE CASCADE ON UPDATE RESTRICT,
-  CONSTRAINT `fk_comment_user` FOREIGN KEY (`user_id`) REFERENCES `sys_user` (`user_id`) ON DELETE SET NULL ON UPDATE RESTRICT
+  INDEX `idx_post_status_time`(`post_id` ASC, `status` ASC, `create_time` ASC) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '博客评论表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
@@ -96,10 +96,12 @@ CREATE TABLE `blog_draft`  (
   PRIMARY KEY (`draft_id`) USING BTREE,
   INDEX `idx_user_id`(`user_id` ASC) USING BTREE,
   INDEX `idx_category_id`(`category_id` ASC) USING BTREE,
-  INDEX `idx_create_time`(`create_time` ASC) USING BTREE,
-  CONSTRAINT `fk_draft_category` FOREIGN KEY (`category_id`) REFERENCES `blog_category` (`category_id`) ON DELETE SET NULL ON UPDATE RESTRICT,
-  CONSTRAINT `fk_draft_user` FOREIGN KEY (`user_id`) REFERENCES `sys_user` (`user_id`) ON DELETE RESTRICT ON UPDATE RESTRICT
+  INDEX `idx_create_time`(`create_time` ASC) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '草稿箱表' ROW_FORMAT = DYNAMIC;
+
+-- ----------------------------
+-- Records of blog_draft
+-- ----------------------------
 
 -- ----------------------------
 -- Table structure for blog_draft_tag
@@ -110,14 +112,13 @@ CREATE TABLE `blog_draft_tag`  (
   `tag_id` bigint NOT NULL COMMENT '标签ID',
   `create_by` bigint NULL DEFAULT NULL COMMENT '创建者',
   `create_time` datetime NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `del_flag` tinyint NULL DEFAULT 0 COMMENT '删除标志（0存在 1删除）',
   PRIMARY KEY (`draft_id`, `tag_id`) USING BTREE,
-  INDEX `fk_draft_tag_tag`(`tag_id` ASC) USING BTREE,
-  CONSTRAINT `fk_draft_tag_draft` FOREIGN KEY (`draft_id`) REFERENCES `blog_draft` (`draft_id`) ON DELETE CASCADE ON UPDATE RESTRICT,
-  CONSTRAINT `fk_draft_tag_tag` FOREIGN KEY (`tag_id`) REFERENCES `blog_tag` (`tag_id`) ON DELETE CASCADE ON UPDATE RESTRICT
+  INDEX `fk_draft_tag_tag`(`tag_id` ASC) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '草稿标签关联表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
--- Records of blog_draft
+-- Records of blog_draft_tag
 -- ----------------------------
 
 -- ----------------------------
@@ -139,25 +140,23 @@ CREATE TABLE `blog_image`  (
   `file_size` int NULL DEFAULT NULL COMMENT '文件大小（字节）',
   `mime_type` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT 'MIME类型',
   `sort_order` int NULL DEFAULT 0 COMMENT '排序',
-  `is_public` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '1' COMMENT '是否公开（0私有 1公开）',
+  `is_public` tinyint NULL DEFAULT 1 COMMENT '是否公开（0私有 1公开）',
   `visit_count` int NULL DEFAULT 0 COMMENT '访问次数',
   `create_by` bigint NULL DEFAULT NULL COMMENT '创建者',
   `create_time` datetime NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `update_by` bigint NULL DEFAULT NULL COMMENT '更新者',
   `update_time` datetime NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-  `del_flag` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '0' COMMENT '删除标志（0存在 1删除）',
+  `del_flag` tinyint NULL DEFAULT 0 COMMENT '删除标志（0存在 1删除）',
   PRIMARY KEY (`image_id`) USING BTREE,
   UNIQUE INDEX `uk_oss_id`(`oss_id` ASC) USING BTREE,
-  INDEX `idx_image_type`(`image_type` ASC) USING BTREE,
-  INDEX `idx_post_id`(`post_id` ASC, `del_flag` ASC) USING BTREE,
-  INDEX `idx_category_id`(`category_id` ASC, `del_flag` ASC) USING BTREE,
-  INDEX `idx_create_by`(`create_by` ASC, `del_flag` ASC) USING BTREE,
-  INDEX `idx_is_public`(`is_public` ASC, `del_flag` ASC) USING BTREE,
-  INDEX `idx_create_time`(`create_time` DESC, `del_flag` ASC) USING BTREE,
-  INDEX `idx_visit_count`(`visit_count` DESC, `del_flag` ASC) USING BTREE,
-  CONSTRAINT `fk_blog_image_category` FOREIGN KEY (`category_id`) REFERENCES `blog_category` (`category_id`) ON DELETE SET NULL ON UPDATE RESTRICT,
-  CONSTRAINT `fk_blog_image_oss` FOREIGN KEY (`oss_id`) REFERENCES `sys_oss` (`oss_id`) ON DELETE CASCADE ON UPDATE RESTRICT,
-  CONSTRAINT `fk_blog_image_post` FOREIGN KEY (`post_id`) REFERENCES `blog_post` (`post_id`) ON DELETE SET NULL ON UPDATE RESTRICT
+  INDEX `idx_image_type`(`image_type` ASC, `del_flag` ASC) USING BTREE,
+  INDEX `idx_post_id`(`post_id` ASC) USING BTREE,
+  INDEX `idx_category_id`(`category_id` ASC) USING BTREE,
+  INDEX `idx_create_by`(`create_by` ASC) USING BTREE,
+  INDEX `idx_is_public`(`is_public` ASC) USING BTREE,
+  INDEX `idx_create_time`(`create_time` DESC) USING BTREE,
+  INDEX `idx_visit_count`(`visit_count` DESC) USING BTREE,
+  INDEX `idx_del_flag`(`del_flag` ASC) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '博客图片库表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
@@ -168,19 +167,20 @@ CREATE TABLE `blog_image`  (
 -- Table structure for blog_like
 -- ----------------------------
 DROP TABLE IF EXISTS `blog_like`;
-CREATE TABLE `blog_like`  (
-  `like_id` bigint NOT NULL COMMENT '点赞ID',
-  `post_id` bigint NOT NULL COMMENT '文章ID',
-  `user_id` bigint NULL DEFAULT NULL COMMENT '用户ID（登录用户）',
-  `ip_address` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT 'IP地址（游客）',
-  `create_time` datetime NULL DEFAULT CURRENT_TIMESTAMP COMMENT '点赞时间',
-  PRIMARY KEY (`like_id`) USING BTREE,
-  UNIQUE INDEX `uk_post_user`(`post_id` ASC, `user_id` ASC) USING BTREE,
-  UNIQUE INDEX `uk_post_ip`(`post_id` ASC, `ip_address` ASC) USING BTREE,
-  INDEX `idx_post_id`(`post_id` ASC) USING BTREE,
-  INDEX `fk_like_user`(`user_id` ASC) USING BTREE,
-  CONSTRAINT `fk_like_post` FOREIGN KEY (`post_id`) REFERENCES `blog_post` (`post_id`) ON DELETE CASCADE ON UPDATE RESTRICT,
-  CONSTRAINT `fk_like_user` FOREIGN KEY (`user_id`) REFERENCES `sys_user` (`user_id`) ON DELETE SET NULL ON UPDATE RESTRICT
+CREATE TABLE `blog_like` (
+    `like_id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '点赞ID',
+    `post_id` BIGINT NOT NULL COMMENT '文章ID',
+    `user_id` BIGINT NULL DEFAULT NULL COMMENT '用户ID（登录用户）',
+    `ip_address` VARCHAR(45) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT 'IP地址（游客，支持IPv6）',
+    `create_time` DATETIME NULL DEFAULT CURRENT_TIMESTAMP COMMENT '点赞时间',
+    PRIMARY KEY (`like_id`) USING BTREE,
+    UNIQUE INDEX `uk_post_user_ip` (
+        `post_id` ASC,
+        ((COALESCE(`user_id`, 0))) ASC,
+        ((COALESCE(`ip_address`, ''))) ASC
+    ) USING BTREE,
+    INDEX `idx_post_id` (`post_id` ASC) USING BTREE,
+    INDEX `idx_user_id` (`user_id` ASC) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '文章点赞表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
@@ -199,7 +199,7 @@ CREATE TABLE `blog_link`  (
   `logo` bigint NULL DEFAULT NULL COMMENT '链接Logo图片ID',
   `target` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '_blank' COMMENT '打开方式',
   `sort_order` int NULL DEFAULT 0 COMMENT '排序',
-  `status` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '0' COMMENT '状态（0正常 1停用）',
+  `status` tinyint NULL DEFAULT 0 COMMENT '状态（0正常 1停用）',
   `create_by` bigint NULL DEFAULT NULL COMMENT '创建者',
   `create_time` datetime NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `update_by` bigint NULL DEFAULT NULL COMMENT '更新者',
@@ -207,8 +207,7 @@ CREATE TABLE `blog_link`  (
   PRIMARY KEY (`link_id`) USING BTREE,
   INDEX `idx_status`(`status` ASC) USING BTREE,
   INDEX `idx_sort_order`(`sort_order` ASC) USING BTREE,
-  INDEX `fk_link_logo`(`logo` ASC) USING BTREE,
-  CONSTRAINT `fk_link_logo` FOREIGN KEY (`logo`) REFERENCES `blog_image` (`image_id`) ON DELETE SET NULL ON UPDATE RESTRICT
+  INDEX `fk_link_logo`(`logo` ASC) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '友情链接表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
@@ -226,14 +225,14 @@ CREATE TABLE `blog_page`  (
   `content` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '页面内容',
   `content_html` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT '渲染后的HTML内容',
   `template` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT 'default' COMMENT '页面模板',
-  `status` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '0' COMMENT '状态（0草稿 1发布 2下架）',
-  `comment_enabled` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '0' COMMENT '允许评论（0否 1是）',
+  `status` tinyint NULL DEFAULT 0 COMMENT '状态（0草稿 1发布 2下架）',
+  `comment_enabled` tinyint NULL DEFAULT 0 COMMENT '允许评论（0否 1是）',
   `sort_order` int NULL DEFAULT 0 COMMENT '排序',
   `create_by` bigint NULL DEFAULT NULL COMMENT '创建者',
   `create_time` datetime NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `update_by` bigint NULL DEFAULT NULL COMMENT '更新者',
   `update_time` datetime NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-  `del_flag` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '0' COMMENT '删除标志（0存在 1删除）',
+  `del_flag` tinyint NULL DEFAULT 0 COMMENT '删除标志（0存在 1删除）',
   PRIMARY KEY (`page_id`) USING BTREE,
   UNIQUE INDEX `uk_slug`(`slug` ASC) USING BTREE,
   INDEX `idx_status`(`status` ASC) USING BTREE
@@ -252,21 +251,14 @@ CREATE TABLE `blog_post`  (
   `title` varchar(300) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '文章标题',
   `slug` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '文章别名（URL友好）',
   `summary` varchar(800) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '文章摘要',
-  `content` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '文章内容',
-  `content_html` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT '渲染后的HTML内容',
   `cover_image` bigint NULL DEFAULT NULL COMMENT '封面图片ID',
   `author_id` bigint NOT NULL COMMENT '作者ID',
   `category_id` bigint NULL DEFAULT NULL COMMENT '分类ID',
-  `status` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '0' COMMENT '状态（0草稿 1发布 2下架 3回收站）',
-  `is_top` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '0' COMMENT '是否置顶（0否 1是）',
-  `is_featured` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '0' COMMENT '是否推荐（0否 1是）',
-  `allow_comment` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '1' COMMENT '允许评论（0否 1是）',
-  `view_count` int NULL DEFAULT 0 COMMENT '浏览量',
-  `like_count` int NULL DEFAULT 0 COMMENT '点赞数',
-  `comment_count` int NULL DEFAULT 0 COMMENT '评论数',
-  `word_count` int NULL DEFAULT 0 COMMENT '字数统计',
-  `reading_time` int NULL DEFAULT NULL COMMENT '预计阅读时间（分钟）',
-  `password` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '文章访问密码',
+  `status` tinyint NULL DEFAULT 0 COMMENT '状态（0草稿 1发布 2下架 3回收站）',
+  `is_top` tinyint NULL DEFAULT 0 COMMENT '是否置顶（0否 1是）',
+  `is_featured` tinyint NULL DEFAULT 0 COMMENT '是否推荐（0否 1是）',
+  `allow_comment` tinyint NULL DEFAULT 1 COMMENT '允许评论（0否 1是）',
+  `password` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '文章访问密码',
   `source_type` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT 'ORIGINAL' COMMENT '来源类型（ORIGINAL原创 REPRINT转载 TRANSLATION翻译）',
   `source_url` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '原文链接',
   `seo_keywords` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT 'SEO关键词',
@@ -277,25 +269,61 @@ CREATE TABLE `blog_post`  (
   `create_time` datetime NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `update_by` bigint NULL DEFAULT NULL COMMENT '更新者',
   `update_time` datetime NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-  `del_flag` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '0' COMMENT '删除标志（0存在 1删除）',
+  `del_flag` tinyint NULL DEFAULT 0 COMMENT '删除标志（0存在 1删除）',
   PRIMARY KEY (`post_id`) USING BTREE,
   UNIQUE INDEX `uk_slug`(`slug` ASC) USING BTREE,
   INDEX `idx_author_id`(`author_id` ASC) USING BTREE,
   INDEX `idx_category_id`(`category_id` ASC) USING BTREE,
   INDEX `idx_status`(`status` ASC) USING BTREE,
   INDEX `idx_published_time`(`published_time` ASC) USING BTREE,
-  INDEX `idx_status_published_top`(`status` ASC, `published_time` ASC, `is_top` ASC) USING BTREE,
+  INDEX `idx_author_time`(`author_id` ASC, `published_time` DESC) USING BTREE COMMENT '作者文章列表',
+  INDEX `idx_category_time`(`category_id` ASC, `published_time` DESC) USING BTREE COMMENT '分类文章列表',
+  INDEX `idx_status_top_featured_time`(`status` ASC, `is_top` DESC, `is_featured` DESC, `published_time` DESC) USING BTREE COMMENT '首页文章列表',
   INDEX `idx_author_status`(`author_id` ASC, `status` ASC) USING BTREE,
   INDEX `idx_category_status`(`category_id` ASC, `status` ASC) USING BTREE,
   INDEX `idx_featured_status`(`is_featured` ASC, `status` ASC) USING BTREE,
-  INDEX `fk_post_cover_image`(`cover_image` ASC) USING BTREE,
-  CONSTRAINT `fk_post_author` FOREIGN KEY (`author_id`) REFERENCES `sys_user` (`user_id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
-  CONSTRAINT `fk_post_category` FOREIGN KEY (`category_id`) REFERENCES `blog_category` (`category_id`) ON DELETE SET NULL ON UPDATE RESTRICT,
-  CONSTRAINT `fk_post_cover_image` FOREIGN KEY (`cover_image`) REFERENCES `blog_image` (`image_id`) ON DELETE SET NULL ON UPDATE RESTRICT
+  INDEX `fk_post_cover_image`(`cover_image` ASC) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '博客文章表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of blog_post
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for blog_post_content
+-- ----------------------------
+DROP TABLE IF EXISTS `blog_post_content`;
+CREATE TABLE `blog_post_content`  (
+  `post_id` bigint NOT NULL COMMENT '文章ID',
+  `content` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '文章内容',
+  `content_html` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT '渲染后的HTML内容',
+  `word_count` int NULL DEFAULT 0 COMMENT '字数统计',
+  `reading_time` int NULL DEFAULT NULL COMMENT '预计阅读时间（分钟）',
+  PRIMARY KEY (`post_id`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '博客文章内容表' ROW_FORMAT = DYNAMIC;
+
+-- ----------------------------
+-- Records of blog_post_content
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for blog_post_stats
+-- ----------------------------
+DROP TABLE IF EXISTS `blog_post_stats`;
+CREATE TABLE `blog_post_stats`  (
+  `post_id` bigint NOT NULL COMMENT '文章ID',
+  `view_count` int NULL DEFAULT 0 COMMENT '浏览量',
+  `like_count` int NULL DEFAULT 0 COMMENT '点赞数',
+  `comment_count` int NULL DEFAULT 0 COMMENT '评论数',
+  `update_time` datetime NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  PRIMARY KEY (`post_id`) USING BTREE,
+  INDEX `idx_view_count`(`view_count` DESC) USING BTREE,
+  INDEX `idx_like_count`(`like_count` DESC) USING BTREE,
+  INDEX `idx_comment_count`(`comment_count` DESC) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '博客文章统计表' ROW_FORMAT = DYNAMIC;
+
+-- ----------------------------
+-- Records of blog_post_stats
 -- ----------------------------
 
 -- ----------------------------
@@ -308,9 +336,7 @@ CREATE TABLE `blog_post_tag`  (
   `create_by` bigint NULL DEFAULT NULL COMMENT '创建者',
   `create_time` datetime NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   PRIMARY KEY (`post_id`, `tag_id`) USING BTREE,
-  INDEX `fk_tag_id`(`tag_id` ASC) USING BTREE,
-  CONSTRAINT `fk_blog_post_tag_post` FOREIGN KEY (`post_id`) REFERENCES `blog_post` (`post_id`) ON DELETE CASCADE ON UPDATE RESTRICT,
-  CONSTRAINT `fk_blog_post_tag_tag` FOREIGN KEY (`tag_id`) REFERENCES `blog_tag` (`tag_id`) ON DELETE CASCADE ON UPDATE RESTRICT
+  INDEX `fk_tag_id`(`tag_id` ASC) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '文章标签关联表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
@@ -346,18 +372,17 @@ CREATE TABLE `blog_tag`  (
 -- ----------------------------
 DROP TABLE IF EXISTS `blog_visit`;
 CREATE TABLE `blog_visit`  (
-  `visit_id` bigint NOT NULL COMMENT '访问ID',
+  `visit_id` bigint NOT NULL AUTO_INCREMENT COMMENT '访问记录ID',
   `post_id` bigint NULL DEFAULT NULL COMMENT '文章ID',
-  `ip_address` varchar(45) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT 'IP地址',
+  `ip_address` varchar(45) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT 'IP地址（支持IPv6）',
   `user_agent` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '用户代理',
-  `referer` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '来源页面',
-  `visit_time` datetime NULL DEFAULT CURRENT_TIMESTAMP COMMENT '访问时间',
+  `referer` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '来源页（适当放宽长度）',
+  `visit_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '访问时间',
   PRIMARY KEY (`visit_id`) USING BTREE,
   INDEX `idx_post_time`(`post_id` ASC, `visit_time` DESC) USING BTREE,
-  INDEX `idx_visit_time`(`visit_time` DESC) USING BTREE,
-  INDEX `idx_ip_post`(`ip_address` ASC, `post_id` ASC, `visit_time` ASC) USING BTREE,
-  CONSTRAINT `fk_visit_post` FOREIGN KEY (`post_id`) REFERENCES `blog_post` (`post_id`) ON DELETE SET NULL ON UPDATE RESTRICT
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '访问统计表' ROW_FORMAT = DYNAMIC;
+  INDEX `idx_time`(`visit_time` DESC) USING BTREE,
+  INDEX `idx_ip_post_time`(`ip_address` ASC, `post_id` ASC, `visit_time` ASC) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '博客访问记录表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of blog_visit
@@ -376,8 +401,8 @@ CREATE TABLE `sys_client`  (
   `device_type` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '设备类型',
   `active_timeout` int NULL DEFAULT 1800 COMMENT 'token活跃超时时间',
   `timeout` int NULL DEFAULT 604800 COMMENT 'token固定超时',
-  `status` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '0' COMMENT '状态（0正常 1停用）',
-  `del_flag` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '0' COMMENT '删除标志（0代表存在 1代表删除）',
+  `status` tinyint NULL DEFAULT 0 COMMENT '状态（0正常 1停用）',
+  `del_flag` tinyint NULL DEFAULT 0 COMMENT '删除标志（0代表存在 1代表删除）',
   `create_by` bigint NULL DEFAULT NULL COMMENT '创建者',
   `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
   `update_by` bigint NULL DEFAULT NULL COMMENT '更新者',
@@ -388,8 +413,8 @@ CREATE TABLE `sys_client`  (
 -- ----------------------------
 -- Records of sys_client
 -- ----------------------------
-INSERT INTO `sys_client` VALUES (1, 'e5cd7e4891bf95d1d19206ce24a7b32e', 'pc', 'pc123', 'password,social', 'pc', 1800, 604800, '0', '0', 1, '2025-12-20 10:29:24', 1, '2025-12-20 10:29:24');
-INSERT INTO `sys_client` VALUES (2, '428a8310cd442757ae699df5d894f051', 'app', 'app123', 'password,sms,social', 'android', 1800, 604800, '0', '0', 1, '2025-12-20 10:29:24', 1, '2025-12-20 10:29:24');
+INSERT INTO `sys_client` VALUES (1, 'e5cd7e4891bf95d1d19206ce24a7b32e', 'pc', 'pc123', 'password,social', 'pc', 1800, 604800, 0, 0, 1, '2025-12-20 10:29:24', 1, '2025-12-20 10:29:24');
+INSERT INTO `sys_client` VALUES (2, '428a8310cd442757ae699df5d894f051', 'app', 'app123', 'password,sms,social', 'android', 1800, 604800, 0, 0, 1, '2025-12-20 10:29:24', 1, '2025-12-20 10:29:24');
 
 -- ----------------------------
 -- Table structure for sys_config
@@ -543,7 +568,7 @@ CREATE TABLE `sys_logininfor`  (
   `login_location` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '' COMMENT '登录地点',
   `browser` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '' COMMENT '浏览器类型',
   `os` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '' COMMENT '操作系统',
-  `status` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '0' COMMENT '登录状态（0成功 1失败）',
+  `status` tinyint NULL DEFAULT 0 COMMENT '登录状态（0成功 1失败）',
   `msg` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '' COMMENT '提示消息',
   `login_time` datetime NULL DEFAULT NULL COMMENT '访问时间',
   PRIMARY KEY (`info_id`) USING BTREE,
@@ -554,7 +579,7 @@ CREATE TABLE `sys_logininfor`  (
 -- ----------------------------
 -- Records of sys_logininfor
 -- ----------------------------
-INSERT INTO `sys_logininfor` VALUES (2002206946838745089, 'admin', 'pc', 'pc', '0:0:0:0:0:0:0:1', '内网IP', 'Chrome', 'Windows 10 or Windows Server 2016', '0', '登录成功', '2025-12-20 10:38:30');
+INSERT INTO `sys_logininfor` VALUES (2002206946838745089, 'admin', 'pc', 'pc', '0:0:0:0:0:0:0:1', '内网IP', 'Chrome', 'Windows 10 or Windows Server 2016', 0, '登录成功', '2025-12-20 10:38:30');
 
 -- ----------------------------
 -- Table structure for sys_menu
@@ -571,8 +596,8 @@ CREATE TABLE `sys_menu`  (
   `is_frame` int NULL DEFAULT 1 COMMENT '是否为外链（0是 1否）',
   `is_cache` int NULL DEFAULT 0 COMMENT '是否缓存（0缓存 1不缓存）',
   `menu_type` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '' COMMENT '菜单类型（M目录 C菜单 F按钮）',
-  `visible` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '0' COMMENT '显示状态（0显示 1隐藏）',
-  `status` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '0' COMMENT '菜单状态（0正常 1停用）',
+  `visible` tinyint NULL DEFAULT 0 COMMENT '显示状态（0显示 1隐藏）',
+  `status` tinyint NULL DEFAULT 0 COMMENT '菜单状态（0正常 1停用）',
   `perms` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '权限标识',
   `icon` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '#' COMMENT '菜单图标',
   `create_by` bigint NULL DEFAULT NULL COMMENT '创建者',
@@ -591,80 +616,80 @@ CREATE TABLE `sys_menu`  (
 -- ----------------------------
 -- Records of sys_menu
 -- ----------------------------
-INSERT INTO `sys_menu` VALUES (1, '系统管理', 0, 1, 'system', NULL, '', 1, 0, 'M', '0', '0', '', 'system', 1, '2025-12-20 10:26:42', NULL, NULL, '系统管理目录');
-INSERT INTO `sys_menu` VALUES (2, '系统监控', 0, 3, 'monitor', NULL, '', 1, 0, 'M', '0', '0', '', 'monitor', 1, '2025-12-20 10:26:42', NULL, NULL, '系统监控目录');
-INSERT INTO `sys_menu` VALUES (100, '用户管理', 1, 1, 'user', 'system/user/index', '', 1, 0, 'C', '0', '0', 'system:user:list', 'user', 1, '2025-12-20 10:26:42', NULL, NULL, '用户管理菜单');
-INSERT INTO `sys_menu` VALUES (101, '角色管理', 1, 2, 'role', 'system/role/index', '', 1, 0, 'C', '0', '0', 'system:role:list', 'peoples', 1, '2025-12-20 10:26:42', NULL, NULL, '角色管理菜单');
-INSERT INTO `sys_menu` VALUES (102, '菜单管理', 1, 3, 'menu', 'system/menu/index', '', 1, 0, 'C', '0', '0', 'system:menu:list', 'tree-table', 1, '2025-12-20 10:26:42', NULL, NULL, '菜单管理菜单');
-INSERT INTO `sys_menu` VALUES (105, '字典管理', 1, 6, 'dict', 'system/dict/index', '', 1, 0, 'C', '0', '0', 'system:dict:list', 'dict', 1, '2025-12-20 10:26:42', NULL, NULL, '字典管理菜单');
-INSERT INTO `sys_menu` VALUES (106, '参数设置', 1, 7, 'config', 'system/config/index', '', 1, 0, 'C', '0', '0', 'system:config:list', 'edit', 1, '2025-12-20 10:26:42', NULL, NULL, '参数设置菜单');
-INSERT INTO `sys_menu` VALUES (107, '通知公告', 1, 8, 'notice', 'system/notice/index', '', 1, 0, 'C', '0', '0', 'system:notice:list', 'message', 1, '2025-12-20 10:26:42', NULL, NULL, '通知公告菜单');
-INSERT INTO `sys_menu` VALUES (108, '日志管理', 1, 9, 'log', '', '', 1, 0, 'M', '0', '0', '', 'log', 1, '2025-12-20 10:26:42', NULL, NULL, '日志管理菜单');
-INSERT INTO `sys_menu` VALUES (109, '在线用户', 2, 1, 'online', 'monitor/online/index', '', 1, 0, 'C', '0', '0', 'monitor:online:list', 'online', 1, '2025-12-20 10:26:42', NULL, NULL, '在线用户菜单');
-INSERT INTO `sys_menu` VALUES (113, '缓存监控', 2, 5, 'cache', 'monitor/cache/index', '', 1, 0, 'C', '0', '0', 'monitor:cache:list', 'redis', 1, '2025-12-20 10:26:42', NULL, NULL, '缓存监控菜单');
-INSERT INTO `sys_menu` VALUES (117, 'Admin监控', 2, 5, 'Admin', 'monitor/admin/index', '', 1, 0, 'C', '0', '0', 'monitor:admin:list', 'dashboard', 1, '2025-12-20 10:26:42', NULL, NULL, 'Admin监控菜单');
-INSERT INTO `sys_menu` VALUES (118, '文件管理', 1, 10, 'oss', 'system/oss/index', '', 1, 0, 'C', '0', '0', 'system:oss:list', 'upload', 1, '2025-12-20 10:26:42', NULL, NULL, '文件管理菜单');
-INSERT INTO `sys_menu` VALUES (120, '任务调度中心', 2, 6, 'snailjob', 'monitor/snailjob/index', '', 1, 0, 'C', '0', '0', 'monitor:snailjob:list', 'job', 1, '2025-12-20 10:26:42', NULL, NULL, 'SnailJob控制台菜单');
-INSERT INTO `sys_menu` VALUES (123, '客户端管理', 1, 11, 'client', 'system/client/index', '', 1, 0, 'C', '0', '0', 'system:client:list', 'international', 1, '2025-12-20 10:26:42', NULL, NULL, '客户端管理菜单');
-INSERT INTO `sys_menu` VALUES (130, '分配用户', 1, 2, 'role-auth/user/:roleId', 'system/role/authUser', '', 1, 1, 'C', '1', '0', 'system:role:edit', '#', 1, '2025-12-20 10:26:42', NULL, NULL, '/system/role');
-INSERT INTO `sys_menu` VALUES (131, '分配角色', 1, 1, 'user-auth/role/:userId', 'system/user/authRole', '', 1, 1, 'C', '1', '0', 'system:user:edit', '#', 1, '2025-12-20 10:26:42', NULL, NULL, '/system/user');
-INSERT INTO `sys_menu` VALUES (132, '字典数据', 1, 6, 'dict-data/index/:dictId', 'system/dict/data', '', 1, 1, 'C', '1', '0', 'system:dict:list', '#', 1, '2025-12-20 10:26:42', NULL, NULL, '/system/dict');
-INSERT INTO `sys_menu` VALUES (133, '文件配置管理', 1, 10, 'oss-config/index', 'system/oss/config', '', 1, 1, 'C', '1', '0', 'system:ossConfig:list', '#', 1, '2025-12-20 10:26:42', NULL, NULL, '/system/oss');
-INSERT INTO `sys_menu` VALUES (500, '操作日志', 108, 1, 'operlog', 'monitor/operlog/index', '', 1, 0, 'C', '0', '0', 'monitor:operlog:list', 'form', 1, '2025-12-20 10:26:42', NULL, NULL, '操作日志菜单');
-INSERT INTO `sys_menu` VALUES (501, '登录日志', 108, 2, 'logininfor', 'monitor/logininfor/index', '', 1, 0, 'C', '0', '0', 'monitor:logininfor:list', 'logininfor', 1, '2025-12-20 10:26:42', NULL, NULL, '登录日志菜单');
-INSERT INTO `sys_menu` VALUES (1001, '用户查询', 100, 1, '', '', '', 1, 0, 'F', '0', '0', 'system:user:query', '#', 1, '2025-12-20 10:26:42', NULL, NULL, '');
-INSERT INTO `sys_menu` VALUES (1002, '用户新增', 100, 2, '', '', '', 1, 0, 'F', '0', '0', 'system:user:add', '#', 1, '2025-12-20 10:26:42', NULL, NULL, '');
-INSERT INTO `sys_menu` VALUES (1003, '用户修改', 100, 3, '', '', '', 1, 0, 'F', '0', '0', 'system:user:edit', '#', 1, '2025-12-20 10:26:42', NULL, NULL, '');
-INSERT INTO `sys_menu` VALUES (1004, '用户删除', 100, 4, '', '', '', 1, 0, 'F', '0', '0', 'system:user:remove', '#', 1, '2025-12-20 10:26:42', NULL, NULL, '');
-INSERT INTO `sys_menu` VALUES (1005, '用户导出', 100, 5, '', '', '', 1, 0, 'F', '0', '0', 'system:user:export', '#', 1, '2025-12-20 10:26:42', NULL, NULL, '');
-INSERT INTO `sys_menu` VALUES (1006, '用户导入', 100, 6, '', '', '', 1, 0, 'F', '0', '0', 'system:user:import', '#', 1, '2025-12-20 10:26:42', NULL, NULL, '');
-INSERT INTO `sys_menu` VALUES (1007, '重置密码', 100, 7, '', '', '', 1, 0, 'F', '0', '0', 'system:user:resetPwd', '#', 1, '2025-12-20 10:26:42', NULL, NULL, '');
-INSERT INTO `sys_menu` VALUES (1008, '角色查询', 101, 1, '', '', '', 1, 0, 'F', '0', '0', 'system:role:query', '#', 1, '2025-12-20 10:26:42', NULL, NULL, '');
-INSERT INTO `sys_menu` VALUES (1009, '角色新增', 101, 2, '', '', '', 1, 0, 'F', '0', '0', 'system:role:add', '#', 1, '2025-12-20 10:26:42', NULL, NULL, '');
-INSERT INTO `sys_menu` VALUES (1010, '角色修改', 101, 3, '', '', '', 1, 0, 'F', '0', '0', 'system:role:edit', '#', 1, '2025-12-20 10:26:42', NULL, NULL, '');
-INSERT INTO `sys_menu` VALUES (1011, '角色删除', 101, 4, '', '', '', 1, 0, 'F', '0', '0', 'system:role:remove', '#', 1, '2025-12-20 10:26:42', NULL, NULL, '');
-INSERT INTO `sys_menu` VALUES (1012, '角色导出', 101, 5, '', '', '', 1, 0, 'F', '0', '0', 'system:role:export', '#', 1, '2025-12-20 10:26:42', NULL, NULL, '');
-INSERT INTO `sys_menu` VALUES (1013, '菜单查询', 102, 1, '', '', '', 1, 0, 'F', '0', '0', 'system:menu:query', '#', 1, '2025-12-20 10:26:43', NULL, NULL, '');
-INSERT INTO `sys_menu` VALUES (1014, '菜单新增', 102, 2, '', '', '', 1, 0, 'F', '0', '0', 'system:menu:add', '#', 1, '2025-12-20 10:26:43', NULL, NULL, '');
-INSERT INTO `sys_menu` VALUES (1015, '菜单修改', 102, 3, '', '', '', 1, 0, 'F', '0', '0', 'system:menu:edit', '#', 1, '2025-12-20 10:26:43', NULL, NULL, '');
-INSERT INTO `sys_menu` VALUES (1016, '菜单删除', 102, 4, '', '', '', 1, 0, 'F', '0', '0', 'system:menu:remove', '#', 1, '2025-12-20 10:26:43', NULL, NULL, '');
-INSERT INTO `sys_menu` VALUES (1026, '字典查询', 105, 1, '#', '', '', 1, 0, 'F', '0', '0', 'system:dict:query', '#', 1, '2025-12-20 10:26:43', NULL, NULL, '');
-INSERT INTO `sys_menu` VALUES (1027, '字典新增', 105, 2, '#', '', '', 1, 0, 'F', '0', '0', 'system:dict:add', '#', 1, '2025-12-20 10:26:43', NULL, NULL, '');
-INSERT INTO `sys_menu` VALUES (1028, '字典修改', 105, 3, '#', '', '', 1, 0, 'F', '0', '0', 'system:dict:edit', '#', 1, '2025-12-20 10:26:43', NULL, NULL, '');
-INSERT INTO `sys_menu` VALUES (1029, '字典删除', 105, 4, '#', '', '', 1, 0, 'F', '0', '0', 'system:dict:remove', '#', 1, '2025-12-20 10:26:43', NULL, NULL, '');
-INSERT INTO `sys_menu` VALUES (1030, '字典导出', 105, 5, '#', '', '', 1, 0, 'F', '0', '0', 'system:dict:export', '#', 1, '2025-12-20 10:26:43', NULL, NULL, '');
-INSERT INTO `sys_menu` VALUES (1031, '参数查询', 106, 1, '#', '', '', 1, 0, 'F', '0', '0', 'system:config:query', '#', 1, '2025-12-20 10:26:43', NULL, NULL, '');
-INSERT INTO `sys_menu` VALUES (1032, '参数新增', 106, 2, '#', '', '', 1, 0, 'F', '0', '0', 'system:config:add', '#', 1, '2025-12-20 10:26:43', NULL, NULL, '');
-INSERT INTO `sys_menu` VALUES (1033, '参数修改', 106, 3, '#', '', '', 1, 0, 'F', '0', '0', 'system:config:edit', '#', 1, '2025-12-20 10:26:43', NULL, NULL, '');
-INSERT INTO `sys_menu` VALUES (1034, '参数删除', 106, 4, '#', '', '', 1, 0, 'F', '0', '0', 'system:config:remove', '#', 1, '2025-12-20 10:26:43', NULL, NULL, '');
-INSERT INTO `sys_menu` VALUES (1035, '参数导出', 106, 5, '#', '', '', 1, 0, 'F', '0', '0', 'system:config:export', '#', 1, '2025-12-20 10:26:43', NULL, NULL, '');
-INSERT INTO `sys_menu` VALUES (1036, '公告查询', 107, 1, '#', '', '', 1, 0, 'F', '0', '0', 'system:notice:query', '#', 1, '2025-12-20 10:26:43', NULL, NULL, '');
-INSERT INTO `sys_menu` VALUES (1037, '公告新增', 107, 2, '#', '', '', 1, 0, 'F', '0', '0', 'system:notice:add', '#', 1, '2025-12-20 10:26:43', NULL, NULL, '');
-INSERT INTO `sys_menu` VALUES (1038, '公告修改', 107, 3, '#', '', '', 1, 0, 'F', '0', '0', 'system:notice:edit', '#', 1, '2025-12-20 10:26:43', NULL, NULL, '');
-INSERT INTO `sys_menu` VALUES (1039, '公告删除', 107, 4, '#', '', '', 1, 0, 'F', '0', '0', 'system:notice:remove', '#', 1, '2025-12-20 10:26:43', NULL, NULL, '');
-INSERT INTO `sys_menu` VALUES (1040, '操作查询', 500, 1, '#', '', '', 1, 0, 'F', '0', '0', 'monitor:operlog:query', '#', 1, '2025-12-20 10:26:43', NULL, NULL, '');
-INSERT INTO `sys_menu` VALUES (1041, '操作删除', 500, 2, '#', '', '', 1, 0, 'F', '0', '0', 'monitor:operlog:remove', '#', 1, '2025-12-20 10:26:43', NULL, NULL, '');
-INSERT INTO `sys_menu` VALUES (1042, '日志导出', 500, 4, '#', '', '', 1, 0, 'F', '0', '0', 'monitor:operlog:export', '#', 1, '2025-12-20 10:26:43', NULL, NULL, '');
-INSERT INTO `sys_menu` VALUES (1043, '登录查询', 501, 1, '#', '', '', 1, 0, 'F', '0', '0', 'monitor:logininfor:query', '#', 1, '2025-12-20 10:26:43', NULL, NULL, '');
-INSERT INTO `sys_menu` VALUES (1044, '登录删除', 501, 2, '#', '', '', 1, 0, 'F', '0', '0', 'monitor:logininfor:remove', '#', 1, '2025-12-20 10:26:43', NULL, NULL, '');
-INSERT INTO `sys_menu` VALUES (1045, '日志导出', 501, 3, '#', '', '', 1, 0, 'F', '0', '0', 'monitor:logininfor:export', '#', 1, '2025-12-20 10:26:43', NULL, NULL, '');
-INSERT INTO `sys_menu` VALUES (1046, '在线查询', 109, 1, '#', '', '', 1, 0, 'F', '0', '0', 'monitor:online:query', '#', 1, '2025-12-20 10:26:43', NULL, NULL, '');
-INSERT INTO `sys_menu` VALUES (1047, '批量强退', 109, 2, '#', '', '', 1, 0, 'F', '0', '0', 'monitor:online:batchLogout', '#', 1, '2025-12-20 10:26:43', NULL, NULL, '');
-INSERT INTO `sys_menu` VALUES (1048, '单条强退', 109, 3, '#', '', '', 1, 0, 'F', '0', '0', 'monitor:online:forceLogout', '#', 1, '2025-12-20 10:26:43', NULL, NULL, '');
-INSERT INTO `sys_menu` VALUES (1050, '账户解锁', 501, 4, '#', '', '', 1, 0, 'F', '0', '0', 'monitor:logininfor:unlock', '#', 1, '2025-12-20 10:26:43', NULL, NULL, '');
-INSERT INTO `sys_menu` VALUES (1061, '客户端管理查询', 123, 1, '#', '', '', 1, 0, 'F', '0', '0', 'system:client:query', '#', 1, '2025-12-20 10:26:43', NULL, NULL, '');
-INSERT INTO `sys_menu` VALUES (1062, '客户端管理新增', 123, 2, '#', '', '', 1, 0, 'F', '0', '0', 'system:client:add', '#', 1, '2025-12-20 10:26:43', NULL, NULL, '');
-INSERT INTO `sys_menu` VALUES (1063, '客户端管理修改', 123, 3, '#', '', '', 1, 0, 'F', '0', '0', 'system:client:edit', '#', 1, '2025-12-20 10:26:43', NULL, NULL, '');
-INSERT INTO `sys_menu` VALUES (1064, '客户端管理删除', 123, 4, '#', '', '', 1, 0, 'F', '0', '0', 'system:client:remove', '#', 1, '2025-12-20 10:26:43', NULL, NULL, '');
-INSERT INTO `sys_menu` VALUES (1065, '客户端管理导出', 123, 5, '#', '', '', 1, 0, 'F', '0', '0', 'system:client:export', '#', 1, '2025-12-20 10:26:43', NULL, NULL, '');
-INSERT INTO `sys_menu` VALUES (1600, '文件查询', 118, 1, '#', '', '', 1, 0, 'F', '0', '0', 'system:oss:query', '#', 1, '2025-12-20 10:26:43', NULL, NULL, '');
-INSERT INTO `sys_menu` VALUES (1601, '文件上传', 118, 2, '#', '', '', 1, 0, 'F', '0', '0', 'system:oss:upload', '#', 1, '2025-12-20 10:26:43', NULL, NULL, '');
-INSERT INTO `sys_menu` VALUES (1602, '文件下载', 118, 3, '#', '', '', 1, 0, 'F', '0', '0', 'system:oss:download', '#', 1, '2025-12-20 10:26:43', NULL, NULL, '');
-INSERT INTO `sys_menu` VALUES (1603, '文件删除', 118, 4, '#', '', '', 1, 0, 'F', '0', '0', 'system:oss:remove', '#', 1, '2025-12-20 10:26:43', NULL, NULL, '');
-INSERT INTO `sys_menu` VALUES (1620, '配置列表', 118, 5, '#', '', '', 1, 0, 'F', '0', '0', 'system:ossConfig:list', '#', 1, '2025-12-20 10:26:43', NULL, NULL, '');
-INSERT INTO `sys_menu` VALUES (1621, '配置添加', 118, 6, '#', '', '', 1, 0, 'F', '0', '0', 'system:ossConfig:add', '#', 1, '2025-12-20 10:26:43', NULL, NULL, '');
-INSERT INTO `sys_menu` VALUES (1622, '配置编辑', 118, 6, '#', '', '', 1, 0, 'F', '0', '0', 'system:ossConfig:edit', '#', 1, '2025-12-20 10:26:43', NULL, NULL, '');
-INSERT INTO `sys_menu` VALUES (1623, '配置删除', 118, 6, '#', '', '', 1, 0, 'F', '0', '0', 'system:ossConfig:remove', '#', 1, '2025-12-20 10:26:43', NULL, NULL, '');
+INSERT INTO `sys_menu` VALUES (1, '系统管理', 0, 1, 'system', NULL, '', 1, 0, 'M', 0, 0, '', 'system', 1, '2025-12-20 10:26:42', NULL, NULL, '系统管理目录');
+INSERT INTO `sys_menu` VALUES (2, '系统监控', 0, 3, 'monitor', NULL, '', 1, 0, 'M', 0, 0, '', 'monitor', 1, '2025-12-20 10:26:42', NULL, NULL, '系统监控目录');
+INSERT INTO `sys_menu` VALUES (100, '用户管理', 1, 1, 'user', 'system/user/index', '', 1, 0, 'C', 0, 0, 'system:user:list', 'user', 1, '2025-12-20 10:26:42', NULL, NULL, '用户管理菜单');
+INSERT INTO `sys_menu` VALUES (101, '角色管理', 1, 2, 'role', 'system/role/index', '', 1, 0, 'C', 0, 0, 'system:role:list', 'peoples', 1, '2025-12-20 10:26:42', NULL, NULL, '角色管理菜单');
+INSERT INTO `sys_menu` VALUES (102, '菜单管理', 1, 3, 'menu', 'system/menu/index', '', 1, 0, 'C', 0, 0, 'system:menu:list', 'tree-table', 1, '2025-12-20 10:26:42', NULL, NULL, '菜单管理菜单');
+INSERT INTO `sys_menu` VALUES (105, '字典管理', 1, 6, 'dict', 'system/dict/index', '', 1, 0, 'C', 0, 0, 'system:dict:list', 'dict', 1, '2025-12-20 10:26:42', NULL, NULL, '字典管理菜单');
+INSERT INTO `sys_menu` VALUES (106, '参数设置', 1, 7, 'config', 'system/config/index', '', 1, 0, 'C', 0, 0, 'system:config:list', 'edit', 1, '2025-12-20 10:26:42', NULL, NULL, '参数设置菜单');
+INSERT INTO `sys_menu` VALUES (107, '通知公告', 1, 8, 'notice', 'system/notice/index', '', 1, 0, 'C', 0, 0, 'system:notice:list', 'message', 1, '2025-12-20 10:26:42', NULL, NULL, '通知公告菜单');
+INSERT INTO `sys_menu` VALUES (108, '日志管理', 1, 9, 'log', '', '', 1, 0, 'M', 0, 0, '', 'log', 1, '2025-12-20 10:26:42', NULL, NULL, '日志管理菜单');
+INSERT INTO `sys_menu` VALUES (109, '在线用户', 2, 1, 'online', 'monitor/online/index', '', 1, 0, 'C', 0, 0, 'monitor:online:list', 'online', 1, '2025-12-20 10:26:42', NULL, NULL, '在线用户菜单');
+INSERT INTO `sys_menu` VALUES (113, '缓存监控', 2, 5, 'cache', 'monitor/cache/index', '', 1, 0, 'C', 0, 0, 'monitor:cache:list', 'redis', 1, '2025-12-20 10:26:42', NULL, NULL, '缓存监控菜单');
+INSERT INTO `sys_menu` VALUES (117, 'Admin监控', 2, 5, 'Admin', 'monitor/admin/index', '', 1, 0, 'C', 0, 0, 'monitor:admin:list', 'dashboard', 1, '2025-12-20 10:26:42', NULL, NULL, 'Admin监控菜单');
+INSERT INTO `sys_menu` VALUES (118, '文件管理', 1, 10, 'oss', 'system/oss/index', '', 1, 0, 'C', 0, 0, 'system:oss:list', 'upload', 1, '2025-12-20 10:26:42', NULL, NULL, '文件管理菜单');
+INSERT INTO `sys_menu` VALUES (120, '任务调度中心', 2, 6, 'snailjob', 'monitor/snailjob/index', '', 1, 0, 'C', 0, 0, 'monitor:snailjob:list', 'job', 1, '2025-12-20 10:26:42', NULL, NULL, 'SnailJob控制台菜单');
+INSERT INTO `sys_menu` VALUES (123, '客户端管理', 1, 11, 'client', 'system/client/index', '', 1, 0, 'C', 0, 0, 'system:client:list', 'international', 1, '2025-12-20 10:26:42', NULL, NULL, '客户端管理菜单');
+INSERT INTO `sys_menu` VALUES (130, '分配用户', 1, 2, 'role-auth/user/:roleId', 'system/role/authUser', '', 1, 1, 'C', 1, 0, 'system:role:edit', '#', 1, '2025-12-20 10:26:42', NULL, NULL, '/system/role');
+INSERT INTO `sys_menu` VALUES (131, '分配角色', 1, 1, 'user-auth/role/:userId', 'system/user/authRole', '', 1, 1, 'C', 1, 0, 'system:user:edit', '#', 1, '2025-12-20 10:26:42', NULL, NULL, '/system/user');
+INSERT INTO `sys_menu` VALUES (132, '字典数据', 1, 6, 'dict-data/index/:dictId', 'system/dict/data', '', 1, 1, 'C', 1, 0, 'system:dict:list', '#', 1, '2025-12-20 10:26:42', NULL, NULL, '/system/dict');
+INSERT INTO `sys_menu` VALUES (133, '文件配置管理', 1, 10, 'oss-config/index', 'system/oss/config', '', 1, 1, 'C', 1, 0, 'system:ossConfig:list', '#', 1, '2025-12-20 10:26:42', NULL, NULL, '/system/oss');
+INSERT INTO `sys_menu` VALUES (500, '操作日志', 108, 1, 'operlog', 'monitor/operlog/index', '', 1, 0, 'C', 0, 0, 'monitor:operlog:list', 'form', 1, '2025-12-20 10:26:42', NULL, NULL, '操作日志菜单');
+INSERT INTO `sys_menu` VALUES (501, '登录日志', 108, 2, 'logininfor', 'monitor/logininfor/index', '', 1, 0, 'C', 0, 0, 'monitor:logininfor:list', 'logininfor', 1, '2025-12-20 10:26:42', NULL, NULL, '登录日志菜单');
+INSERT INTO `sys_menu` VALUES (1001, '用户查询', 100, 1, '', '', '', 1, 0, 'F', 0, 0, 'system:user:query', '#', 1, '2025-12-20 10:26:42', NULL, NULL, '');
+INSERT INTO `sys_menu` VALUES (1002, '用户新增', 100, 2, '', '', '', 1, 0, 'F', 0, 0, 'system:user:add', '#', 1, '2025-12-20 10:26:42', NULL, NULL, '');
+INSERT INTO `sys_menu` VALUES (1003, '用户修改', 100, 3, '', '', '', 1, 0, 'F', 0, 0, 'system:user:edit', '#', 1, '2025-12-20 10:26:42', NULL, NULL, '');
+INSERT INTO `sys_menu` VALUES (1004, '用户删除', 100, 4, '', '', '', 1, 0, 'F', 0, 0, 'system:user:remove', '#', 1, '2025-12-20 10:26:42', NULL, NULL, '');
+INSERT INTO `sys_menu` VALUES (1005, '用户导出', 100, 5, '', '', '', 1, 0, 'F', 0, 0, 'system:user:export', '#', 1, '2025-12-20 10:26:42', NULL, NULL, '');
+INSERT INTO `sys_menu` VALUES (1006, '用户导入', 100, 6, '', '', '', 1, 0, 'F', 0, 0, 'system:user:import', '#', 1, '2025-12-20 10:26:42', NULL, NULL, '');
+INSERT INTO `sys_menu` VALUES (1007, '重置密码', 100, 7, '', '', '', 1, 0, 'F', 0, 0, 'system:user:resetPwd', '#', 1, '2025-12-20 10:26:42', NULL, NULL, '');
+INSERT INTO `sys_menu` VALUES (1008, '角色查询', 101, 1, '', '', '', 1, 0, 'F', 0, 0, 'system:role:query', '#', 1, '2025-12-20 10:26:42', NULL, NULL, '');
+INSERT INTO `sys_menu` VALUES (1009, '角色新增', 101, 2, '', '', '', 1, 0, 'F', 0, 0, 'system:role:add', '#', 1, '2025-12-20 10:26:42', NULL, NULL, '');
+INSERT INTO `sys_menu` VALUES (1010, '角色修改', 101, 3, '', '', '', 1, 0, 'F', 0, 0, 'system:role:edit', '#', 1, '2025-12-20 10:26:42', NULL, NULL, '');
+INSERT INTO `sys_menu` VALUES (1011, '角色删除', 101, 4, '', '', '', 1, 0, 'F', 0, 0, 'system:role:remove', '#', 1, '2025-12-20 10:26:42', NULL, NULL, '');
+INSERT INTO `sys_menu` VALUES (1012, '角色导出', 101, 5, '', '', '', 1, 0, 'F', 0, 0, 'system:role:export', '#', 1, '2025-12-20 10:26:42', NULL, NULL, '');
+INSERT INTO `sys_menu` VALUES (1013, '菜单查询', 102, 1, '', '', '', 1, 0, 'F', 0, 0, 'system:menu:query', '#', 1, '2025-12-20 10:26:43', NULL, NULL, '');
+INSERT INTO `sys_menu` VALUES (1014, '菜单新增', 102, 2, '', '', '', 1, 0, 'F', 0, 0, 'system:menu:add', '#', 1, '2025-12-20 10:26:43', NULL, NULL, '');
+INSERT INTO `sys_menu` VALUES (1015, '菜单修改', 102, 3, '', '', '', 1, 0, 'F', 0, 0, 'system:menu:edit', '#', 1, '2025-12-20 10:26:43', NULL, NULL, '');
+INSERT INTO `sys_menu` VALUES (1016, '菜单删除', 102, 4, '', '', '', 1, 0, 'F', 0, 0, 'system:menu:remove', '#', 1, '2025-12-20 10:26:43', NULL, NULL, '');
+INSERT INTO `sys_menu` VALUES (1026, '字典查询', 105, 1, '#', '', '', 1, 0, 'F', 0, 0, 'system:dict:query', '#', 1, '2025-12-20 10:26:43', NULL, NULL, '');
+INSERT INTO `sys_menu` VALUES (1027, '字典新增', 105, 2, '#', '', '', 1, 0, 'F', 0, 0, 'system:dict:add', '#', 1, '2025-12-20 10:26:43', NULL, NULL, '');
+INSERT INTO `sys_menu` VALUES (1028, '字典修改', 105, 3, '#', '', '', 1, 0, 'F', 0, 0, 'system:dict:edit', '#', 1, '2025-12-20 10:26:43', NULL, NULL, '');
+INSERT INTO `sys_menu` VALUES (1029, '字典删除', 105, 4, '#', '', '', 1, 0, 'F', 0, 0, 'system:dict:remove', '#', 1, '2025-12-20 10:26:43', NULL, NULL, '');
+INSERT INTO `sys_menu` VALUES (1030, '字典导出', 105, 5, '#', '', '', 1, 0, 'F', 0, 0, 'system:dict:export', '#', 1, '2025-12-20 10:26:43', NULL, NULL, '');
+INSERT INTO `sys_menu` VALUES (1031, '参数查询', 106, 1, '#', '', '', 1, 0, 'F', 0, 0, 'system:config:query', '#', 1, '2025-12-20 10:26:43', NULL, NULL, '');
+INSERT INTO `sys_menu` VALUES (1032, '参数新增', 106, 2, '#', '', '', 1, 0, 'F', 0, 0, 'system:config:add', '#', 1, '2025-12-20 10:26:43', NULL, NULL, '');
+INSERT INTO `sys_menu` VALUES (1033, '参数修改', 106, 3, '#', '', '', 1, 0, 'F', 0, 0, 'system:config:edit', '#', 1, '2025-12-20 10:26:43', NULL, NULL, '');
+INSERT INTO `sys_menu` VALUES (1034, '参数删除', 106, 4, '#', '', '', 1, 0, 'F', 0, 0, 'system:config:remove', '#', 1, '2025-12-20 10:26:43', NULL, NULL, '');
+INSERT INTO `sys_menu` VALUES (1035, '参数导出', 106, 5, '#', '', '', 1, 0, 'F', 0, 0, 'system:config:export', '#', 1, '2025-12-20 10:26:43', NULL, NULL, '');
+INSERT INTO `sys_menu` VALUES (1036, '公告查询', 107, 1, '#', '', '', 1, 0, 'F', 0, 0, 'system:notice:query', '#', 1, '2025-12-20 10:26:43', NULL, NULL, '');
+INSERT INTO `sys_menu` VALUES (1037, '公告新增', 107, 2, '#', '', '', 1, 0, 'F', 0, 0, 'system:notice:add', '#', 1, '2025-12-20 10:26:43', NULL, NULL, '');
+INSERT INTO `sys_menu` VALUES (1038, '公告修改', 107, 3, '#', '', '', 1, 0, 'F', 0, 0, 'system:notice:edit', '#', 1, '2025-12-20 10:26:43', NULL, NULL, '');
+INSERT INTO `sys_menu` VALUES (1039, '公告删除', 107, 4, '#', '', '', 1, 0, 'F', 0, 0, 'system:notice:remove', '#', 1, '2025-12-20 10:26:43', NULL, NULL, '');
+INSERT INTO `sys_menu` VALUES (1040, '操作查询', 500, 1, '#', '', '', 1, 0, 'F', 0, 0, 'monitor:operlog:query', '#', 1, '2025-12-20 10:26:43', NULL, NULL, '');
+INSERT INTO `sys_menu` VALUES (1041, '操作删除', 500, 2, '#', '', '', 1, 0, 'F', 0, 0, 'monitor:operlog:remove', '#', 1, '2025-12-20 10:26:43', NULL, NULL, '');
+INSERT INTO `sys_menu` VALUES (1042, '日志导出', 500, 4, '#', '', '', 1, 0, 'F', 0, 0, 'monitor:operlog:export', '#', 1, '2025-12-20 10:26:43', NULL, NULL, '');
+INSERT INTO `sys_menu` VALUES (1043, '登录查询', 501, 1, '#', '', '', 1, 0, 'F', 0, 0, 'monitor:logininfor:query', '#', 1, '2025-12-20 10:26:43', NULL, NULL, '');
+INSERT INTO `sys_menu` VALUES (1044, '登录删除', 501, 2, '#', '', '', 1, 0, 'F', 0, 0, 'monitor:logininfor:remove', '#', 1, '2025-12-20 10:26:43', NULL, NULL, '');
+INSERT INTO `sys_menu` VALUES (1045, '日志导出', 501, 3, '#', '', '', 1, 0, 'F', 0, 0, 'monitor:logininfor:export', '#', 1, '2025-12-20 10:26:43', NULL, NULL, '');
+INSERT INTO `sys_menu` VALUES (1046, '在线查询', 109, 1, '#', '', '', 1, 0, 'F', 0, 0, 'monitor:online:query', '#', 1, '2025-12-20 10:26:43', NULL, NULL, '');
+INSERT INTO `sys_menu` VALUES (1047, '批量强退', 109, 2, '#', '', '', 1, 0, 'F', 0, 0, 'monitor:online:batchLogout', '#', 1, '2025-12-20 10:26:43', NULL, NULL, '');
+INSERT INTO `sys_menu` VALUES (1048, '单条强退', 109, 3, '#', '', '', 1, 0, 'F', 0, 0, 'monitor:online:forceLogout', '#', 1, '2025-12-20 10:26:43', NULL, NULL, '');
+INSERT INTO `sys_menu` VALUES (1050, '账户解锁', 501, 4, '#', '', '', 1, 0, 'F', 0, 0, 'monitor:logininfor:unlock', '#', 1, '2025-12-20 10:26:43', NULL, NULL, '');
+INSERT INTO `sys_menu` VALUES (1061, '客户端管理查询', 123, 1, '#', '', '', 1, 0, 'F', 0, 0, 'system:client:query', '#', 1, '2025-12-20 10:26:43', NULL, NULL, '');
+INSERT INTO `sys_menu` VALUES (1062, '客户端管理新增', 123, 2, '#', '', '', 1, 0, 'F', 0, 0, 'system:client:add', '#', 1, '2025-12-20 10:26:43', NULL, NULL, '');
+INSERT INTO `sys_menu` VALUES (1063, '客户端管理修改', 123, 3, '#', '', '', 1, 0, 'F', 0, 0, 'system:client:edit', '#', 1, '2025-12-20 10:26:43', NULL, NULL, '');
+INSERT INTO `sys_menu` VALUES (1064, '客户端管理删除', 123, 4, '#', '', '', 1, 0, 'F', 0, 0, 'system:client:remove', '#', 1, '2025-12-20 10:26:43', NULL, NULL, '');
+INSERT INTO `sys_menu` VALUES (1065, '客户端管理导出', 123, 5, '#', '', '', 1, 0, 'F', 0, 0, 'system:client:export', '#', 1, '2025-12-20 10:26:43', NULL, NULL, '');
+INSERT INTO `sys_menu` VALUES (1600, '文件查询', 118, 1, '#', '', '', 1, 0, 'F', 0, 0, 'system:oss:query', '#', 1, '2025-12-20 10:26:43', NULL, NULL, '');
+INSERT INTO `sys_menu` VALUES (1601, '文件上传', 118, 2, '#', '', '', 1, 0, 'F', 0, 0, 'system:oss:upload', '#', 1, '2025-12-20 10:26:43', NULL, NULL, '');
+INSERT INTO `sys_menu` VALUES (1602, '文件下载', 118, 3, '#', '', '', 1, 0, 'F', 0, 0, 'system:oss:download', '#', 1, '2025-12-20 10:26:43', NULL, NULL, '');
+INSERT INTO `sys_menu` VALUES (1603, '文件删除', 118, 4, '#', '', '', 1, 0, 'F', 0, 0, 'system:oss:remove', '#', 1, '2025-12-20 10:26:43', NULL, NULL, '');
+INSERT INTO `sys_menu` VALUES (1620, '配置列表', 118, 5, '#', '', '', 1, 0, 'F', 0, 0, 'system:ossConfig:list', '#', 1, '2025-12-20 10:26:43', NULL, NULL, '');
+INSERT INTO `sys_menu` VALUES (1621, '配置添加', 118, 6, '#', '', '', 1, 0, 'F', 0, 0, 'system:ossConfig:add', '#', 1, '2025-12-20 10:26:43', NULL, NULL, '');
+INSERT INTO `sys_menu` VALUES (1622, '配置编辑', 118, 6, '#', '', '', 1, 0, 'F', 0, 0, 'system:ossConfig:edit', '#', 1, '2025-12-20 10:26:43', NULL, NULL, '');
+INSERT INTO `sys_menu` VALUES (1623, '配置删除', 118, 6, '#', '', '', 1, 0, 'F', 0, 0, 'system:ossConfig:remove', '#', 1, '2025-12-20 10:26:43', NULL, NULL, '');
 
 -- ----------------------------
 -- Table structure for sys_notice
@@ -673,9 +698,9 @@ DROP TABLE IF EXISTS `sys_notice`;
 CREATE TABLE `sys_notice`  (
   `notice_id` bigint NOT NULL COMMENT '公告ID',
   `notice_title` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '公告标题',
-  `notice_type` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '公告类型（1通知 2公告）',
+  `notice_type` tinyint NOT NULL COMMENT '公告类型（1通知 2公告）',
   `notice_content` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT '公告内容',
-  `status` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '0' COMMENT '公告状态（0正常 1关闭）',
+  `status` tinyint NULL DEFAULT 0 COMMENT '公告状态（0正常 1关闭）',
   `create_by` bigint NULL DEFAULT NULL COMMENT '创建者',
   `create_time` datetime NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `update_by` bigint NULL DEFAULT NULL COMMENT '更新者',
@@ -690,8 +715,8 @@ CREATE TABLE `sys_notice`  (
 -- ----------------------------
 -- Records of sys_notice
 -- ----------------------------
-INSERT INTO `sys_notice` VALUES (1, '温馨提醒：2018-07-01 新版本发布啦', '2', 0xE696B0E78988E69CACE58685E5AEB9, '0', 1, '2025-12-20 10:28:48', NULL, NULL, '管理员');
-INSERT INTO `sys_notice` VALUES (2, '维护通知：2018-07-01 系统凌晨维护', '1', 0xE7BBB4E68AA4E58685E5AEB9, '0', 1, '2025-12-20 10:28:48', NULL, NULL, '管理员');
+INSERT INTO `sys_notice` VALUES (1, '温馨提醒：2018-07-01 新版本发布啦', 2, '新版本内容', 0, 1, '2025-12-20 10:28:48', NULL, NULL, '管理员');
+INSERT INTO `sys_notice` VALUES (2, '维护通知：2018-07-01 系统凌晨维护', 1, '维护内容', 0, 1, '2025-12-20 10:28:48', NULL, NULL, '管理员');
 
 -- ----------------------------
 -- Table structure for sys_oper_log
@@ -717,7 +742,8 @@ CREATE TABLE `sys_oper_log`  (
   PRIMARY KEY (`oper_id`) USING BTREE,
   INDEX `idx_sys_oper_log_bt`(`business_type` ASC) USING BTREE,
   INDEX `idx_sys_oper_log_s`(`status` ASC) USING BTREE,
-  INDEX `idx_sys_oper_log_ot`(`oper_time` ASC) USING BTREE
+  INDEX `idx_sys_oper_log_ot`(`oper_time` ASC) USING BTREE,
+  INDEX `idx_oper_name_time`(`oper_name` ASC, `oper_time` DESC) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '操作日志记录' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
@@ -764,10 +790,10 @@ CREATE TABLE `sys_oss_config`  (
   `prefix` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '' COMMENT '前缀',
   `endpoint` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '' COMMENT '访问站点',
   `domain` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '' COMMENT '自定义域名',
-  `is_https` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT 'N' COMMENT '是否https（Y=是,N=否）',
+  `is_https` tinyint NULL DEFAULT 0 COMMENT '是否https（0=否,1=是）',
   `region` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '' COMMENT '域',
-  `access_policy` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '1' COMMENT '桶权限类型(0=private 1=public 2=custom)',
-  `status` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '1' COMMENT '是否默认（0=是,1=否）',
+  `access_policy` tinyint NOT NULL DEFAULT 1 COMMENT '桶权限类型(0=private 1=public 2=custom)',
+  `status` tinyint NULL DEFAULT 1 COMMENT '是否默认（0=是,1=否）',
   `ext1` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '' COMMENT '扩展字段',
   `create_by` bigint NULL DEFAULT NULL COMMENT '创建者',
   `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
@@ -780,11 +806,11 @@ CREATE TABLE `sys_oss_config`  (
 -- ----------------------------
 -- Records of sys_oss_config
 -- ----------------------------
-INSERT INTO `sys_oss_config` VALUES (1, 'minio', 'ruoyi', 'ruoyi123', 'ruoyi', '', '127.0.0.1:9000', '', 'N', '', '1', '0', '', 1, '2025-12-20 10:29:11', 1, '2025-12-20 10:29:11', NULL);
-INSERT INTO `sys_oss_config` VALUES (2, 'qiniu', 'XXXXXXXXXXXXXXX', 'XXXXXXXXXXXXXXX', 'ruoyi', '', 's3-cn-north-1.qiniucs.com', '', 'N', '', '1', '1', '', 1, '2025-12-20 10:29:11', 1, '2025-12-20 10:29:11', NULL);
-INSERT INTO `sys_oss_config` VALUES (3, 'aliyun', 'XXXXXXXXXXXXXXX', 'XXXXXXXXXXXXXXX', 'ruoyi', '', 'oss-cn-beijing.aliyuncs.com', '', 'N', '', '1', '1', '', 1, '2025-12-20 10:29:11', 1, '2025-12-20 10:29:11', NULL);
-INSERT INTO `sys_oss_config` VALUES (4, 'qcloud', 'XXXXXXXXXXXXXXX', 'XXXXXXXXXXXXXXX', 'ruoyi-1240000000', '', 'cos.ap-beijing.myqcloud.com', '', 'N', 'ap-beijing', '1', '1', '', 1, '2025-12-20 10:29:11', 1, '2025-12-20 10:29:11', NULL);
-INSERT INTO `sys_oss_config` VALUES (5, 'image', 'ruoyi', 'ruoyi123', 'ruoyi', 'image', '127.0.0.1:9000', '', 'N', '', '1', '1', '', 1, '2025-12-20 10:29:12', 1, '2025-12-20 10:29:12', NULL);
+INSERT INTO `sys_oss_config` VALUES (1, 'minio', 'ruoyi', 'ruoyi123', 'ruoyi', '', '127.0.0.1:9000', '', 0, '', 1, 0, '', 1, '2025-12-20 10:29:11', 1, '2025-12-20 10:29:11', NULL);
+INSERT INTO `sys_oss_config` VALUES (2, 'qiniu', 'XXXXXXXXXXXXXXX', 'XXXXXXXXXXXXXXX', 'ruoyi', '', 's3-cn-north-1.qiniucs.com', '', 0, '', 1, 1, '', 1, '2025-12-20 10:29:11', 1, '2025-12-20 10:29:11', NULL);
+INSERT INTO `sys_oss_config` VALUES (3, 'aliyun', 'XXXXXXXXXXXXXXX', 'XXXXXXXXXXXXXXX', 'ruoyi', '', 'oss-cn-beijing.aliyuncs.com', '', 0, '', 1, 1, '', 1, '2025-12-20 10:29:11', 1, '2025-12-20 10:29:11', NULL);
+INSERT INTO `sys_oss_config` VALUES (4, 'qcloud', 'XXXXXXXXXXXXXXX', 'XXXXXXXXXXXXXXX', 'ruoyi-1240000000', '', 'cos.ap-beijing.myqcloud.com', '', 0, 'ap-beijing', 1, 1, '', 1, '2025-12-20 10:29:11', 1, '2025-12-20 10:29:11', NULL);
+INSERT INTO `sys_oss_config` VALUES (5, 'image', 'ruoyi', 'ruoyi123', 'ruoyi', 'image', '127.0.0.1:9000', '', 0, '', 1, 1, '', 1, '2025-12-20 10:29:12', 1, '2025-12-20 10:29:12', NULL);
 
 -- ----------------------------
 -- Table structure for sys_role
@@ -795,10 +821,10 @@ CREATE TABLE `sys_role`  (
   `role_name` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '角色名称',
   `role_key` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '角色权限字符串',
   `role_sort` int NOT NULL COMMENT '显示顺序',
-  `data_scope` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '1' COMMENT '数据范围（1：全部数据权限 2：自定数据权限 3：本部门数据权限 4：本部门及以下数据权限 5：仅本人数据权限 6：部门及以下或本人数据权限）',
+  `data_scope` tinyint NULL DEFAULT 1 COMMENT '数据范围（1：全部数据权限 2：自定数据权限 3：本部门数据权限 4：本部门及以下数据权限 5：仅本人数据权限 6：部门及以下或本人数据权限）',
   `menu_check_strictly` tinyint(1) NULL DEFAULT 1 COMMENT '菜单树选择项是否关联显示',
-  `status` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '角色状态（0正常 1停用）',
-  `del_flag` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '0' COMMENT '删除标志（0代表存在 1代表删除）',
+  `status` tinyint NOT NULL COMMENT '角色状态（0正常 1停用）',
+  `del_flag` tinyint NULL DEFAULT 0 COMMENT '删除标志（0代表存在 1代表删除）',
   `create_by` bigint NULL DEFAULT NULL COMMENT '创建者',
   `create_time` datetime NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `update_by` bigint NULL DEFAULT NULL COMMENT '更新者',
@@ -814,9 +840,9 @@ CREATE TABLE `sys_role`  (
 -- ----------------------------
 -- Records of sys_role
 -- ----------------------------
-INSERT INTO `sys_role` VALUES (1, '超级管理员', 'superadmin', 1, '1', 1, '0', '0', 1, '2025-12-20 10:22:38', NULL, NULL, '超级管理员');
-INSERT INTO `sys_role` VALUES (3, '本部门及以下', 'test1', 3, '4', 1, '0', '0', 1, '2025-12-20 10:22:38', NULL, NULL, '');
-INSERT INTO `sys_role` VALUES (4, '仅本人', 'test2', 4, '5', 1, '0', '0', 1, '2025-12-20 10:22:38', NULL, NULL, '');
+INSERT INTO `sys_role` VALUES (1, '超级管理员', 'superadmin', 1, 1, 1, 0, 0, 1, '2025-12-20 10:22:38', NULL, NULL, '超级管理员');
+INSERT INTO `sys_role` VALUES (3, '本部门及以下', 'test1', 3, 4, 1, 0, 0, 1, '2025-12-20 10:22:38', NULL, NULL, '');
+INSERT INTO `sys_role` VALUES (4, '仅本人', 'test2', 4, 5, 1, 0, 0, 1, '2025-12-20 10:22:38', NULL, NULL, '');
 
 -- ----------------------------
 -- Table structure for sys_role_menu
@@ -939,14 +965,13 @@ CREATE TABLE `sys_social`  (
   `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
   `update_by` bigint NULL DEFAULT NULL COMMENT '更新者',
   `update_time` datetime NULL DEFAULT NULL COMMENT '更新时间',
-  `del_flag` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '0' COMMENT '删除标志（0代表存在 1代表删除）',
+  `del_flag` tinyint NULL DEFAULT 0 COMMENT '删除标志（0代表存在 1代表删除）',
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `idx_user_id`(`user_id` ASC) USING BTREE,
   INDEX `idx_auth_id`(`auth_id` ASC) USING BTREE,
   INDEX `idx_source`(`source` ASC) USING BTREE,
-  INDEX `idx_open_id`(`open_id` ASC) USING BTREE,
-  CONSTRAINT `fk_social_user` FOREIGN KEY (`user_id`) REFERENCES `sys_user` (`user_id`) ON DELETE CASCADE ON UPDATE RESTRICT
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '社会化关系表' ROW_FORMAT = DYNAMIC;
+  INDEX `idx_open_id`(`open_id` ASC) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '社会化关系表（已移除外键约束，提升性能）' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_social
@@ -963,11 +988,11 @@ CREATE TABLE `sys_user`  (
   `user_type` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT 'sys_user' COMMENT '用户类型（sys_user系统用户）',
   `email` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '' COMMENT '用户邮箱',
   `phonenumber` varchar(11) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '' COMMENT '手机号码',
-  `sex` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '0' COMMENT '用户性别（0男 1女 2未知）',
+  `sex` tinyint NULL DEFAULT 0 COMMENT '用户性别（0男 1女 2未知）',
   `avatar` bigint NULL DEFAULT NULL COMMENT '头像地址',
   `password` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '' COMMENT '密码',
-  `status` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '0' COMMENT '帐号状态（0正常 1停用）',
-  `del_flag` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '0' COMMENT '删除标志（0代表存在 1代表删除）',
+  `status` tinyint NULL DEFAULT 0 COMMENT '帐号状态（0正常 1停用）',
+  `del_flag` tinyint NULL DEFAULT 0 COMMENT '删除标志（0代表存在 1代表删除）',
   `login_ip` varchar(45) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '' COMMENT '最后登录IP',
   `login_date` datetime NULL DEFAULT NULL COMMENT '最后登录时间',
   `create_by` bigint NULL DEFAULT NULL COMMENT '创建者',
@@ -988,9 +1013,9 @@ CREATE TABLE `sys_user`  (
 -- ----------------------------
 -- Records of sys_user
 -- ----------------------------
-INSERT INTO `sys_user` VALUES (1, 'admin', '疯狂的狮子Li', 'sys_user', 'crazyLionLi@163.com', '15888888888', '1', NULL, '$2a$10$7JB720yubVSZvUI0rEqK/.VqGOZTH.ulu33dHOiBE8ByOhJIrdAu2', '0', '0', '0:0:0:0:0:0:0:1', '2025-12-20 10:38:30', 1, '2025-12-20 10:21:11', -1, '2025-12-20 10:38:30', '管理员');
-INSERT INTO `sys_user` VALUES (3, 'test', '本部门及以下 密码666666', 'sys_user', '', '', '0', NULL, '$2a$10$b8yUzN0C71sbz.PhNOCgJe.Tu1yWC3RNrTyjSQ8p1W0.aaUXUJ.Ne', '0', '0', '127.0.0.1', '2025-12-20 10:21:11', 1, '2025-12-20 10:21:11', 3, '2025-12-20 10:21:11', NULL);
-INSERT INTO `sys_user` VALUES (4, 'test1', '仅本人 密码666666', 'sys_user', '', '', '0', NULL, '$2a$10$b8yUzN0C71sbz.PhNOCgJe.Tu1yWC3RNrTyjSQ8p1W0.aaUXUJ.Ne', '0', '0', '127.0.0.1', '2025-12-20 10:21:11', 1, '2025-12-20 10:21:11', 4, '2025-12-20 10:21:11', NULL);
+INSERT INTO `sys_user` VALUES (1, 'admin', '疯狂的狮子Li', 'sys_user', 'crazyLionLi@163.com', '15888888888', 1, NULL, '$2a$10$7JB720yubVSZvUI0rEqK/.VqGOZTH.ulu33dHOiBE8ByOhJIrdAu2', 0, 0, '0:0:0:0:0:0:0:1', '2025-12-20 10:38:30', 1, '2025-12-20 10:21:11', -1, '2025-12-20 10:38:30', '管理员');
+INSERT INTO `sys_user` VALUES (3, 'test', '本部门及以下 密码666666', 'sys_user', '', '', 0, NULL, '$2a$10$b8yUzN0C71sbz.PhNOCgJe.Tu1yWC3RNrTyjSQ8p1W0.aaUXUJ.Ne', 0, 0, '127.0.0.1', '2025-12-20 10:21:11', 1, '2025-12-20 10:21:11', 3, '2025-12-20 10:21:11', NULL);
+INSERT INTO `sys_user` VALUES (4, 'test1', '仅本人 密码666666', 'sys_user', '', '', 0, NULL, '$2a$10$b8yUzN0C71sbz.PhNOCgJe.Tu1yWC3RNrTyjSQ8p1W0.aaUXUJ.Ne', 0, 0, '127.0.0.1', '2025-12-20 10:21:11', 1, '2025-12-20 10:21:11', 4, '2025-12-20 10:21:11', NULL);
 
 -- ----------------------------
 -- Table structure for sys_user_role
