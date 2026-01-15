@@ -6,6 +6,7 @@ import lombok.Data;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -51,9 +52,24 @@ public class BlogPostVo implements Serializable {
     private Long authorId;
 
     /**
+     * 作者昵称
+     */
+    private String authorName;
+
+    /**
      * 分类ID
      */
     private Long categoryId;
+
+    /**
+     * 分类信息
+     */
+    private BlogCategoryVo category;
+
+    /**
+     * 标签列表
+     */
+    private List<BlogTagVo> tags;
 
     /**
      * 状态（0草稿 1发布 2下架 3回收站）
@@ -74,6 +90,21 @@ public class BlogPostVo implements Serializable {
      * 允许评论（0否 1是）
      */
     private String allowComment;
+
+    /**
+     * 浏览量
+     */
+    private Long viewCount;
+
+    /**
+     * 点赞数
+     */
+    private Long likeCount;
+
+    /**
+     * 评论数
+     */
+    private Long commentCount;
 
     /**
      * 文章访问密码
@@ -99,4 +130,9 @@ public class BlogPostVo implements Serializable {
      * SEO描述
      */
     private String seoDescription;
+
+    /**
+     * 发布时间
+     */
+    private Date publishedTime;
 }

@@ -10,6 +10,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * @Author: WeiHan
@@ -56,7 +57,6 @@ public class BlogPostBo extends BaseEntity {
     /**
      * 作者ID
      */
-    @NotBlank(message = "作者ID不能为空")
     private Long authorId;
 
     /**
@@ -64,6 +64,11 @@ public class BlogPostBo extends BaseEntity {
      */
     @NotBlank(message = "分类ID不能为空")
     private Long categoryId;
+
+    /**
+     * 标签ID列表
+     */
+    private List<Long> tagIds;
 
     /**
      * 状态（0草稿 1发布 2下架 3回收站）

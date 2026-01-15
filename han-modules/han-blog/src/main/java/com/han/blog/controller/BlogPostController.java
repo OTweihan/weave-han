@@ -1,19 +1,30 @@
 package com.han.blog.controller;
 
 import cn.dev33.satoken.annotation.SaCheckPermission;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.han.blog.domain.BlogCategory;
+import com.han.blog.domain.BlogTag;
 import com.han.blog.domain.bo.BlogPostBo;
+import com.han.blog.domain.vo.BlogCategoryVo;
 import com.han.blog.domain.vo.BlogPostVo;
+import com.han.blog.domain.vo.BlogTagVo;
+import com.han.blog.mapper.BlogCategoryMapper;
+import com.han.blog.mapper.BlogTagMapper;
 import com.han.blog.service.IBlogPostService;
+import com.han.common.core.constant.SystemConstants;
 import com.han.common.core.domain.R;
 import com.han.common.idempotent.annotation.RepeatSubmit;
 import com.han.common.log.annotation.Log;
 import com.han.common.log.enums.BusinessType;
 import com.han.common.mybatis.core.page.PageQuery;
 import com.han.common.mybatis.core.page.TableDataInfo;
+import com.han.common.satoken.utils.LoginHelper;
 import com.han.common.web.core.BaseController;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * @Author: WeiHan
@@ -27,6 +38,8 @@ import org.springframework.web.bind.annotation.*;
 public class BlogPostController extends BaseController {
 
     private final IBlogPostService blogPostService;
+    private final BlogCategoryMapper blogCategoryMapper;
+    private final BlogTagMapper blogTagMapper;
 
     /**
      * 查询博客文章列表

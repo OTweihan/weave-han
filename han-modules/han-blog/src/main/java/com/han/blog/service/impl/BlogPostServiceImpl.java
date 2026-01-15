@@ -15,6 +15,7 @@ import com.han.common.core.exception.ServiceException;
 import com.han.common.core.utils.MapstructUtils;
 import com.han.common.mybatis.core.page.PageQuery;
 import com.han.common.mybatis.core.page.TableDataInfo;
+import com.han.common.satoken.utils.LoginHelper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -100,10 +101,9 @@ public class BlogPostServiceImpl implements IBlogPostService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public int insertPost(BlogPostBo post) {
+        post.setAuthorId(LoginHelper.getUserId());
         BlogPost blogPost = MapstructUtils.convert(post, BlogPost.class);
-
         int rows = blogPostMapper.insert(blogPost);
-
         return rows;
     }
 
@@ -173,7 +173,7 @@ public class BlogPostServiceImpl implements IBlogPostService {
             null,
             Wrappers.<BlogPost>lambdaUpdate()
                 .eq(BlogPost::getPostId, postId)
-                .setSql("view_count = view_count + 1")
+                .setSql("like_count = like_count + " + increment)
         );
     }
 }
