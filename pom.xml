@@ -10,7 +10,7 @@
     <version>${revision}</version>
     <packaging>pom</packaging>
 
-    <name>Weave-Han</name>
+    <name>WeaveHan</name>
     <description>基于Spring Boot的企业级应用开发框架</description>
 
     <!-- ================================ 属性配置 ================================ -->

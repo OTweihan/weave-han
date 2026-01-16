@@ -60,6 +60,12 @@
             <artifactId>han-system</artifactId>
         </dependency>
 
+        <!-- 博客业务模块 - 文章、分类、标签管理等博客功能 -->
+        <dependency>
+            <groupId>com.han</groupId>
+            <artifactId>han-blog</artifactId>
+        </dependency>
+
         <!-- ==================== 监控与管理 ==================== -->
         <!-- Spring Boot Admin客户端 - 应用监控和管理 -->
         <dependency>
