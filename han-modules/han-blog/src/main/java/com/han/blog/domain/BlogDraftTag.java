@@ -1,6 +1,6 @@
 package com.han.blog.domain;
 
-import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -10,7 +10,7 @@ import java.util.Date;
 /**
  * @Author: WeiHan
  * @CreateTime: 2026-01-14
- * @Description: 草稿标签关联表
+ * @Description: 草稿标签关联表（联合主键：draft_id + tag_id）
  */
 @Data
 @NoArgsConstructor
@@ -18,15 +18,13 @@ import java.util.Date;
 public class BlogDraftTag {
 
     /**
-     * 草稿ID
+     * 草稿ID（联合主键之一）
      */
-    @TableId
     private Long draftId;
 
     /**
-     * 标签ID
+     * 标签ID（联合主键之一）
      */
-    @TableId
     private Long tagId;
 
     /**
@@ -42,5 +40,6 @@ public class BlogDraftTag {
     /**
      * 删除标志（0存在 1删除）
      */
+    @TableLogic
     private Integer delFlag;
 }

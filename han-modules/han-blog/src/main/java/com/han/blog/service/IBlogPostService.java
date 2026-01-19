@@ -68,13 +68,4 @@ public interface IBlogPostService {
      * @return 结果
      */
     int incrementViewCount(Long postId);
-
-    /**
-     * 更新文章点赞数
-     *
-     * @param postId 文章ID
-     * @param increment 增量
-     * @return 结果
-     */
-    int incrementLikeCount(Long postId, Integer increment);
 }

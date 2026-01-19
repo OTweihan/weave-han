@@ -276,8 +276,16 @@ public class EncryptUtils {
         if (StrUtil.isBlank(privateKey)) {
             throw new IllegalArgumentException("RSA需要传入私钥进行解密");
         }
-        RSA rsa = SecureUtil.rsa(privateKey, null);
-        return rsa.decryptStr(data, KeyType.PrivateKey, StandardCharsets.UTF_8);
+        if (StrUtil.isBlank(data)) {
+            return data;
+        }
+        try {
+            RSA rsa = SecureUtil.rsa(privateKey, null);
+            return rsa.decryptStr(data, KeyType.PrivateKey, StandardCharsets.UTF_8);
+        } catch (Exception e) {
+            throw new IllegalArgumentException("RSA解密失败，可能原因：1.密钥不匹配 2.数据已损坏 3.数据未加密或使用了不同的公钥加密。原始数据: " + 
+                (data.length() > 100 ? data.substring(0, 100) + "..." : data), e);
+        }
     }
 
     /**

@@ -5,6 +5,8 @@ import com.han.blog.domain.vo.BlogTagVo;
 import com.han.common.mybatis.core.page.PageQuery;
 import com.han.common.mybatis.core.page.TableDataInfo;
 
+import java.util.List;
+
 /**
  * @Author: WeiHan
  * @CreateTime: 2026-01-14
@@ -60,4 +62,11 @@ public interface IBlogTagService {
      * @return 结果
      */
     int deleteTags(Long[] tagIds);
+
+    /**
+     * 查询所有博客标签列表（不分页）
+     *
+     * @return 博客标签列表
+     */
+    List<BlogTagVo> selectAllTags();
 }

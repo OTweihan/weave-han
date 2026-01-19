@@ -10,7 +10,6 @@ import com.han.blog.domain.bo.BlogTagBo;
 import com.han.blog.domain.vo.BlogTagVo;
 import com.han.blog.mapper.BlogTagMapper;
 import com.han.blog.service.IBlogTagService;
-import com.han.common.core.constant.SystemConstants;
 import com.han.common.core.exception.ServiceException;
 import com.han.common.core.utils.MapstructUtils;
 import com.han.common.mybatis.core.page.PageQuery;
@@ -142,5 +141,16 @@ public class BlogTagServiceImpl implements IBlogTagService {
             throw new ServiceException("删除标签失败!");
         }
         return flag;
+    }
+
+    /**
+     * 查询所有博客标签列表（不分页）
+     *
+     * @return 博客标签列表
+     */
+    @Override
+    public List<BlogTagVo> selectAllTags() {
+        return blogTagMapper.selectVoList(new LambdaQueryWrapper<BlogTag>()
+            .orderByAsc(BlogTag::getCreateTime));
     }
 }

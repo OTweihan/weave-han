@@ -17,6 +17,6 @@ public class HanApplication {
         application.setApplicationStartup(new BufferingApplicationStartup(2048));
         application.run(args);
 
-        System.out.println("============================ Weave-Han 启动成功！============================");
+        System.out.println("================================== Weave-Han 启动成功！==================================");
     }
 }

@@ -111,9 +111,18 @@ public class EncryptorManager {
         if (!StringUtils.startsWith(value, Constants.ENCRYPT_HEADER)) {
             return value;
         }
-        IEncryptor encryptor = this.registAndGetEncryptor(encryptContext);
-        String str = StringUtils.removeStart(value, Constants.ENCRYPT_HEADER);
-        return encryptor.decrypt(str);
+        try {
+            IEncryptor encryptor = this.registAndGetEncryptor(encryptContext);
+            String str = StringUtils.removeStart(value, Constants.ENCRYPT_HEADER);
+            return encryptor.decrypt(str);
+        } catch (Exception e) {
+            log.error("解密失败: algorithm={}, encodeType={}, encryptedValue={}", 
+                encryptContext.getAlgorithm(), 
+                encryptContext.getEncode(),
+                value.length() > 100 ? value.substring(0, 100) + "..." : value,
+                e);
+            throw e;
+        }
     }
 
     /**

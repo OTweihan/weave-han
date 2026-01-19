@@ -125,4 +125,24 @@ public class BlogPostBo extends BaseEntity {
      * 发布时间
      */
     private Date publishedTime;
+
+    /**
+     * 文章内容
+     */
+    private String content;
+
+    /**
+     * 渲染后的HTML内容
+     */
+    private String contentHtml;
+
+    /**
+     * 字数统计
+     */
+    private Integer wordCount;
+
+    /**
+     * 预计阅读时间（分钟）
+     */
+    private Integer readingTime;
 }

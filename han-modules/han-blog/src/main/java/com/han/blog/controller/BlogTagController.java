@@ -15,6 +15,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 /**
  * @Author: WeiHan
  * @CreateTime: 2026-01-14
@@ -99,5 +101,15 @@ public class BlogTagController extends BaseController {
     @DeleteMapping("/{tagIds}")
     public R<Void> remove(@PathVariable Long[] tagIds) {
         return toAjax(blogTagService.deleteTags(tagIds));
+    }
+
+    /**
+     * 获取所有标签列表（用于多选标签）
+     *
+     * @return 标签列表
+     */
+    @GetMapping("/all")
+    public R<List<BlogTagVo>> getAllTags() {
+        return R.ok(blogTagService.selectAllTags());
     }
 }

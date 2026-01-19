@@ -1,6 +1,7 @@
 package com.han.blog.domain;
 
 import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.han.common.mybatis.core.domain.BaseEntity;
 import lombok.Data;
@@ -114,5 +115,6 @@ public class BlogPost extends BaseEntity {
     /**
      * 删除标志（0存在 1删除）
      */
+    @TableLogic
     private Integer delFlag;
 }

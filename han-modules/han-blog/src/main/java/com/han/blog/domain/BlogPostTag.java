@@ -1,6 +1,5 @@
 package com.han.blog.domain;
 
-import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -10,7 +9,7 @@ import java.util.Date;
 /**
  * @Author: WeiHan
  * @CreateTime: 2026-01-14
- * @Description: 文章标签关联表
+ * @Description: 文章标签关联表（联合主键：post_id + tag_id）
  */
 @Data
 @NoArgsConstructor
@@ -18,15 +17,13 @@ import java.util.Date;
 public class BlogPostTag {
 
     /**
-     * 文章ID
+     * 文章ID（联合主键之一）
      */
-    @TableId
     private Long postId;
 
     /**
-     * 标签ID
+     * 标签ID（联合主键之一）
      */
-    @TableId
     private Long tagId;
 
     /**

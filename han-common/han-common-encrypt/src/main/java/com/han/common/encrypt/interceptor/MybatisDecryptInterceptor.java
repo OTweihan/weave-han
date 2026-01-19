@@ -117,7 +117,18 @@ public class MybatisDecryptInterceptor implements Interceptor {
         encryptContext.setPassword(StringUtils.isBlank(encryptField.password()) ? defaultProperties.getPassword() : encryptField.password());
         encryptContext.setPrivateKey(StringUtils.isBlank(encryptField.privateKey()) ? defaultProperties.getPrivateKey() : encryptField.privateKey());
         encryptContext.setPublicKey(StringUtils.isBlank(encryptField.publicKey()) ? defaultProperties.getPublicKey() : encryptField.publicKey());
-        return this.encryptorManager.decrypt(value, encryptContext);
+        try {
+            return this.encryptorManager.decrypt(value, encryptContext);
+        } catch (Exception e) {
+            log.error("解密字段失败: class={}, field={}, algorithm={}, value={}", 
+                field.getDeclaringClass().getName(), 
+                field.getName(), 
+                encryptContext.getAlgorithm(),
+                value.length() > 50 ? value.substring(0, 50) + "..." : value, 
+                e);
+            // 解密失败时返回原值，避免系统崩溃
+            return value;
+        }
     }
 
     @Override

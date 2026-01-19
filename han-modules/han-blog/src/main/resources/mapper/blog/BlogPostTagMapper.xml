@@ -4,5 +4,26 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.han.blog.mapper.BlogPostTagMapper">
 
-</mapper>
+    <!-- 根据文章ID查询标签ID列表 -->
+    <select id="selectTagIdsByPostId" resultType="java.lang.Long">
+        SELECT tag_id
+        FROM blog_post_tag
+        WHERE post_id = #{postId}
+    </select>
 
+    <!-- 根据文章ID删除关联关系 -->
+    <delete id="deleteByPostId">
+        DELETE FROM blog_post_tag
+        WHERE post_id = #{postId}
+    </delete>
+
+    <!-- 批量根据文章ID删除关联关系 -->
+    <delete id="deleteByPostIds">
+        DELETE FROM blog_post_tag
+        WHERE post_id IN
+        <foreach collection="postIds" item="postId" open="(" separator="," close=")">
+            #{postId}
+        </foreach>
+    </delete>
+
+</mapper>

@@ -9,9 +9,9 @@ import org.apache.ibatis.annotations.Mapper;
 
 
 /**
- * 博客文章Mapper接口 blog_post
- *
- * @author han
+ * @Author: WeiHan
+ * @CreateTime: 2026-01-14
+ * @Description: 博客文章Mapper接口
  */
 @Mapper
 public interface BlogPostMapper extends BaseMapperPlus<BlogPost, BlogPostVo> {

@@ -1,30 +1,24 @@
 package com.han.blog.controller;
 
 import cn.dev33.satoken.annotation.SaCheckPermission;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.han.blog.domain.BlogCategory;
-import com.han.blog.domain.BlogTag;
 import com.han.blog.domain.bo.BlogPostBo;
-import com.han.blog.domain.vo.BlogCategoryVo;
+import com.han.blog.domain.bo.BlogVisitBo;
 import com.han.blog.domain.vo.BlogPostVo;
-import com.han.blog.domain.vo.BlogTagVo;
-import com.han.blog.mapper.BlogCategoryMapper;
-import com.han.blog.mapper.BlogTagMapper;
 import com.han.blog.service.IBlogPostService;
-import com.han.common.core.constant.SystemConstants;
+import com.han.blog.service.IBlogVisitService;
 import com.han.common.core.domain.R;
+import com.han.common.core.utils.ServletUtils;
 import com.han.common.idempotent.annotation.RepeatSubmit;
 import com.han.common.log.annotation.Log;
 import com.han.common.log.enums.BusinessType;
 import com.han.common.mybatis.core.page.PageQuery;
 import com.han.common.mybatis.core.page.TableDataInfo;
-import com.han.common.satoken.utils.LoginHelper;
 import com.han.common.web.core.BaseController;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.util.Date;
 
 /**
  * @Author: WeiHan
@@ -38,8 +32,7 @@ import java.util.List;
 public class BlogPostController extends BaseController {
 
     private final IBlogPostService blogPostService;
-    private final BlogCategoryMapper blogCategoryMapper;
-    private final BlogTagMapper blogTagMapper;
+    private final IBlogVisitService blogVisitService;
 
     /**
      * 查询博客文章列表
@@ -122,18 +115,18 @@ public class BlogPostController extends BaseController {
      */
     @PostMapping("/view/{postId}")
     public R<Void> incrementView(@PathVariable Long postId) {
-        return toAjax(blogPostService.incrementViewCount(postId));
-    }
+        // 记录访问日志
+        BlogVisitBo visitBo = new BlogVisitBo();
+        visitBo.setPostId(postId);
+        visitBo.setVisitTime(new Date());
+        visitBo.setIpAddress(ServletUtils.getClientIP());
+        jakarta.servlet.http.HttpServletRequest request = ServletUtils.getRequest();
+        if (request != null) {
+            visitBo.setUserAgent(request.getHeader("User-Agent"));
+            visitBo.setReferer(request.getHeader("Referer"));
+        }
+        blogVisitService.insertByBo(visitBo);
 
-    /**
-     * 更新文章点赞数
-     *
-     * @param postId 文章ID
-     * @param increment 增量
-     * @return 结果
-     */
-    @PostMapping("/like/{postId}")
-    public R<Void> incrementLike(@PathVariable Long postId, @RequestParam(defaultValue = "1") Integer increment) {
-        return toAjax(blogPostService.incrementLikeCount(postId, increment));
+        return toAjax(blogPostService.incrementViewCount(postId));
     }
 }
