@@ -4,12 +4,14 @@ import com.han.blog.domain.BlogDraft;
 import com.han.common.mybatis.core.domain.BaseEntity;
 import io.github.linpeilie.annotations.AutoMapper;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import java.io.Serial;
+import java.util.List;
 
 /**
  * @Author: WeiHan
@@ -33,7 +35,6 @@ public class BlogDraftBo extends BaseEntity {
     /**
      * 用户ID
      */
-    @NotBlank(message = "用户ID不能为空")
     private Long userId;
 
     /**
@@ -51,6 +52,11 @@ public class BlogDraftBo extends BaseEntity {
     /**
      * 分类ID
      */
-    @NotBlank(message = "分类ID不能为空")
+    @NotNull(message = "分类ID不能为空")
     private Long categoryId;
+
+    /**
+     * 标签ID列表
+     */
+    private List<Long> tagIds;
 }

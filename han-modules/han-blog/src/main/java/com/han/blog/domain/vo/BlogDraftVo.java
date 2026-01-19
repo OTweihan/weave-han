@@ -6,6 +6,7 @@ import lombok.Data;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * @Author: WeiHan
@@ -43,5 +44,10 @@ public class BlogDraftVo implements Serializable {
      * 分类ID
      */
     private Long categoryId;
+
+    /**
+     * 标签列表
+     */
+    private List<BlogTagVo> tags;
 }
 
