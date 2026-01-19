@@ -63,7 +63,7 @@ public class BlogPostServiceImpl implements IBlogPostService {
      */
     @Override
     public TableDataInfo<BlogPostVo> selectPagePostList(BlogPostBo post, PageQuery pageQuery) {
-        Page<BlogPostVo> resultPage = blogPostMapper.selectPageList(pageQuery.build(), this.buildQueryWrapper(post));
+        Page<BlogPostVo> resultPage = blogPostMapper.selectPagePostList(pageQuery.build(), this.buildQueryWrapper(post));
         
         // 批量填充统计信息
         List<BlogPostVo> rows = resultPage.getRecords();

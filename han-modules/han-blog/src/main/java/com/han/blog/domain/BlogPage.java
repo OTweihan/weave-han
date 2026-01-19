@@ -69,6 +69,6 @@ public class BlogPage extends BaseEntity {
      * 删除标志（0存在 1删除）
      */
     @TableLogic
-    private String delFlag;
+    private Integer delFlag;
 }
 

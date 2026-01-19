@@ -77,6 +77,6 @@ public class BlogCommentVo implements Serializable {
     /**
      * 删除标志（0存在 1删除）
      */
-    private String delFlag;
+    private Integer delFlag;
 }
 

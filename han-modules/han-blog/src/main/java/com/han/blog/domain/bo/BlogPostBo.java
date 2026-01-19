@@ -4,6 +4,7 @@ import com.han.blog.domain.BlogPost;
 import com.han.common.mybatis.core.domain.BaseEntity;
 import io.github.linpeilie.annotations.AutoMapper;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -51,7 +52,7 @@ public class BlogPostBo extends BaseEntity {
     /**
      * 封面图片ID
      */
-    @NotBlank(message = "封面图片ID不能为空")
+    @NotNull(message = "封面图片ID不能为空")
     private Long coverImage;
 
     /**
@@ -62,7 +63,7 @@ public class BlogPostBo extends BaseEntity {
     /**
      * 分类ID
      */
-    @NotBlank(message = "分类ID不能为空")
+    @NotNull(message = "分类ID不能为空")
     private Long categoryId;
 
     /**
