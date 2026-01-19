@@ -140,6 +140,6 @@ public class BlogPostStatsServiceImpl implements IBlogPostStatsService {
         if (postIds == null || postIds.length == 0) {
             return;
         }
-        blogPostStatsMapper.deleteBatchIds(List.of(postIds));
+        blogPostStatsMapper.delete(Wrappers.<BlogPostStats>lambdaQuery().in(BlogPostStats::getPostId, List.of(postIds)));
     }
 }

@@ -71,7 +71,7 @@ public class BlogDraftServiceImpl implements IBlogDraftService {
      */
     @Override
     public int deleteDrafts(Long[] draftIds) {
-        return blogDraftMapper.deleteBatchIds(List.of(draftIds));
+        return blogDraftMapper.deleteByIds(List.of(draftIds));
     }
 
     private LambdaQueryWrapper<BlogDraft> buildQueryWrapper(BlogDraftBo bo) {
