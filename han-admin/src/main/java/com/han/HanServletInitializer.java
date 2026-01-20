@@ -4,9 +4,9 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 
 /**
- * web容器中进行部署
- *
- * @author Lion Li
+ * @Author: Lion Li
+ * @CreateTime: 2026-01-16
+ * @Description: Web 容器中进行部署
  */
 public class HanServletInitializer extends SpringBootServletInitializer {
 

@@ -124,7 +124,7 @@ security:
 mybatis-plus:
   # 自定义配置 是否全局开启逻辑删除 关闭后 所有逻辑删除功能将失效
   enableLogicDelete: true
-  # 多包名使用 例如 com.han.**.mapper,org.xxx.**.mapper
+  # 多包名使用
   mapperPackage: com.han.**.mapper
   # 对应的 XML 文件位置
   mapperLocations: classpath*:mapper/**/*Mapper.xml

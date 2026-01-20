@@ -45,9 +45,9 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 /**
- * 认证
- *
- * @author Lion Li
+ * @Author: Lion Li
+ * @CreateTime: 2026-01-16
+ * @Description: 认证 Controller
  */
 @Slf4j
 @SaIgnore
@@ -57,11 +57,17 @@ import java.util.concurrent.TimeUnit;
 public class AuthController {
 
     private final SocialProperties socialProperties;
+
     private final SysLoginService loginService;
+
     private final SysRegisterService registerService;
+
     private final ISysConfigService configService;
+
     private final ISysSocialService socialUserService;
+
     private final ISysClientService clientService;
+
     private final ScheduledExecutorService scheduledExecutorService;
 
     /**

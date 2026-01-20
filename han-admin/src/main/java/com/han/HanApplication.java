@@ -2,21 +2,23 @@ package com.han;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.context.metrics.buffering.BufferingApplicationStartup;
 
 /**
- * 启动程序
- *
- * @author Lion Li
+ * @Author: Lion Li
+ * @CreateTime: 2026-01-16
+ * @Description: 启动程序
  */
 @SpringBootApplication
 public class HanApplication {
 
     public static void main(String[] args) {
-        SpringApplication application = new SpringApplication(HanApplication.class);
-        application.setApplicationStartup(new BufferingApplicationStartup(2048));
-        application.run(args);
+        long startTime = System.currentTimeMillis();
 
-        System.out.println("================================== Weave-Han 启动成功！==================================");
+        SpringApplication.run(HanApplication.class, args);
+
+        long costMillis = System.currentTimeMillis() - startTime;
+        double costSeconds = costMillis / 1000.0;
+
+        System.out.printf("\n========================== Weave-Han 启动完成！耗时 %.2f 秒 ==========================\n\n", costSeconds);
     }
 }
