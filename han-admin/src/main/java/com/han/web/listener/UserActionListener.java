@@ -23,13 +23,13 @@ import java.time.Duration;
 import java.util.Objects;
 
 /**
- * 用户行为 侦听器的实现
- *
- * @author Lion Li
+ * @Author: Lion Li
+ * @CreateTime: 2026-01-16
+ * @Description: 用户行为 侦听器的实现
  */
-@RequiredArgsConstructor
-@Component
 @Slf4j
+@Component
+@RequiredArgsConstructor
 public class UserActionListener implements SaTokenListener {
 
     private final SysLoginService loginService;
@@ -39,8 +39,11 @@ public class UserActionListener implements SaTokenListener {
      */
     @Override
     public void doLogin(String loginType, Object loginId, String tokenValue, SaLoginParameter loginParameter) {
+        // 解析 User-Agent 信息
         UserAgent userAgent = UserAgentUtil.parse(Objects.requireNonNull(ServletUtils.getRequest()).getHeader("User-Agent"));
         String ip = ServletUtils.getClientIP();
+        
+        // 构建在线用户信息
         UserOnlineDTO dto = new UserOnlineDTO();
         dto.setIpaddr(ip);
         dto.setLoginLocation(AddressUtils.getRealAddressByIP(ip));
@@ -48,23 +51,29 @@ public class UserActionListener implements SaTokenListener {
         dto.setOs(userAgent.getOs().getName());
         dto.setLoginTime(System.currentTimeMillis());
         dto.setTokenId(tokenValue);
+        
+        // 从登录参数中获取额外信息
         String username = (String) loginParameter.getExtra(LoginHelper.USER_NAME_KEY);
         dto.setUserName(username);
         dto.setClientKey((String) loginParameter.getExtra(LoginHelper.CLIENT_KEY));
         dto.setDeviceType(loginParameter.getDeviceType());
+        
+        // 缓存用户在线状态
         if(loginParameter.getTimeout() == -1) {
             RedisUtils.setCacheObject(CacheConstants.ONLINE_TOKEN_KEY + tokenValue, dto);
         } else {
             RedisUtils.setCacheObject(CacheConstants.ONLINE_TOKEN_KEY + tokenValue, dto, Duration.ofSeconds(loginParameter.getTimeout()));
         }
-        // 记录登录日志
+        
+        // 发布登录成功事件，记录日志
         LogininforEvent logininforEvent = new LogininforEvent();
         logininforEvent.setUsername(username);
         logininforEvent.setStatus(Constants.LOGIN_SUCCESS);
         logininforEvent.setMessage(MessageUtils.message("user.login.success"));
         logininforEvent.setRequest(ServletUtils.getRequest());
         SpringUtils.context().publishEvent(logininforEvent);
-        // 更新登录信息
+        
+        // 更新用户最后登录信息
         loginService.recordLoginInfo((Long) loginParameter.getExtra(LoginHelper.USER_KEY), ip);
         log.info("user doLogin, userId:{}, token:{}", loginId, tokenValue);
     }
@@ -74,6 +83,7 @@ public class UserActionListener implements SaTokenListener {
      */
     @Override
     public void doLogout(String loginType, Object loginId, String tokenValue) {
+        // 清除在线用户缓存
         RedisUtils.deleteObject(CacheConstants.ONLINE_TOKEN_KEY + tokenValue);
         log.info("user doLogout, userId:{}, token:{}", loginId, tokenValue);
     }
@@ -83,6 +93,7 @@ public class UserActionListener implements SaTokenListener {
      */
     @Override
     public void doKickout(String loginType, Object loginId, String tokenValue) {
+        // 清除在线用户缓存
         RedisUtils.deleteObject(CacheConstants.ONLINE_TOKEN_KEY + tokenValue);
         log.info("user doKickout, userId:{}, token:{}", loginId, tokenValue);
     }
@@ -92,6 +103,7 @@ public class UserActionListener implements SaTokenListener {
      */
     @Override
     public void doReplaced(String loginType, Object loginId, String tokenValue) {
+        // 清除在线用户缓存
         RedisUtils.deleteObject(CacheConstants.ONLINE_TOKEN_KEY + tokenValue);
         log.info("user doReplaced, userId:{}, token:{}", loginId, tokenValue);
     }

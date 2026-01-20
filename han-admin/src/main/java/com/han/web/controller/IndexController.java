@@ -8,13 +8,13 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * 首页
- *
- * @author Lion Li
+ * @Author: Lion Li
+ * @CreateTime: 2026-01-16
+ * @Description: 首页
  */
 @SaIgnore
-@RequiredArgsConstructor
 @RestController
+@RequiredArgsConstructor
 public class IndexController {
 
     /**

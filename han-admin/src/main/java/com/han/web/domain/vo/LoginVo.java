@@ -4,9 +4,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 /**
- * 登录验证信息
- *
- * @author Michelle.Chung
+ * @Author: Michelle.Chung
+ * @CreateTime: 2026-01-16
+ * @Description: 登录验证信息
  */
 @Data
 public class LoginVo {

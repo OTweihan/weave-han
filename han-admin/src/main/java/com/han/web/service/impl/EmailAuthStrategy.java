@@ -30,70 +30,120 @@ import com.han.web.service.SysLoginService;
 import org.springframework.stereotype.Service;
 
 /**
- * 邮件认证策略
- *
- * @author Michelle.Chung
+ * @Author: Michelle.Chung
+ * @CreateTime: 2026-01-20
+ * @Description: 邮件认证策略
  */
 @Slf4j
-@Service("email" + IAuthStrategy.BASE_NAME)
 @RequiredArgsConstructor
+@Service("email" + IAuthStrategy.BASE_NAME)
 public class EmailAuthStrategy implements IAuthStrategy {
 
     private final SysLoginService loginService;
     private final SysUserMapper userMapper;
 
+    /**
+     * 执行邮箱验证码登录流程
+     *
+     * @param body   前端传递的 JSON 字符串（包含 email 与 emailCode）
+     * @param client 客户端配置信息（包含 clientId、超时时间等）
+     * @return 登录成功后的令牌信息（LoginVo）
+     */
     @Override
     public LoginVo login(String body, SysClientVo client) {
+        // 解析并验证登录请求参数
         EmailLoginBody loginBody = JsonUtils.parseObject(body, EmailLoginBody.class);
+
+        // 显式判空，防止后续 NPE
+        if (ObjectUtil.isNull(loginBody)) {
+            throw new IllegalArgumentException("登录请求参数不能为空");
+        }
+
         ValidatorUtils.validate(loginBody);
+
         String email = loginBody.getEmail();
         String emailCode = loginBody.getEmailCode();
 
+        // 根据邮箱查询用户信息（包含状态检查）
         SysUserVo user = loadUserByEmail(email);
+
+        // 校验登录失败次数、账号状态，并验证邮箱验证码是否正确
         loginService.checkLogin(LoginType.EMAIL, user.getUserName(), () -> !validateEmailCode(email, emailCode));
-        // 此处可根据登录用户的数据不同 自行创建 loginUser 属性不够用继承扩展就行了
+
+        // 构建登录用户对象（可根据实际需求扩展 LoginUser 字段）
         LoginUser loginUser = loginService.buildLoginUser(user);
 
+        // 设置客户端相关信息
         loginUser.setClientKey(client.getClientKey());
         loginUser.setDeviceType(client.getDeviceType());
+
+        // 构造 Sa-Token 登录参数
         SaLoginParameter model = new SaLoginParameter();
         model.setDeviceType(client.getDeviceType());
-        // 自定义分配 不同用户体系 不同 token 授权时间 不设置默认走全局 yml 配置
-        // 例如: 后台用户30分钟过期 app用户1天过期
+
+        // 支持不同客户端配置不同的 token 超时时间
         model.setTimeout(client.getTimeout());
         model.setActiveTimeout(client.getActiveTimeout());
         model.setExtra(LoginHelper.CLIENT_KEY, client.getClientId());
-        // 生成token
+
+        // 执行登录并生成 token
         LoginHelper.login(loginUser, model);
 
+        // 组装返回结果
         LoginVo loginVo = new LoginVo();
         loginVo.setAccessToken(StpUtil.getTokenValue());
         loginVo.setExpireIn(StpUtil.getTokenTimeout());
         loginVo.setClientId(client.getClientId());
+
         return loginVo;
     }
 
     /**
-     * 校验邮箱验证码
+     * 验证邮箱收到的验证码是否正确
+     *
+     * @param email     用户邮箱地址（同时作为缓存 key 的一部分）
+     * @param emailCode 前端提交的验证码
+     * @return 验证码是否匹配
+     * @throws CaptchaExpireException 当缓存中验证码已过期或不存在时抛出
      */
     private boolean validateEmailCode(String email, String emailCode) {
+        // 从 Redis 获取已发送的验证码
         String code = RedisUtils.getCacheObject(GlobalConstants.CAPTCHA_CODE_KEY + email);
+
         if (StringUtils.isBlank(code)) {
-            loginService.recordLogininfor(email, Constants.LOGIN_FAIL, MessageUtils.message("user.jcaptcha.expire"));
+            // 记录登录失败日志：验证码过期
+            loginService.recordLogininfor(email, Constants.LOGIN_FAIL,
+                MessageUtils.message("user.jcaptcha.expire"));
             throw new CaptchaExpireException();
         }
+
         return code.equals(emailCode);
     }
 
+    /**
+     * 根据邮箱地址查询用户信息，并进行基本可用性检查
+     *
+     * @param email 登录使用的邮箱地址
+     * @return 用户视图对象 SysUserVo
+     * @throws UserException 当用户不存在或已被禁用时抛出
+     */
     private SysUserVo loadUserByEmail(String email) {
-        SysUserVo user = userMapper.selectVoOne(new LambdaQueryWrapper<SysUser>().eq(SysUser::getEmail, email));
+        // 使用 MyBatis-Plus Lambda 方式精确查询
+        SysUserVo user = userMapper.selectVoOne(
+            new LambdaQueryWrapper<SysUser>()
+                .eq(SysUser::getEmail, email)
+        );
+
         if (ObjectUtil.isNull(user)) {
-            log.info("登录用户：{} 不存在.", email);
+            log.info("登录用户：{} 不存在。", email);
             throw new UserException("user.not.exists", email);
-        } else if (SystemConstants.DISABLE.equals(user.getStatus())) {
-            log.info("登录用户：{} 已被停用.", email);
+        }
+
+        if (SystemConstants.DISABLE.equals(user.getStatus())) {
+            log.info("登录用户：{} 已被停用。", email);
             throw new UserException("user.blocked", email);
         }
+
         return user;
     }
 }

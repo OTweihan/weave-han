@@ -31,13 +31,13 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 /**
- * 第三方授权策略
- *
- * @author thiszhc is 三三
+ * @Author: thiszhc is 三三
+ * @CreateTime: 2026-01-20
+ * @Description: 第三方授权策略
  */
 @Slf4j
-@Service("social" + IAuthStrategy.BASE_NAME)
 @RequiredArgsConstructor
+@Service("social" + IAuthStrategy.BASE_NAME)
 public class SocialAuthStrategy implements IAuthStrategy {
 
     private final SocialProperties socialProperties;
@@ -46,61 +46,100 @@ public class SocialAuthStrategy implements IAuthStrategy {
     private final SysLoginService loginService;
 
     /**
-     * 登录-第三方授权登录
+     * 执行第三方平台授权登录流程
      *
-     * @param body     登录信息
-     * @param client   客户端信息
+     * @param body   前端传递的 JSON 字符串（包含第三方登录必要参数：source、code、state 等）
+     * @param client 客户端配置信息（包含 clientId、超时时间、设备类型等）
+     * @return 登录成功后的令牌信息（LoginVo）
+     * @throws ServiceException 当第三方授权失败或用户未绑定账号时抛出
+     * @throws UserException    当关联的用户不存在或被禁用时抛出
      */
     @Override
     public LoginVo login(String body, SysClientVo client) {
+        // 解析并校验第三方登录请求参数
         SocialLoginBody loginBody = JsonUtils.parseObject(body, SocialLoginBody.class);
+        if (loginBody == null) {
+            throw new IllegalArgumentException("第三方登录请求参数不能为空");
+        }
         ValidatorUtils.validate(loginBody);
+
+        // 调用第三方授权工具完成登录授权流程
         AuthResponse<AuthUser> response = SocialUtils.loginAuth(
-                loginBody.getSource(), loginBody.getSocialCode(),
-                loginBody.getSocialState(), socialProperties);
+            loginBody.getSource(),
+            loginBody.getSocialCode(),
+            loginBody.getSocialState(),
+            socialProperties
+        );
+
+        // 判断第三方授权是否成功
         if (!response.ok()) {
             throw new ServiceException(response.getMsg());
         }
+
         AuthUser authUserData = response.getData();
 
-        List<SysSocialVo> list = sysSocialService.selectByAuthId(authUserData.getSource() + authUserData.getUuid());
+        // 根据第三方平台标识 + 用户唯一ID 查询已绑定的系统账号
+        List<SysSocialVo> list = sysSocialService.selectByAuthId(
+            authUserData.getSource() + authUserData.getUuid()
+        );
+
+        // 未找到绑定记录，提示用户先绑定
         if (CollUtil.isEmpty(list)) {
             throw new ServiceException("你还没有绑定第三方账号，绑定后才可以登录！");
         }
-        SysSocialVo social = list.get(0);
 
+        // 取第一条绑定记录（通常设计上一个第三方账号只绑定一个系统用户）
+        SysSocialVo social = list.getFirst();
+
+        // 加载绑定的系统用户信息并进行状态检查
         SysUserVo user = loadUser(social.getUserId());
-        // 此处可根据登录用户的数据不同 自行创建 loginUser 属性不够用继承扩展就行了
+
+        // 构建登录用户信息对象（可根据业务需求扩展字段）
         LoginUser loginUser = loginService.buildLoginUser(user);
 
+        // 设置客户端相关标识
         loginUser.setClientKey(client.getClientKey());
         loginUser.setDeviceType(client.getDeviceType());
+
+        // 构造 Sa-Token 登录参数，支持不同客户端不同超时策略
         SaLoginParameter model = new SaLoginParameter();
         model.setDeviceType(client.getDeviceType());
-        // 自定义分配 不同用户体系 不同 token 授权时间 不设置默认走全局 yml 配置
-        // 例如: 后台用户30分钟过期 app用户1天过期
         model.setTimeout(client.getTimeout());
         model.setActiveTimeout(client.getActiveTimeout());
         model.setExtra(LoginHelper.CLIENT_KEY, client.getClientId());
-        // 生成token
+
+        // 执行登录，生成 token
         LoginHelper.login(loginUser, model);
 
+        // 组装返回结果
         LoginVo loginVo = new LoginVo();
         loginVo.setAccessToken(StpUtil.getTokenValue());
         loginVo.setExpireIn(StpUtil.getTokenTimeout());
         loginVo.setClientId(client.getClientId());
+
         return loginVo;
     }
 
+    /**
+     * 根据用户ID加载用户信息，并进行存在性及状态检查
+     *
+     * @param userId 系统用户主键ID
+     * @return 用户视图对象 SysUserVo
+     * @throws UserException 当用户不存在或已被禁用时抛出
+     */
     private SysUserVo loadUser(Long userId) {
         SysUserVo user = userMapper.selectVoById(userId);
+
         if (ObjectUtil.isNull(user)) {
-            log.info("登录用户：{} 不存在.", "");
-            throw new UserException("user.not.exists", "");
-        } else if (SystemConstants.DISABLE.equals(user.getStatus())) {
-            log.info("登录用户：{} 已被停用.", "");
-            throw new UserException("user.blocked", "");
+            log.info("第三方登录关联的用户ID：{} 不存在", userId);
+            throw new UserException("user.not.exists");
         }
+
+        if (SystemConstants.DISABLE.equals(user.getStatus())) {
+            log.info("第三方登录关联的用户ID：{} 已被停用", userId);
+            throw new UserException("user.blocked");
+        }
+
         return user;
     }
 }

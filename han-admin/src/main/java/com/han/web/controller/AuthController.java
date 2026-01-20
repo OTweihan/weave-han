@@ -2,47 +2,18 @@ package com.han.web.controller;
 
 import cn.dev33.satoken.annotation.SaIgnore;
 import cn.dev33.satoken.stp.StpUtil;
-import cn.hutool.core.codec.Base64;
-import cn.hutool.core.util.ObjectUtil;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import me.zhyd.oauth.model.AuthResponse;
-import me.zhyd.oauth.model.AuthUser;
-import me.zhyd.oauth.request.AuthRequest;
-import me.zhyd.oauth.utils.AuthStateUtils;
-import com.han.common.core.constant.SystemConstants;
 import com.han.common.core.domain.R;
-import com.han.common.core.domain.model.LoginBody;
 import com.han.common.core.domain.model.RegisterBody;
 import com.han.common.core.domain.model.SocialLoginBody;
-import com.han.common.core.utils.MessageUtils;
-import com.han.common.core.utils.StringUtils;
-import com.han.common.core.utils.ValidatorUtils;
 import com.han.common.encrypt.annotation.ApiEncrypt;
-import com.han.common.json.utils.JsonUtils;
-import com.han.common.satoken.utils.LoginHelper;
-import com.han.common.social.config.properties.SocialLoginConfigProperties;
-import com.han.common.social.config.properties.SocialProperties;
-import com.han.common.social.utils.SocialUtils;
-import com.han.common.sse.dto.SseMessageDto;
-import com.han.common.sse.utils.SseMessageUtils;
-import com.han.system.domain.vo.SysClientVo;
-import com.han.system.service.ISysClientService;
 import com.han.system.service.ISysConfigService;
-import com.han.system.service.ISysSocialService;
 import com.han.web.domain.vo.LoginVo;
-import com.han.web.service.IAuthStrategy;
 import com.han.web.service.SysLoginService;
 import com.han.web.service.SysRegisterService;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
-import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 /**
  * @Author: Lion Li
@@ -51,24 +22,14 @@ import java.util.concurrent.TimeUnit;
  */
 @Slf4j
 @SaIgnore
-@RequiredArgsConstructor
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/auth")
 public class AuthController {
 
-    private final SocialProperties socialProperties;
-
     private final SysLoginService loginService;
-
     private final SysRegisterService registerService;
-
     private final ISysConfigService configService;
-
-    private final ISysSocialService socialUserService;
-
-    private final ISysClientService clientService;
-
-    private final ScheduledExecutorService scheduledExecutorService;
 
     /**
      * 登录方法
@@ -79,29 +40,7 @@ public class AuthController {
     @ApiEncrypt
     @PostMapping("/login")
     public R<LoginVo> login(@RequestBody String body) {
-        LoginBody loginBody = JsonUtils.parseObject(body, LoginBody.class);
-        ValidatorUtils.validate(loginBody);
-        // 授权类型和客户端id
-        String clientId = loginBody.getClientId();
-        String grantType = loginBody.getGrantType();
-        SysClientVo client = clientService.queryByClientId(clientId);
-        // 查询不到 client 或 client 内不包含 grantType
-        if (ObjectUtil.isNull(client) || !StringUtils.contains(client.getGrantType(), grantType)) {
-            log.info("客户端id: {} 认证类型：{} 异常!.", clientId, grantType);
-            return R.fail(MessageUtils.message("auth.grant.type.error"));
-        } else if (!SystemConstants.NORMAL.equals(client.getStatus())) {
-            return R.fail(MessageUtils.message("auth.grant.type.blocked"));
-        }
-        // 登录
-        LoginVo loginVo = IAuthStrategy.login(body, client, grantType);
-
-        Long userId = LoginHelper.getUserId();
-        scheduledExecutorService.schedule(() -> {
-            SseMessageDto dto = new SseMessageDto();
-            dto.setMessage("欢迎登录Weave-Han后台管理系统");
-            dto.setUserIds(List.of(userId));
-            SseMessageUtils.publishMessage(dto);
-        }, 5, TimeUnit.SECONDS);
+        LoginVo loginVo = loginService.login(body);
         return R.ok(loginVo);
     }
 
@@ -113,15 +52,7 @@ public class AuthController {
      */
     @GetMapping("/binding/{source}")
     public R<String> authBinding(@PathVariable("source") String source, @RequestParam String domain) {
-        SocialLoginConfigProperties obj = socialProperties.getType().get(source);
-        if (ObjectUtil.isNull(obj)) {
-            return R.fail(source + "平台账号暂不支持");
-        }
-        AuthRequest authRequest = SocialUtils.getAuthRequest(source, socialProperties);
-        Map<String, String> map = new HashMap<>();
-        map.put("domain", domain);
-        map.put("state", AuthStateUtils.createState());
-        String authorizeUrl = authRequest.authorize(Base64.encode(JsonUtils.toJsonString(map), StandardCharsets.UTF_8));
+        String authorizeUrl = loginService.authBinding(source, domain);
         return R.ok("操作成功", authorizeUrl);
     }
 
@@ -135,16 +66,7 @@ public class AuthController {
     public R<Void> socialCallback(@RequestBody SocialLoginBody loginBody) {
         // 校验token
         StpUtil.checkLogin();
-        // 获取第三方登录信息
-        AuthResponse<AuthUser> response = SocialUtils.loginAuth(
-            loginBody.getSource(), loginBody.getSocialCode(),
-            loginBody.getSocialState(), socialProperties);
-        AuthUser authUserData = response.getData();
-        // 判断授权响应是否成功
-        if (!response.ok()) {
-            return R.fail(response.getMsg());
-        }
-        loginService.socialRegister(authUserData);
+        loginService.socialCallback(loginBody);
         return R.ok();
     }
 
@@ -157,8 +79,8 @@ public class AuthController {
     public R<Void> unlockSocial(@PathVariable Long socialId) {
         // 校验token
         StpUtil.checkLogin();
-        Boolean rows = socialUserService.deleteWithValidById(socialId);
-        return rows ? R.ok() : R.fail("取消授权失败");
+        loginService.unlockSocial(socialId);
+        return R.ok();
     }
 
     /**
