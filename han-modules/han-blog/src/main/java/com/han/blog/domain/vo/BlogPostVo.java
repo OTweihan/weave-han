@@ -155,9 +155,4 @@ public class BlogPostVo implements Serializable {
      * 预计阅读时间（分钟）
      */
     private Integer readingTime;
-
-    /**
-     * 创建时间
-     */
-    private String createTime;
 }

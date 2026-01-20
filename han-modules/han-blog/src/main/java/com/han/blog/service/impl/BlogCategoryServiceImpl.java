@@ -44,7 +44,7 @@ public class BlogCategoryServiceImpl implements IBlogCategoryService {
      */
     @Override
     public TableDataInfo<BlogCategoryVo> selectPageCategoryList(BlogCategoryBo category, PageQuery pageQuery) {
-        Page<BlogCategoryVo> resultPage = blogCategoryMapper.selectPageList(pageQuery.build(), this.buildQueryWrapper(category));
+        Page<BlogCategoryVo> resultPage = blogCategoryMapper.selectVoPage(pageQuery.build(), this.buildQueryWrapper(category));
         return TableDataInfo.build(resultPage);
     }
 
