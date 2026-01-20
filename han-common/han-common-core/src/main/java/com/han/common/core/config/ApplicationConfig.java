@@ -5,9 +5,9 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.scheduling.annotation.EnableAsync;
 
 /**
- * 程序注解配置
- *
- * @author Lion Li
+ * @Author: Lion Li
+ * @CreateTime: 2026-01-20
+ * @Description: 程序注解配置
  */
 @AutoConfiguration
 @EnableAspectJAutoProxy

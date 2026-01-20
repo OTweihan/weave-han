@@ -8,9 +8,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import java.util.concurrent.TimeUnit;
 
 /**
- * 单元测试案例
- *
- * @author Lion Li
+ * @Author: Lion Li
+ * @CreateTime: 2026-01-20
+ * @Description: 单元测试案例
  */
 @SpringBootTest // 此注解只能在 springboot 主包下使用 需包含 main 方法与 yml 配置文件
 @DisplayName("单元测试案例")
@@ -40,7 +40,6 @@ public class DemoUnitTest {
         System.out.println(captchaProperties);
     }
 
-
     @DisplayName("测试 @RepeatedTest 注解")
     @RepeatedTest(3)
     public void testRepeatedTest() {
@@ -66,5 +65,4 @@ public class DemoUnitTest {
     public static void testAfterAll() {
         System.out.println("@AfterAll ==================");
     }
-
 }

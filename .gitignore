@@ -53,4 +53,5 @@ nbdist/
 .spec-workflow/
 .serenar/
 logs/
-.qoder/rules/Foundation.md
+.qoder/
+.trae
