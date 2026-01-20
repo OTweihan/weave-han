@@ -503,12 +503,12 @@ INSERT INTO `sys_dict_data` VALUES (29, 99, '其他', '0', 'sys_oper_type', '', 
 INSERT INTO `sys_dict_data` VALUES (30, 0, '密码认证', 'password', 'sys_grant_type', 'el-check-tag', 'default', 'N', 1, '2025-12-20 10:28:02', NULL, NULL, '密码认证');
 INSERT INTO `sys_dict_data` VALUES (31, 0, '短信认证', 'sms', 'sys_grant_type', 'el-check-tag', 'default', 'N', 1, '2025-12-20 10:28:02', NULL, NULL, '短信认证');
 INSERT INTO `sys_dict_data` VALUES (32, 0, '邮件认证', 'email', 'sys_grant_type', 'el-check-tag', 'default', 'N', 1, '2025-12-20 10:28:02', NULL, NULL, '邮件认证');
-INSERT INTO `sys_dict_data` VALUES (33, 0, '小程序认证', 'xcx', 'sys_grant_type', 'el-check-tag', 'default', 'N', 1, '2025-12-20 10:28:02', NULL, NULL, '小程序认证');
+INSERT INTO `sys_dict_data` VALUES (33, 0, '小程序认证', 'applet', 'sys_grant_type', 'el-check-tag', 'default', 'N', 1, '2025-12-20 10:28:02', NULL, NULL, '小程序认证');
 INSERT INTO `sys_dict_data` VALUES (34, 0, '三方登录认证', 'social', 'sys_grant_type', 'el-check-tag', 'default', 'N', 1, '2025-12-20 10:28:02', NULL, NULL, '三方登录认证');
 INSERT INTO `sys_dict_data` VALUES (35, 0, 'PC', 'pc', 'sys_device_type', '', 'default', 'N', 1, '2025-12-20 10:28:02', NULL, NULL, 'PC');
 INSERT INTO `sys_dict_data` VALUES (36, 0, '安卓', 'android', 'sys_device_type', '', 'default', 'N', 1, '2025-12-20 10:28:02', NULL, NULL, '安卓');
 INSERT INTO `sys_dict_data` VALUES (37, 0, 'iOS', 'ios', 'sys_device_type', '', 'default', 'N', 1, '2025-12-20 10:28:02', NULL, NULL, 'iOS');
-INSERT INTO `sys_dict_data` VALUES (38, 0, '小程序', 'xcx', 'sys_device_type', '', 'default', 'N', 1, '2025-12-20 10:28:02', NULL, NULL, '小程序');
+INSERT INTO `sys_dict_data` VALUES (38, 0, '小程序', 'applet', 'sys_device_type', '', 'default', 'N', 1, '2025-12-20 10:28:02', NULL, NULL, '小程序');
 INSERT INTO `sys_dict_data` VALUES (1001, 1, '文章封面', 'POST_COVER', 'blog_image_type', 'primary', 'primary', 'N', 1, '2025-12-20 10:14:19', NULL, NULL, '文章封面图片');
 INSERT INTO `sys_dict_data` VALUES (1002, 2, '文章内容', 'POST_CONTENT', 'blog_image_type', 'success', 'success', 'N', 1, '2025-12-20 10:14:19', NULL, NULL, '文章正文中的图片');
 INSERT INTO `sys_dict_data` VALUES (1003, 3, '文章图集', 'POST_GALLERY', 'blog_image_type', 'info', 'info', 'N', 1, '2025-12-20 10:14:19', NULL, NULL, '文章图集中的图片');

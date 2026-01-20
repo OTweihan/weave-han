@@ -52,7 +52,7 @@ public class CaptchaService {
      * @param phonenumber 用户手机号
      * @throws ServiceException 短信发送失败时抛出
      */
-    @RateLimiter(key = "#phonenumber", time = 60, count = 1)
+    @RateLimiter(key = "#phonenumber", count = 1)
     public void sendSmsCode(String phonenumber) {
         String key = GlobalConstants.CAPTCHA_CODE_KEY + phonenumber;
         // 生成4位随机数字验证码
@@ -99,7 +99,7 @@ public class CaptchaService {
      *
      * @param email 邮箱地址
      */
-    @RateLimiter(key = "#email", time = 60, count = 1)
+    @RateLimiter(key = "#email", count = 1)
     public void sendEmailCodeChecked(String email) {
         String key = GlobalConstants.CAPTCHA_CODE_KEY + email;
         // 生成4位随机数字验证码
@@ -110,7 +110,7 @@ public class CaptchaService {
             // 发送邮件
             MailUtils.sendText(email, "登录验证码", "您本次验证码为：" + code + "，有效性为" + Constants.CAPTCHA_EXPIRATION + "分钟，请尽快填写。");
         } catch (Exception e) {
-            log.error("短信验证码发送异常 => {}", e.getMessage());
+            log.error("邮箱验证码发送异常 => {}", e.getMessage());
             throw new ServiceException(e.getMessage());
         }
     }
@@ -141,7 +141,7 @@ public class CaptchaService {
      *
      * @return 验证码对象，包含UUID和Base64图片
      */
-    @RateLimiter(time = 60, count = 10, limitType = LimitType.IP)
+    @RateLimiter(count = 10, limitType = LimitType.IP)
     public CaptchaVo createCaptchaChecked() {
         // 保存验证码信息
         String uuid = IdUtil.simpleUUID();

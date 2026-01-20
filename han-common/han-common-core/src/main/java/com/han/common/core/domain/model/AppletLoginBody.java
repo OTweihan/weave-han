@@ -5,14 +5,14 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 /**
- * 三方登录对象
+ * 小程序登录对象
  *
  * @author Lion Li
  */
 
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class XcxLoginBody extends LoginBody {
+public class AppletLoginBody extends LoginBody {
 
     /**
      * 小程序id(多个小程序时使用)
@@ -22,6 +22,6 @@ public class XcxLoginBody extends LoginBody {
     /**
      * 小程序code
      */
-    @NotBlank(message = "{xcx.code.not.blank}")
-    private String xcxCode;
+    @NotBlank(message = "{applet.code.not.blank}")
+    private String appletCode;
 }

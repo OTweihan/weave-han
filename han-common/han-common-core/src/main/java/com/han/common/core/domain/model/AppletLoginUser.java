@@ -14,7 +14,7 @@ import java.io.Serial;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
-public class XcxLoginUser extends LoginUser {
+public class AppletLoginUser extends LoginUser {
 
     @Serial
     private static final long serialVersionUID = 1L;

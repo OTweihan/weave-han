@@ -54,6 +54,10 @@ import java.util.Map;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import cn.dev33.satoken.stp.parameter.SaLoginParameter;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
+
 /**
  * @Author: Lion Li
  * @CreateTime: 2026-01-16
@@ -124,6 +128,78 @@ public class SysLoginService {
         }, 5, TimeUnit.SECONDS);
 
         return loginVo;
+    }
+
+    /**
+     * 执行具体登录逻辑（构建上下文、生成Token）
+     *
+     * @param user   系统用户
+     * @param client 客户端信息
+     * @return 登录结果 LoginVo
+     */
+    public LoginVo processLogin(SysUserVo user, SysClientVo client) {
+        // 构建登录用户对象（可根据实际需求扩展 LoginUser 字段）
+        LoginUser loginUser = buildLoginUser(user);
+
+        // 设置客户端相关信息
+        loginUser.setClientKey(client.getClientKey());
+        loginUser.setDeviceType(client.getDeviceType());
+
+        return login(loginUser, client);
+    }
+
+    /**
+     * 执行登录并构建返回结果
+     *
+     * @param loginUser 登录用户对象
+     * @param client    客户端信息
+     * @return 登录结果 LoginVo
+     */
+    public LoginVo login(LoginUser loginUser, SysClientVo client) {
+        // 构造 Sa-Token 登录参数
+        SaLoginParameter model = new SaLoginParameter();
+        model.setDeviceType(client.getDeviceType());
+
+        // 支持不同客户端配置不同的 token 超时时间
+        model.setTimeout(client.getTimeout());
+        model.setActiveTimeout(client.getActiveTimeout());
+        model.setExtra(LoginHelper.CLIENT_KEY, client.getClientId());
+
+        // 执行登录并生成 token
+        LoginHelper.login(loginUser, model);
+
+        // 组装返回结果
+        LoginVo loginVo = new LoginVo();
+        loginVo.setAccessToken(StpUtil.getTokenValue());
+        loginVo.setExpireIn(StpUtil.getTokenTimeout());
+        loginVo.setClientId(client.getClientId());
+        return loginVo;
+    }
+
+    /**
+     * 根据指定字段加载用户并校验状态
+     *
+     * @param field 查询字段（如 SysUser::getUserName）
+     * @param value 字段值
+     * @return 用户信息
+     */
+    public SysUserVo loadUserByField(SFunction<SysUser, String> field, String value) {
+        SysUserVo user = userMapper.selectVoOne(
+            new LambdaQueryWrapper<SysUser>()
+                .eq(field, value)
+        );
+
+        if (ObjectUtil.isNull(user)) {
+            log.info("登录用户：{} 不存在。", value);
+            throw new UserException("user.not.exists", value);
+        }
+
+        if (SystemConstants.DISABLE.equals(user.getStatus())) {
+            log.info("登录用户：{} 已被停用。", value);
+            throw new UserException("user.blocked", value);
+        }
+
+        return user;
     }
 
     /**

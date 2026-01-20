@@ -1,7 +1,5 @@
 package com.han.web.service.impl;
 
-import cn.dev33.satoken.stp.StpUtil;
-import cn.dev33.satoken.stp.parameter.SaLoginParameter;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
 import lombok.RequiredArgsConstructor;
@@ -9,13 +7,11 @@ import lombok.extern.slf4j.Slf4j;
 import me.zhyd.oauth.model.AuthResponse;
 import me.zhyd.oauth.model.AuthUser;
 import com.han.common.core.constant.SystemConstants;
-import com.han.common.core.domain.model.LoginUser;
 import com.han.common.core.domain.model.SocialLoginBody;
 import com.han.common.core.exception.ServiceException;
 import com.han.common.core.exception.user.UserException;
 import com.han.common.core.utils.ValidatorUtils;
 import com.han.common.json.utils.JsonUtils;
-import com.han.common.satoken.utils.LoginHelper;
 import com.han.common.social.config.properties.SocialProperties;
 import com.han.common.social.utils.SocialUtils;
 import com.han.system.domain.vo.SysClientVo;
@@ -94,30 +90,7 @@ public class SocialAuthStrategy implements IAuthStrategy {
         // 加载绑定的系统用户信息并进行状态检查
         SysUserVo user = loadUser(social.getUserId());
 
-        // 构建登录用户信息对象（可根据业务需求扩展字段）
-        LoginUser loginUser = loginService.buildLoginUser(user);
-
-        // 设置客户端相关标识
-        loginUser.setClientKey(client.getClientKey());
-        loginUser.setDeviceType(client.getDeviceType());
-
-        // 构造 Sa-Token 登录参数，支持不同客户端不同超时策略
-        SaLoginParameter model = new SaLoginParameter();
-        model.setDeviceType(client.getDeviceType());
-        model.setTimeout(client.getTimeout());
-        model.setActiveTimeout(client.getActiveTimeout());
-        model.setExtra(LoginHelper.CLIENT_KEY, client.getClientId());
-
-        // 执行登录，生成 token
-        LoginHelper.login(loginUser, model);
-
-        // 组装返回结果
-        LoginVo loginVo = new LoginVo();
-        loginVo.setAccessToken(StpUtil.getTokenValue());
-        loginVo.setExpireIn(StpUtil.getTokenTimeout());
-        loginVo.setClientId(client.getClientId());
-
-        return loginVo;
+        return loginService.processLogin(user, client);
     }
 
     /**

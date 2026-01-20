@@ -30,7 +30,7 @@ public enum LoginType {
     /**
      * 小程序登录
      */
-    XCX("", "");
+    APPLET("", "");
 
     /**
      * 登录重试超出限制提示

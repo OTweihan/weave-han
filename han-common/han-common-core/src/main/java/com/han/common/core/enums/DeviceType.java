@@ -25,7 +25,7 @@ public enum DeviceType {
     /**
      * 小程序端
      */
-    XCX("xcx"),
+    APPLET("applet"),
 
     /**
      * 第三方社交登录平台

@@ -51,7 +51,7 @@ public class AuthController {
      * @return 结果
      */
     @GetMapping("/binding/{source}")
-    public R<String> authBinding(@PathVariable("source") String source, @RequestParam String domain) {
+    public R<String> authBinding(@PathVariable String source, @RequestParam String domain) {
         String authorizeUrl = loginService.authBinding(source, domain);
         return R.ok("操作成功", authorizeUrl);
     }

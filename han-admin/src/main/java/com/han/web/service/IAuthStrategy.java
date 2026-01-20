@@ -20,7 +20,7 @@ public interface IAuthStrategy {
      *     <li>emailAuthStrategy</li>
      *     <li>smsAuthStrategy</li>
      *     <li>socialAuthStrategy</li>
-     *     <li>xcxAuthStrategy</li>
+     *     <li>appletAuthStrategy</li>
      * </ul>
      */
     String BASE_NAME = "AuthStrategy";
@@ -31,7 +31,7 @@ public interface IAuthStrategy {
      *
      * @param body      前端传递的登录请求体（JSON 格式字符串，具体结构由 grantType 决定）
      * @param client    当前客户端配置信息（包含 clientId、超时时间、设备类型等）
-     * @param grantType 授权类型（password / email / sms / social / xcx 等）
+     * @param grantType 授权类型（password / email / sms / social / applet 等）
      * @return 登录成功后的令牌信息
      * @throws ServiceException 当授权类型不存在或对应的策略 Bean 未注册时抛出
      */

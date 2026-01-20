@@ -1,7 +1,5 @@
 package com.han.web.service.impl;
 
-import cn.dev33.satoken.stp.StpUtil;
-import cn.dev33.satoken.stp.parameter.SaLoginParameter;
 import cn.hutool.core.util.ObjectUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,12 +11,11 @@ import me.zhyd.oauth.model.AuthUser;
 import me.zhyd.oauth.request.AuthRequest;
 import me.zhyd.oauth.request.AuthWechatMiniProgramRequest;
 import com.han.common.core.constant.SystemConstants;
-import com.han.common.core.domain.model.XcxLoginBody;
-import com.han.common.core.domain.model.XcxLoginUser;
+import com.han.common.core.domain.model.AppletLoginBody;
+import com.han.common.core.domain.model.AppletLoginUser;
 import com.han.common.core.exception.ServiceException;
 import com.han.common.core.utils.ValidatorUtils;
 import com.han.common.json.utils.JsonUtils;
-import com.han.common.satoken.utils.LoginHelper;
 import com.han.system.domain.vo.SysClientVo;
 import com.han.system.domain.vo.SysUserVo;
 import com.han.web.domain.vo.LoginVo;
@@ -33,8 +30,8 @@ import org.springframework.stereotype.Service;
  */
 @Slf4j
 @RequiredArgsConstructor
-@Service("xcx" + IAuthStrategy.BASE_NAME)
-public class XcxAuthStrategy implements IAuthStrategy {
+@Service("applet" + IAuthStrategy.BASE_NAME)
+public class AppletAuthStrategy implements IAuthStrategy {
 
     private final SysLoginService loginService;
 
@@ -49,14 +46,14 @@ public class XcxAuthStrategy implements IAuthStrategy {
     @Override
     public LoginVo login(String body, SysClientVo client) {
         // 解析并校验小程序登录请求参数
-        XcxLoginBody loginBody = JsonUtils.parseObject(body, XcxLoginBody.class);
+        AppletLoginBody loginBody = JsonUtils.parseObject(body, AppletLoginBody.class);
         if (loginBody == null) {
             throw new IllegalArgumentException("小程序登录请求参数不能为空");
         }
         ValidatorUtils.validate(loginBody);
 
         // 小程序 wx.login 获取的 code
-        String xcxCode = loginBody.getXcxCode();
+        String appletCode = loginBody.getAppletCode();
         // 小程序 appid，用于区分多小程序场景
         String appid = loginBody.getAppid();
 
@@ -74,7 +71,7 @@ public class XcxAuthStrategy implements IAuthStrategy {
 
         // 构造回调参数（微信小程序登录使用 code 模式）
         AuthCallback authCallback = new AuthCallback();
-        authCallback.setCode(xcxCode);
+        authCallback.setCode(appletCode);
 
         // 调用微信接口校验 code 并换取 openid / session_key / unionid
         AuthResponse<AuthUser> resp = authRequest.login(authCallback);
@@ -93,7 +90,7 @@ public class XcxAuthStrategy implements IAuthStrategy {
         SysUserVo user = loadUserByOpenid(openid);
 
         // 小程序专用登录用户对象（继承或扩展 LoginUser，根据业务需要添加字段）
-        XcxLoginUser loginUser = new XcxLoginUser();
+        AppletLoginUser loginUser = new AppletLoginUser();
         loginUser.setUserId(user.getUserId());
         loginUser.setUsername(user.getUserName());
         loginUser.setNickname(user.getNickName());
@@ -101,23 +98,12 @@ public class XcxAuthStrategy implements IAuthStrategy {
         loginUser.setClientKey(client.getClientKey());
         loginUser.setDeviceType(client.getDeviceType());
         loginUser.setOpenid(openid);
-        // 可选：loginUser.setUnionId(unionId);  // 如需使用 unionId 可在此保存
-
-        // 构造 Sa-Token 登录参数，支持不同客户端不同超时策略
-        SaLoginParameter model = new SaLoginParameter();
-        model.setDeviceType(client.getDeviceType());
-        model.setTimeout(client.getTimeout());
-        model.setActiveTimeout(client.getActiveTimeout());
-        model.setExtra(LoginHelper.CLIENT_KEY, client.getClientId());
+        // 可选：loginUser.setUnionId(unionId);  如需使用 unionId 可在此保存
 
         // 执行登录，生成 token
-        LoginHelper.login(loginUser, model);
+        LoginVo loginVo = loginService.login(loginUser, client);
 
-        // 组装返回结果（小程序端通常需要额外返回 openid）
-        LoginVo loginVo = new LoginVo();
-        loginVo.setAccessToken(StpUtil.getTokenValue());
-        loginVo.setExpireIn(StpUtil.getTokenTimeout());
-        loginVo.setClientId(client.getClientId());
+        // 小程序端通常需要额外返回 openid
         loginVo.setOpenid(openid);
 
         return loginVo;
@@ -133,7 +119,7 @@ public class XcxAuthStrategy implements IAuthStrategy {
      * @return 用户视图对象 SysUserVo
      */
     private SysUserVo loadUserByOpenid(String openid) {
-        // todo 实际项目中应替换为真实查询逻辑，例如：
+        // TODO 实际项目中应替换为真实查询逻辑，例如：
         // SysUserVo user = userService.selectUserByOpenid(openid);
 
         // 当前为演示用空对象，实际必须实现查询 + 未绑定处理逻辑
@@ -141,14 +127,14 @@ public class XcxAuthStrategy implements IAuthStrategy {
 
         if (ObjectUtil.isNull(user)) {
             log.info("微信小程序 openid：{} 未绑定系统用户", openid);
-            // todo 未绑定用户时的业务处理，例如：
+            // TODO 未绑定用户时的业务处理，例如：
             // 1. 自动注册新用户
             // 2. 抛出异常要求前端引导绑定
             // 3. 返回临时访客身份等
             // 示例：throw new ServiceException("该微信尚未绑定系统账号，请先绑定");
         } else if (SystemConstants.DISABLE.equals(user.getStatus())) {
             log.info("微信小程序 openid：{} 绑定的用户已被停用", openid);
-            // todo 用户被禁用时的处理逻辑
+            // TODO 用户被禁用时的处理逻辑
             // throw new UserException("user.blocked");
         }
 
