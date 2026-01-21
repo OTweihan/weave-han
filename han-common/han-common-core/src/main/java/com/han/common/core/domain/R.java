@@ -2,6 +2,7 @@ package com.han.common.core.domain;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.Accessors;
 import com.han.common.core.constant.HttpStatus;
 
 import java.io.Serial;
@@ -14,6 +15,7 @@ import java.io.Serializable;
  */
 @Data
 @NoArgsConstructor
+@Accessors(chain = true)
 public class R<T> implements Serializable {
 
     @Serial
@@ -22,12 +24,12 @@ public class R<T> implements Serializable {
     /**
      * 操作成功状态码
      */
-    public static final int SUCCESS = 200;
+    public static final int SUCCESS = HttpStatus.SUCCESS;
 
     /**
      * 操作失败状态码（业务异常默认）
      */
-    public static final int FAIL = 500;
+    public static final int FAIL = HttpStatus.ERROR;
 
     /**
      * 状态码
@@ -118,6 +120,15 @@ public class R<T> implements Serializable {
     }
 
     // 状态判断工具方法
+
+    /**
+     * 判断响应是否为成功状态（实例方法）
+     *
+     * @return true 表示成功，false 表示失败
+     */
+    public boolean isSuccess() {
+        return this.code == SUCCESS;
+    }
 
     /**
      * 判断响应是否为错误状态

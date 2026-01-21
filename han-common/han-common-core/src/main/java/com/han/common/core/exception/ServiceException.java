@@ -50,6 +50,17 @@ public final class ServiceException extends RuntimeException {
         this.message = StrFormatter.format(message, args);
     }
 
+    public ServiceException(String message, Throwable cause) {
+        super(cause);
+        this.message = message;
+    }
+
+    public ServiceException(String message, Integer code, Throwable cause) {
+        super(cause);
+        this.message = message;
+        this.code = code;
+    }
+
     @Override
     public String getMessage() {
         return message;

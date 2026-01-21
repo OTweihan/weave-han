@@ -1,7 +1,9 @@
 package com.han.common.core.constant;
 
 /**
- * 缓存组名称常量
+ * @Author: Lion Li
+ * @CreateTime: 2026-01-20
+ * @Description: 缓存组名称常量
  * <p>
  * key 格式：cacheNames#ttl#maxIdleTime#maxSize（单位支持 s/m/h/d）
  * </p>
@@ -13,10 +15,6 @@ package com.han.common.core.constant;
  * <p>
  * 示例：sys_config#30d 表示缓存组 sys_config，30 天后过期
  * </p>
- *
- * @author Lion Li
- * @CreateTime: 2026-01-20
- * @Description: 缓存 key 常量（定义各业务模块缓存组名称及策略）
  */
 public interface CacheNames {
 

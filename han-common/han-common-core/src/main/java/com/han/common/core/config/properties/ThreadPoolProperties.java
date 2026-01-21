@@ -15,7 +15,12 @@ public class ThreadPoolProperties {
     /**
      * 是否开启线程池
      */
-    private boolean enabled;
+    private boolean enabled = true;
+
+    /**
+     * 核心线程数
+     */
+    private int corePoolSize;
 
     /**
      * 队列最大长度
@@ -26,4 +31,9 @@ public class ThreadPoolProperties {
      * 线程池维护线程所允许的空闲时间
      */
     private int keepAliveSeconds;
+
+    /**
+     * 停机等待时间（秒）
+     */
+    private int shutdownAwaitSeconds = 120;
 }

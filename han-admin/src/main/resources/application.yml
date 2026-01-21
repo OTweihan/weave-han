@@ -94,6 +94,18 @@ spring:
       # 允许对象忽略json中不存在的属性
       fail_on_unknown_properties: false
 
+# 线程池配置
+thread-pool:
+  enabled: true
+  # 核心线程数，默认为0（代表自动计算：CPU核心数 + 1）
+  # core-pool-size: 16
+  # 队列最大长度
+  queue-capacity: 128
+  # 线程空闲时间（秒）
+  keep-alive-seconds: 300
+  # 停机等待时间（秒）
+  shutdown-await-seconds: 60
+
 # Sa-Token配置
 sa-token:
   # token名称 (同时也是cookie名称)

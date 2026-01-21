@@ -4,6 +4,12 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import com.han.common.core.utils.StringUtils;
 
+import java.util.Arrays;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
 /**
  * @Author Lion Li
  * @CreateTime: 2026-01-21
@@ -139,26 +145,37 @@ public enum FormatsType {
     private final String timeFormat;
 
     /**
+     * 缓存枚举值的 Map，用于快速查找
+     */
+    private static final Map<String, FormatsType> FORMAT_MAP = Arrays.stream(values())
+        .collect(Collectors.toMap(FormatsType::getTimeFormat, Function.identity()));
+
+    /**
      * 根据传入的格式字符串查找匹配的枚举值
      * <p>
      * 匹配规则：字符串中只要包含该枚举的格式串即可匹配（使用 String.contains 判断）。
      * </p>
      *
      * @param str 待匹配的格式字符串
-     * @return 匹配到的 FormatsType
-     * @throws RuntimeException 未找到匹配项时抛出
+     * @return 匹配到的 FormatsType 的 Optional
      */
-    public static FormatsType getFormatsType(String str) {
+    public static Optional<FormatsType> getFormatsType(String str) {
         if (StringUtils.isBlank(str)) {
-            throw new IllegalArgumentException("格式字符串不能为空");
+            return Optional.empty();
         }
+        return FORMAT_MAP.entrySet().stream()
+            .filter(entry -> StringUtils.contains(str, entry.getKey()))
+            .map(Map.Entry::getValue)
+            .findFirst();
+    }
 
-        for (FormatsType value : values()) {
-            if (StringUtils.contains(str, value.getTimeFormat())) {
-                return value;
-            }
-        }
-
-        throw new RuntimeException("未找到对应的 FormatsType: " + str);
+    /**
+     * 返回枚举的描述性字符串
+     *
+     * @return 格式字符串
+     */
+    @Override
+    public String toString() {
+        return timeFormat;
     }
 }

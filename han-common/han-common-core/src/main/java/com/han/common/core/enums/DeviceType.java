@@ -36,4 +36,14 @@ public enum DeviceType {
      * 设备标识
      */
     private final String device;
+
+    /**
+     * 返回枚举的描述性字符串
+     *
+     * @return 设备标识
+     */
+    @Override
+    public String toString() {
+        return device;
+    }
 }

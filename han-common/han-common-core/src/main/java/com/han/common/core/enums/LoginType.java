@@ -28,7 +28,7 @@ public enum LoginType {
     EMAIL("email.code.retry.limit.exceed", "email.code.retry.limit.count"),
 
     /**
-     * 小程序登录
+     * 小程序登录（无需重试限制）
      */
     APPLET("", "");
 
@@ -41,4 +41,14 @@ public enum LoginType {
      * 登录重试限制计数提示
      */
     final String retryLimitCount;
+
+    /**
+     * 返回枚举的描述性字符串
+     *
+     * @return 重试限制提示信息
+     */
+    @Override
+    public String toString() {
+        return retryLimitExceed + " | " + retryLimitCount;
+    }
 }

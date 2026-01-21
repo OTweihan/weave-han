@@ -5,75 +5,79 @@ package com.han.common.core.constant;
  * @CreateTime: 2026-01-20
  * @Description: 通用常量信息
  */
-public interface Constants {
+public final class Constants {
+
+    private Constants() {
+        // 防止实例化
+    }
 
     /**
      * UTF-8 字符集
      */
-    String UTF8 = "UTF-8";
+    public static final String UTF8 = "UTF-8";
 
     /**
      * GBK 字符集
      */
-    String GBK = "GBK";
+    public static final String GBK = "GBK";
 
     /**
      * www主域
      */
-    String WWW = "www.";
+    public static final String WWW = "www.";
 
     /**
      * http请求
      */
-    String HTTP = "http://";
+    public static final String HTTP = "http://";
 
     /**
      * https请求
      */
-    String HTTPS = "https://";
+    public static final String HTTPS = "https://";
 
     /**
      * 通用成功标识
      */
-    String SUCCESS = "0";
+    public static final String SUCCESS = "0";
 
     /**
      * 通用失败标识
      */
-    String FAIL = "1";
+    public static final String FAIL = "1";
 
     /**
      * 登录成功
      */
-    String LOGIN_SUCCESS = "Success";
+    public static final String LOGIN_SUCCESS = "Success";
 
     /**
      * 注销
      */
-    String LOGOUT = "Logout";
+    public static final String LOGOUT = "Logout";
 
     /**
      * 注册
      */
-    String REGISTER = "Register";
+    public static final String REGISTER = "Register";
 
     /**
      * 登录失败
      */
-    String LOGIN_FAIL = "Error";
+    public static final String LOGIN_FAIL = "Error";
 
     /**
      * 验证码有效期（分钟）
      */
-    Integer CAPTCHA_EXPIRATION = 2;
+    public static final Integer CAPTCHA_EXPIRATION = 2;
 
     /**
      * 顶级父级id
      */
-    Long TOP_PARENT_ID = 0L;
+    public static final Long TOP_PARENT_ID = 0L;
 
     /**
      * 加密头
      */
-    String ENCRYPT_HEADER = "ENC_";
+    public static final String ENCRYPT_HEADER = "ENC_";
 }

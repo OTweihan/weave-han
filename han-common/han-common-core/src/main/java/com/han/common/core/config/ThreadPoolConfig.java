@@ -1,11 +1,13 @@
 package com.han.common.core.config;
 
-import jakarta.annotation.PreDestroy;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.concurrent.BasicThreadFactory;
 import com.han.common.core.config.properties.ThreadPoolProperties;
 import com.han.common.core.utils.SpringUtils;
+import jakarta.annotation.PreDestroy;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.concurrent.BasicThreadFactory;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.task.VirtualThreadTaskExecutor;
@@ -19,16 +21,13 @@ import java.util.concurrent.*;
  */
 @Slf4j
 @AutoConfiguration
+@RequiredArgsConstructor
 @EnableConfigurationProperties(ThreadPoolProperties.class)
+@ConditionalOnProperty(prefix = "thread-pool", name = "enabled", havingValue = "true", matchIfMissing = true)
 public class ThreadPoolConfig {
 
+    private final ThreadPoolProperties threadPoolProperties;
     private ScheduledExecutorService scheduledExecutorService;
-
-    /**
-     * 核心线程数计算公式：CPU 核心数 + 1
-     * <p>适用于 CPU 密集型 + 少量 IO 的定时任务场景</p>
-     */
-    private final int core = Runtime.getRuntime().availableProcessors() + 1;
 
     /**
      * 创建定时任务专用线程池（ScheduledThreadPoolExecutor）
@@ -38,6 +37,12 @@ public class ThreadPoolConfig {
      */
     @Bean(name = "scheduledExecutorService")
     protected ScheduledExecutorService scheduledExecutorService() {
+        int corePoolSize = threadPoolProperties.getCorePoolSize();
+        // 如果未配置或配置不合法，则使用默认公式：CPU核心数 + 1
+        if (corePoolSize <= 0) {
+            corePoolSize = Runtime.getRuntime().availableProcessors() + 1;
+        }
+
         BasicThreadFactory.Builder builder = new BasicThreadFactory.Builder()
             // 设置为守护线程，应用退出时自动结束
             .daemon(true);
@@ -51,7 +56,7 @@ public class ThreadPoolConfig {
         }
 
         ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(
-            core,
+            corePoolSize,
             builder.build(),
             // 拒绝策略：调用者运行，防止任务丢失
             new ThreadPoolExecutor.CallerRunsPolicy()
@@ -73,8 +78,8 @@ public class ThreadPoolConfig {
      * <p>关闭流程：</p>
      * <ol>
      *     <li>调用 shutdown()：停止接受新任务，尝试完成已提交任务</li>
-     *     <li>等待 120 秒，若未完成则调用 shutdownNow() 强制中断</li>
-     *     <li>再次等待 120 秒，若仍未终止则记录警告日志</li>
+     *     <li>等待配置的时间（默认120秒），若未完成则调用 shutdownNow() 强制中断</li>
+     *     <li>再次等待配置的时间，若仍未终止则记录警告日志</li>
      *     <li>处理中断异常，恢复线程中断状态</li>
      * </ol>
      */
@@ -89,11 +94,12 @@ public class ThreadPoolConfig {
 
             scheduledExecutorService.shutdown();
 
-            if (!scheduledExecutorService.awaitTermination(120, TimeUnit.SECONDS)) {
-                log.warn("定时任务线程池 120 秒内未正常关闭，尝试强制终止");
+            int awaitSeconds = threadPoolProperties.getShutdownAwaitSeconds();
+            if (!scheduledExecutorService.awaitTermination(awaitSeconds, TimeUnit.SECONDS)) {
+                log.warn("定时任务线程池 {} 秒内未正常关闭，尝试强制终止", awaitSeconds);
                 scheduledExecutorService.shutdownNow();
 
-                if (!scheduledExecutorService.awaitTermination(120, TimeUnit.SECONDS)) {
+                if (!scheduledExecutorService.awaitTermination(awaitSeconds, TimeUnit.SECONDS)) {
                     log.error("定时任务线程池强制终止后仍未结束，可能存在未完成任务");
                 }
             }
