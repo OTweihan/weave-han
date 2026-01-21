@@ -38,7 +38,7 @@ public class AppletAuthStrategy implements IAuthStrategy {
     /**
      * 执行微信小程序登录流程
      *
-     * @param body   前端传递的 JSON 字符串（包含小程序 code 和 appid）
+     * @param body   前端传递的 JSON 字符串（包含小程序 code 和 appletId）
      * @param client 客户端配置信息（包含 clientId、超时时间、设备类型等）
      * @return 登录成功后的令牌信息（LoginVo）
      * @throws ServiceException 当微信登录凭证校验失败时抛出
@@ -54,13 +54,13 @@ public class AppletAuthStrategy implements IAuthStrategy {
 
         // 小程序 wx.login 获取的 code
         String appletCode = loginBody.getAppletCode();
-        // 小程序 appid，用于区分多小程序场景
-        String appid = loginBody.getAppid();
+        // 小程序 appletId，用于区分多小程序场景
+        String appletId = loginBody.getAppletId();
 
         // 构造微信小程序授权请求配置
         AuthRequest authRequest = new AuthWechatMiniProgramRequest(
             AuthConfig.builder()
-                .clientId(appid)
+                .clientId(appletId)
                 // 注意：clientSecret（小程序密钥）应从配置中心、安全配置或数据库动态获取
                 // 此处仅为示例，实际项目中切勿硬编码
                 .clientSecret("自行填写密钥 可根据不同appid填入不同密钥")
