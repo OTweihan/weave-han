@@ -5,9 +5,9 @@ import lombok.Getter;
 import com.han.common.core.utils.StringUtils;
 
 /**
- * 用户类型
- *
- * @author Lion Li
+ * @Author Lion Li
+ * @CreateTime: 2026-01-21
+ * @Description: 用户类型枚举
  */
 @Getter
 @AllArgsConstructor

@@ -6,9 +6,9 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 通用 用户服务
- *
- * @author Lion Li
+ * @Author Lion Li
+ * @CreateTime: 2026-01-21
+ * @Description: 通用用户服务
  */
 public interface UserService {
 

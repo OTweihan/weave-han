@@ -7,9 +7,9 @@ import lombok.NoArgsConstructor;
 import java.io.Serial;
 
 /**
- * 小程序登录用户身份权限
- *
- * @author Lion Li
+ * @Author: Lion Li
+ * @CreateTime: 2026-01-20
+ * @Description: 小程序登录用户身份权限
  */
 @Data
 @EqualsAndHashCode(callSuper = true)

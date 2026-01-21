@@ -1,9 +1,9 @@
 package com.han.common.core.constant;
 
 /**
- * 返回状态码
- *
- * @author Lion Li
+ * @Author: Lion Li
+ * @CreateTime: 2026-01-20
+ * @Description: 返回状态码
  */
 public interface HttpStatus {
 

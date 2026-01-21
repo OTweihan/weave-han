@@ -7,9 +7,9 @@ import com.han.common.core.utils.SpringUtils;
 import com.han.common.core.utils.StringUtils;
 
 /**
- * 自定义字典值校验器
- *
- * @author AprilWind
+ * @Author AprilWind
+ * @CreateTime: 2026-01-21
+ * @Description: 自定义字典值校验器
  */
 public class DictPatternValidator implements ConstraintValidator<DictPattern, String> {
 

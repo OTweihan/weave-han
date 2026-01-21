@@ -4,9 +4,9 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 通用 角色服务
- *
- * @author AprilWind
+ * @Author AprilWind
+ * @CreateTime: 2026-01-21
+ * @Description: 通用角色服务
  */
 public interface RoleService {
 

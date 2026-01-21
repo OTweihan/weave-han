@@ -1,9 +1,9 @@
 package com.han.common.core.constant;
 
 /**
- * 全局的key常量 (业务无关的key)
- *
- * @author Lion Li
+ * @Author: Lion Li
+ * @CreateTime: 2026-01-20
+ * @Description: 全局的 key 常量 (业务无关的key)
  */
 public interface GlobalConstants {
 

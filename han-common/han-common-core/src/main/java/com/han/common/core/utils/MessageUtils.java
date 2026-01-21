@@ -7,9 +7,9 @@ import org.springframework.context.NoSuchMessageException;
 import org.springframework.context.i18n.LocaleContextHolder;
 
 /**
- * 获取i18n资源文件
- *
- * @author Lion Li
+ * @Author Lion Li
+ * @CreateTime: 2026-01-21
+ * @Description: 获取i18n资源文件
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class MessageUtils {

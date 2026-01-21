@@ -4,9 +4,9 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 /**
- * 设备类型
- *
- * @author Lion Li
+ * @Author: Lion Li
+ * @CreateTime: 2026-01-21
+ * @Description: 设备类型枚举
  */
 @Getter
 @AllArgsConstructor

@@ -12,9 +12,9 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
- * 字符串工具类
- *
- * @author Lion Li
+ * @Author: Lion Li
+ * @CreateTime: 2026-01-21
+ * @Description: 字符串工具类
  */
 public class StringUtils extends org.apache.commons.lang3.StringUtils {
 

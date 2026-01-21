@@ -7,11 +7,10 @@ import java.io.Serial;
 import java.io.Serializable;
 
 /**
- * 用户登录对象
- *
- * @author Lion Li
+ * @Author: Lion Li
+ * @CreateTime: 2026-01-20
+ * @Description: 用户登录对象
  */
-
 @Data
 public class LoginBody implements Serializable {
 

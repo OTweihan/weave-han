@@ -3,9 +3,9 @@ package com.han.common.core.exception.file;
 import java.io.Serial;
 
 /**
- * 文件名称超长限制异常类
- *
- * @author ruoyi
+ * @Author ruoyi
+ * @CreateTime: 2026-01-21
+ * @Description: 文件名称超长限制异常类
  */
 public class FileNameLengthLimitExceededException extends FileException {
 

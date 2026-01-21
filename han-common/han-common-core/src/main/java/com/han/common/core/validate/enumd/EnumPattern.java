@@ -12,16 +12,15 @@ import static java.lang.annotation.ElementType.*;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
- * 自定义枚举校验
- *
- * @author 秋辞未寒
- * @date 2024-12-09
+ * @Author 秋辞未寒
+ * @CreateTime: 2024-12-09
+ * @Description: 自定义枚举校验
  */
 @Documented
-@Target({METHOD, FIELD, ANNOTATION_TYPE, CONSTRUCTOR, PARAMETER, TYPE_USE})
 @Retention(RUNTIME)
-@Repeatable(EnumPattern.List.class) // 允许在同一元素上多次使用该注解
+@Repeatable(EnumPattern.List.class)
 @Constraint(validatedBy = {EnumPatternValidator.class})
+@Target({METHOD, FIELD, ANNOTATION_TYPE, CONSTRUCTOR, PARAMETER, TYPE_USE})
 public @interface EnumPattern {
 
     /**

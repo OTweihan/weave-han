@@ -12,9 +12,9 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
- * stream 流工具类
- *
- * @author Lion Li
+ * @Author: Lion Li
+ * @CreateTime: 2026-01-21
+ * @Description: stream 流工具类
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class StreamUtils {

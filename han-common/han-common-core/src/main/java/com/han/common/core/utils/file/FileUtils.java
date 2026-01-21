@@ -9,9 +9,9 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 
 /**
- * 文件处理工具类
- *
- * @author Lion Li
+ * @Author Lion Li
+ * @CreateTime: 2026-01-21
+ * @Description: 文件处理工具类
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class FileUtils extends FileUtil {

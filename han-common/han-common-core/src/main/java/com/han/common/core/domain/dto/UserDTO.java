@@ -7,11 +7,10 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.util.Date;
 
-
 /**
- * 用户
- *
- * @author Michelle.Chung
+ * @Author: Michelle.Chung
+ * @CreateTime: 2026-01-20
+ * @Description: 用户 DTO
  */
 @Data
 @NoArgsConstructor

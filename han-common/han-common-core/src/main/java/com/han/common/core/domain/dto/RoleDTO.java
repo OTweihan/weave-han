@@ -7,11 +7,10 @@ import java.io.Serial;
 import java.io.Serializable;
 
 /**
- * 角色
- *
- * @author Lion Li
+ * @Author: Lion Li
+ * @CreateTime: 2026-01-20
+ * @Description: 角色 DTO
  */
-
 @Data
 @NoArgsConstructor
 public class RoleDTO implements Serializable {

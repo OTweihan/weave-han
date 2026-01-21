@@ -7,9 +7,9 @@ import lombok.NoArgsConstructor;
 import java.util.function.Function;
 
 /**
- * 对象工具类
- *
- * @author 秋辞未寒
+ * @Author 秋辞未寒
+ * @CreateTime: 2026-01-21
+ * @Description: 对象工具类
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ObjectUtils extends ObjectUtil {

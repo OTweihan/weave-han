@@ -10,14 +10,14 @@ import com.han.common.core.utils.StringUtils;
 import java.io.Serial;
 
 /**
- * 基础异常
- *
- * @author ruoyi
+ * @Author ruoyi
+ * @CreateTime: 2026-01-21
+ * @Description: 基础异常类
  */
 @Data
-@EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode(callSuper = true)
 public class BaseException extends RuntimeException {
 
     @Serial

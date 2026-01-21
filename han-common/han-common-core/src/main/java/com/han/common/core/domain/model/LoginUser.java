@@ -10,9 +10,9 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * 登录用户身份权限
- *
- * @author Lion Li
+ * @Author: Lion Li
+ * @CreateTime: 2026-01-20
+ * @Description: 登录用户身份权限
  */
 @Data
 @NoArgsConstructor

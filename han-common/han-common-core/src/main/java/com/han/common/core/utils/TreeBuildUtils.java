@@ -16,9 +16,9 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * 扩展 hutool TreeUtil 封装系统树构建
- *
- * @author Lion Li
+ * @Author: Lion Li
+ * @CreateTime: 2026-01-21
+ * @Description: 树构建工具类
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class TreeBuildUtils extends TreeUtil {
@@ -41,7 +41,7 @@ public class TreeBuildUtils extends TreeUtil {
         if (CollUtil.isEmpty(list)) {
             return CollUtil.newArrayList();
         }
-        K k = ReflectUtils.invokeGetter(list.get(0), "parentId");
+        K k = ReflectUtils.invokeGetter(list.getFirst(), "parentId");
         return TreeUtil.build(list, k, DEFAULT_CONFIG, nodeParser);
     }
 

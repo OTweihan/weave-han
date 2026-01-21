@@ -9,9 +9,9 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * 字典项校验注解
- *
- * @author AprilWind
+ * @Author AprilWind
+ * @CreateTime: 2026-01-21
+ * @Description: 字典项校验注解
  */
 @Constraint(validatedBy = DictPatternValidator.class)
 @Target({ElementType.FIELD, ElementType.PARAMETER})

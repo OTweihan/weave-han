@@ -3,9 +3,9 @@ package com.han.common.core.service;
 import java.util.Set;
 
 /**
- * 用户权限处理
- *
- * @author Lion Li
+ * @Author Lion Li
+ * @CreateTime: 2026-01-21
+ * @Description: 用户权限处理
  */
 public interface PermissionService {
 

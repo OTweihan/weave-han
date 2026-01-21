@@ -9,9 +9,9 @@ import lombok.NoArgsConstructor;
 import java.io.Serial;
 
 /**
- * 业务异常（支持占位符 {} ）
- *
- * @author ruoyi
+ * @Author ruoyi
+ * @CreateTime: 2026-01-21
+ * @Description: 业务异常（支持占位符 {} ）
  */
 @Data
 @EqualsAndHashCode(callSuper = true)

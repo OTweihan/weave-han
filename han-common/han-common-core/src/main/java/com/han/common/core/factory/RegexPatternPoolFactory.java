@@ -6,11 +6,11 @@ import com.han.common.core.constant.RegexConstants;
 import java.util.regex.Pattern;
 
 /**
- * 正则表达式模式池工厂
- * <p>初始化的时候将正则表达式加入缓存池当中</p>
- * <p>提高正则表达式的性能，避免重复编译相同的正则表达式</p>
- *
- * @author 21001
+ * @Author 21001
+ * @CreateTime: 2026-01-21
+ * @Description: 正则表达式模式池工厂
+ *<p>初始化的时候将正则表达式加入缓存池当中</p>
+ *<p>提高正则表达式的性能，避免重复编译相同的正则表达式</p>
  */
 public class RegexPatternPoolFactory extends PatternPool {
 

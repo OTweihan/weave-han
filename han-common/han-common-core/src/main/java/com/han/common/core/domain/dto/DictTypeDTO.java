@@ -7,9 +7,9 @@ import java.io.Serial;
 import java.io.Serializable;
 
 /**
- * 字典类型DTO
- *
- * @author AprilWind
+ * @Author: AprilWind
+ * @CreateTime: 2026-01-20
+ * @Description: 字典类型 DTO
  */
 @Data
 @NoArgsConstructor

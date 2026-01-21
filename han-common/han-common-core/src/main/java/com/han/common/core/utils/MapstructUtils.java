@@ -11,11 +11,9 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Mapstruct 工具类
- * <p>参考文档：<a href="https://mapstruct.plus/introduction/quick-start.html">mapstruct-plus</a></p>
- *
- *
- * @author Michelle.Chung
+ * @Author ruoyi
+ * @CreateTime: 2026-01-21
+ * @Description: Mapstruct 工具类
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class MapstructUtils {

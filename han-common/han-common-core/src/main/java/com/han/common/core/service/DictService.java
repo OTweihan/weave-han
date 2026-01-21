@@ -7,9 +7,9 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 通用 字典服务
- *
- * @author Lion Li
+ * @Author Lion Li
+ * @CreateTime: 2026-01-21
+ * @Description: 通用字典服务
  */
 public interface DictService {
 
@@ -83,5 +83,4 @@ public interface DictService {
      * @return 字典数据列表
      */
     List<DictDataDTO> getDictData(String dictType);
-
 }

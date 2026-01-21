@@ -5,11 +5,10 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 /**
- * 小程序登录对象
- *
- * @author Lion Li
+ * @Author: Lion Li
+ * @CreateTime: 2026-01-20
+ * @Description: 小程序登录对象
  */
-
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class AppletLoginBody extends LoginBody {
@@ -17,7 +16,7 @@ public class AppletLoginBody extends LoginBody {
     /**
      * 小程序id(多个小程序时使用)
      */
-    private String appid;
+    private String appletId;
 
     /**
      * 小程序code

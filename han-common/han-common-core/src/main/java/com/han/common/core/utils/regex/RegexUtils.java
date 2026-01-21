@@ -1,13 +1,12 @@
 package com.han.common.core.utils.regex;
 
-
 import cn.hutool.core.util.ReUtil;
 import com.han.common.core.constant.RegexConstants;
 
 /**
- * 正则相关工具类
- *
- * @author Feng
+ * @Author: Feng
+ * @CreateTime: 2026-01-21
+ * @Description: 正则相关工具类
  */
 public final class RegexUtils extends ReUtil {
 

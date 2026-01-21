@@ -6,10 +6,9 @@ import com.han.common.core.utils.StringUtils;
 import com.han.common.core.utils.reflect.ReflectUtils;
 
 /**
- * 自定义枚举校验注解实现
- *
- * @author 秋辞未寒
- * @date 2024-12-09
+ * @Author 秋辞未寒
+ * @CreateTime: 2024-12-09
+ * @Description: 自定义枚举校验注解实现
  */
 public class EnumPatternValidator implements ConstraintValidator<EnumPattern, String> {
 

@@ -5,9 +5,9 @@ import lombok.NoArgsConstructor;
 import com.han.common.core.utils.StringUtils;
 
 /**
- * sql操作工具类
- *
- * @author ruoyi
+ * @Author: ruoyi
+ * @CreateTime: 2026-01-21
+ * @Description: sql操作工具类
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class SqlUtil {

@@ -1,9 +1,9 @@
 package com.han.common.core.service;
 
 /**
- * 通用 参数配置服务
- *
- * @author Lion Li
+ * @Author Lion Li
+ * @CreateTime: 2026-01-21
+ * @Description: 通用参数配置服务
  */
 public interface ConfigService {
 
@@ -14,5 +14,4 @@ public interface ConfigService {
      * @return 参数值
      */
     String getConfigValue(String configKey);
-
 }

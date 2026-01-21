@@ -1,9 +1,9 @@
 package com.han.common.core.constant;
 
 /**
- * 缓存的key 常量
- *
- * @author Lion Li
+ * @Author: Lion Li
+ * @CreateTime: 2026-01-20
+ * @Description: 缓存的key 常量
  */
 public interface CacheConstants {
 

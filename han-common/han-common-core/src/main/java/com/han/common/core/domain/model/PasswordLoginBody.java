@@ -6,9 +6,9 @@ import lombok.EqualsAndHashCode;
 import org.hibernate.validator.constraints.Length;
 
 /**
- * 密码登录对象
- *
- * @author Lion Li
+ * @Author: Lion Li
+ * @CreateTime: 2026-01-20
+ * @Description: 密码登录对象
  */
 @Data
 @EqualsAndHashCode(callSuper = true)

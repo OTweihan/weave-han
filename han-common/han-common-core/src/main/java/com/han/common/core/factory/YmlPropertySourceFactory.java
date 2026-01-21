@@ -10,9 +10,9 @@ import org.springframework.core.io.support.EncodedResource;
 import java.io.IOException;
 
 /**
- * yml 配置源工厂
- *
- * @author Lion Li
+ * @Author Lion Li
+ * @CreateTime: 2026-01-21
+ * @Description: yml 配置源工厂
  */
 public class YmlPropertySourceFactory extends DefaultPropertySourceFactory {
 

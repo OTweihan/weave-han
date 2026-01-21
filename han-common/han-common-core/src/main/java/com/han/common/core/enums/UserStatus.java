@@ -4,9 +4,9 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 /**
- * 用户状态
- *
- * @author ruoyi
+ * @Author ruoyi
+ * @CreateTime: 2026-01-21
+ * @Description: 用户状态枚举
  */
 @Getter
 @AllArgsConstructor

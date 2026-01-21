@@ -5,9 +5,9 @@ import com.han.common.core.domain.dto.OssDTO;
 import java.util.List;
 
 /**
- * 通用 OSS服务
- *
- * @author Lion Li
+ * @Author Lion Li
+ * @CreateTime: 2026-01-21
+ * @Description: 通用OSS服务
  */
 public interface OssService {
 

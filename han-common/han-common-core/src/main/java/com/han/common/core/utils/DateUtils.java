@@ -12,9 +12,9 @@ import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 /**
- * 时间工具类
- *
- * @author ruoyi
+ * @Author ruoyi
+ * @CreateTime: 2026-01-21
+ * @Description: 时间工具类
  */
 public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
     private static final String[] PARSE_PATTERNS = {

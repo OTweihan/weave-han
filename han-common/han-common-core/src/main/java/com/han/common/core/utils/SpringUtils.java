@@ -8,9 +8,9 @@ import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 /**
- * spring工具类
- *
- * @author Lion Li
+ * @Author: Lion Li
+ * @CreateTime: 2026-01-21
+ * @Description: spring工具类
  */
 @Component
 public final class SpringUtils extends SpringUtil {

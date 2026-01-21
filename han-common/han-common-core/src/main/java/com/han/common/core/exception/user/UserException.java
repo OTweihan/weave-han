@@ -5,9 +5,9 @@ import com.han.common.core.exception.base.BaseException;
 import java.io.Serial;
 
 /**
- * 用户信息异常类
- *
- * @author ruoyi
+ * @Author ruoyi
+ * @CreateTime: 2026-01-21
+ * @Description: 用户信息异常类
  */
 public class UserException extends BaseException {
 

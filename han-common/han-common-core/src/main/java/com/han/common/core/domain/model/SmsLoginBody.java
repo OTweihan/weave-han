@@ -5,11 +5,10 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 /**
- * 短信登录对象
- *
- * @author Lion Li
+ * @Author: Lion Li
+ * @CreateTime: 2026-01-20
+ * @Description: 短信登录对象
  */
-
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class SmsLoginBody extends LoginBody {

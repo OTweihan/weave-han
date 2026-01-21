@@ -1,9 +1,9 @@
 package com.han.common.core.constant;
 
 /**
- * 系统常量信息
- *
- * @author Lion Li
+ * @Author: Lion Li
+ * @CreateTime: 2026-01-20
+ * @Description: 系统常量信息
  */
 public interface SystemConstants {
 

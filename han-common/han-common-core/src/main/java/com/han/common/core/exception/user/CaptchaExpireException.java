@@ -3,9 +3,9 @@ package com.han.common.core.exception.user;
 import java.io.Serial;
 
 /**
- * 验证码失效异常类
- *
- * @author ruoyi
+ * @Author ruoyi
+ * @CreateTime: 2026-01-21
+ * @Description: 验证码失效异常类
  */
 public class CaptchaExpireException extends UserException {
 

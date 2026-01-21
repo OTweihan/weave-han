@@ -8,9 +8,9 @@ import lombok.NoArgsConstructor;
 import java.io.Serial;
 
 /**
- * sse 特制异常
- *
- * @author LionLi
+ * @Author Lion Li
+ * @CreateTime: 2026-01-21
+ * @Description: sse 特制异常
  */
 @Data
 @EqualsAndHashCode(callSuper = true)

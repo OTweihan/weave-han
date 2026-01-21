@@ -6,11 +6,10 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 /**
- * 邮件登录对象
- *
- * @author Lion Li
+ * @Author: Lion Li
+ * @CreateTime: 2026-01-20
+ * @Description: 邮件登录对象
  */
-
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class EmailLoginBody extends LoginBody {

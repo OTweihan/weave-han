@@ -1,9 +1,9 @@
 package com.han.common.core.validate;
 
 /**
- * 校验分组 query
- *
- * @author Lion Li
+ * @Author Lion Li
+ * @CreateTime: 2026-01-21
+ * @Description: 校验分组 query
  */
 public interface QueryGroup {
 }

@@ -12,9 +12,9 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 
 /**
- * 增强网络相关工具类
- *
- * @author 秋辞未寒
+ * @Author 秋辞未寒
+ * @CreateTime: 2026-01-21
+ * @Description: 增强网络相关工具类
  */
 @Slf4j
 @NoArgsConstructor(access = AccessLevel.PRIVATE)

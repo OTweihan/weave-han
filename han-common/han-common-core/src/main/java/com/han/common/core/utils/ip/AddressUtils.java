@@ -8,9 +8,9 @@ import com.han.common.core.utils.NetUtils;
 import com.han.common.core.utils.StringUtils;
 
 /**
- * 获取地址类
- *
- * @author Lion Li
+ * @Author Lion Li
+ * @CreateTime: 2026-01-21
+ * @Description: 获取地址类
  */
 @Slf4j
 @NoArgsConstructor(access = AccessLevel.PRIVATE)

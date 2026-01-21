@@ -3,15 +3,20 @@ package com.han.common.core.constant;
 /**
  * 缓存组名称常量
  * <p>
- * key 格式为 cacheNames#ttl#maxIdleTime#maxSize
+ * key 格式：cacheNames#ttl#maxIdleTime#maxSize（单位支持 s/m/h/d）
+ * </p>
+ * <ul>
+ *   <li>ttl：过期时间，0 表示不过期（默认）</li>
+ *   <li>maxIdleTime：最大空闲时间，0 表示不检测（默认）</li>
+ *   <li>maxSize：最大容量，0 表示无限制（默认）</li>
+ * </ul>
  * <p>
- * ttl 过期时间 如果设置为0则不过期 默认为0
- * maxIdleTime 最大空闲时间 根据LRU算法清理空闲数据 如果设置为0则不检测 默认为0
- * maxSize 组最大长度 根据LRU算法清理溢出数据 如果设置为0则无限长 默认为0
- * <p>
- * 例子: test#60s、test#0#60s、test#0#1m#1000、test#1h#0#500
+ * 示例：sys_config#30d 表示缓存组 sys_config，30 天后过期
+ * </p>
  *
  * @author Lion Li
+ * @CreateTime: 2026-01-20
+ * @Description: 缓存 key 常量（定义各业务模块缓存组名称及策略）
  */
 public interface CacheNames {
 

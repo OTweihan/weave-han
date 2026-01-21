@@ -1,9 +1,9 @@
 package com.han.common.core.constant;
 
 /**
- * 通用常量信息
- *
- * @author ruoyi
+ * @Author: ruoyi
+ * @CreateTime: 2026-01-20
+ * @Description: 通用常量信息
  */
 public interface Constants {
 
@@ -77,4 +77,3 @@ public interface Constants {
      */
     String ENCRYPT_HEADER = "ENC_";
 }
-

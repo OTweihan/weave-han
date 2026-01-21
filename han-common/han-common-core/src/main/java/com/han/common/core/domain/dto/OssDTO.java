@@ -7,9 +7,9 @@ import java.io.Serial;
 import java.io.Serializable;
 
 /**
- * OSS对象
- *
- * @author Lion Li
+ * @Author: Lion Li
+ * @CreateTime: 2026-01-20
+ * @Description: OSS DTO
  */
 @Data
 @NoArgsConstructor
