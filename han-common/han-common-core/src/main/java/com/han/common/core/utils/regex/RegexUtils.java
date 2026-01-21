@@ -1,7 +1,10 @@
 package com.han.common.core.utils.regex;
 
+import cn.hutool.core.exceptions.ValidateException;
 import cn.hutool.core.util.ReUtil;
-import com.han.common.core.constant.RegexConstants;
+import com.han.common.core.factory.RegexPatternPoolFactory;
+
+import static cn.hutool.core.lang.Validator.isMatchRegex;
 
 /**
  * @Author: Feng
@@ -11,10 +14,45 @@ import com.han.common.core.constant.RegexConstants;
 public final class RegexUtils extends ReUtil {
 
     /**
+     * 字典类型必须以字母开头，且只能为（小写字母，数字，下滑线）
+     */
+    public static final java.util.regex.Pattern DICTIONARY_TYPE = RegexPatternPoolFactory.DICTIONARY_TYPE;
+
+    /**
+     * 身份证号码（后6位）
+     */
+    public static final java.util.regex.Pattern ID_CARD_LAST_6 = RegexPatternPoolFactory.ID_CARD_LAST_6;
+
+    /**
+     * QQ号码
+     */
+    public static final java.util.regex.Pattern QQ_NUMBER = RegexPatternPoolFactory.QQ_NUMBER;
+
+    /**
+     * 邮政编码
+     */
+    public static final java.util.regex.Pattern POSTAL_CODE = RegexPatternPoolFactory.POSTAL_CODE;
+
+    /**
+     * 注册账号
+     */
+    public static final java.util.regex.Pattern ACCOUNT = RegexPatternPoolFactory.ACCOUNT;
+
+    /**
+     * 密码：包含至少8个字符，包括大写字母、小写字母、数字和特殊字符
+     */
+    public static final java.util.regex.Pattern PASSWORD = RegexPatternPoolFactory.PASSWORD;
+
+    /**
+     * 通用状态（0表示正常，1表示停用）
+     */
+    public static final java.util.regex.Pattern STATUS = RegexPatternPoolFactory.STATUS;
+
+    /**
      * 从输入字符串中提取匹配的部分，如果没有匹配则返回默认值
      *
      * @param input        要提取的输入字符串
-     * @param regex        用于匹配的正则表达式，可以使用 {@link RegexConstants} 中定义的常量
+     * @param regex        用于匹配的正则表达式
      * @param defaultInput 如果没有匹配时返回的默认值
      * @return 如果找到匹配的部分，则返回匹配的部分，否则返回默认值
      */
@@ -25,5 +63,57 @@ public final class RegexUtils extends ReUtil {
         } catch (Exception e) {
             return defaultInput;
         }
+    }
+
+    /**
+     * 检查输入的账号是否匹配预定义的规则
+     *
+     * @param value 要验证的账号
+     * @return 如果账号符合规则，返回 true；否则，返回 false。
+     */
+    public static boolean isAccount(CharSequence value) {
+        return isMatchRegex(ACCOUNT, value);
+    }
+
+    /**
+     * 验证输入的账号是否符合规则，如果不符合，则抛出 ValidateException 异常
+     *
+     * @param value    要验证的账号
+     * @param errorMsg 验证失败时抛出的异常消息
+     * @param <T>      CharSequence 的子类型
+     * @return 如果验证通过，返回输入的账号
+     * @throws ValidateException 如果验证失败
+     */
+    public static <T extends CharSequence> T validateAccount(T value, String errorMsg) throws ValidateException {
+        if (!isAccount(value)) {
+            throw new ValidateException(errorMsg);
+        }
+        return value;
+    }
+
+    /**
+     * 检查输入的状态是否匹配预定义的规则
+     *
+     * @param value 要验证的状态
+     * @return 如果状态符合规则，返回 true；否则，返回 false。
+     */
+    public static boolean isStatus(CharSequence value) {
+        return isMatchRegex(STATUS, value);
+    }
+
+    /**
+     * 验证输入的状态是否符合规则，如果不符合，则抛出 ValidateException 异常
+     *
+     * @param value    要验证的状态
+     * @param errorMsg 验证失败时抛出的异常消息
+     * @param <T>      CharSequence 的子类型
+     * @return 如果验证通过，返回输入的状态
+     * @throws ValidateException 如果验证失败
+     */
+    public static <T extends CharSequence> T validateStatus(T value, String errorMsg) throws ValidateException {
+        if (!isStatus(value)) {
+            throw new ValidateException(errorMsg);
+        }
+        return value;
     }
 }

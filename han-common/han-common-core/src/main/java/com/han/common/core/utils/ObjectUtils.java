@@ -10,6 +10,7 @@ import java.util.function.Function;
  * @Author 秋辞未寒
  * @CreateTime: 2026-01-21
  * @Description: 对象工具类
+ * <p>扩展 Hutool ObjectUtil，添加自定义对象操作方法</p>
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ObjectUtils extends ObjectUtil {

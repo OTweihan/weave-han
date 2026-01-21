@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
  * @Author: Lion Li
  * @CreateTime: 2026-01-21
  * @Description: 字符串工具类
+ * <p>扩展 Apache Commons Lang3，优先使用 Hutool 方法（性能更优）</p>
  */
 public class StringUtils extends org.apache.commons.lang3.StringUtils {
 
