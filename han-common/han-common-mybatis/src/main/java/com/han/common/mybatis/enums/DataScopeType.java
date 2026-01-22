@@ -7,19 +7,18 @@ import com.han.common.core.utils.StringUtils;
 import com.han.common.mybatis.helper.DataPermissionHelper;
 
 /**
- * 数据权限类型枚举
+ * @Author: Lion Li
+ * @CreateTime: 2026-01-22
+ * @Description: 数据权限类型枚举
  * <p>
  * 支持使用 SpEL 模板表达式定义 SQL 查询条件
  * 内置数据：
- * - {@code user}: 当前登录用户信息，参考 {@link LoginUser}
+ * {@code user}: 当前登录用户信息，参考 {@link LoginUser}
  * 内置服务：
- * - {@code sdss}: 系统数据权限服务，参考 ISysDataScopeService
+ * {@code sdss}: 系统数据权限服务，参考 ISysDataScopeService
  * 如需扩展数据，可以通过 {@link DataPermissionHelper} 进行操作
  * 如需扩展服务，可以通过 ISysDataScopeService 自行编写
  * </p>
- *
- * @author Lion Li
- * @version 3.5.0
  */
 @Getter
 @AllArgsConstructor

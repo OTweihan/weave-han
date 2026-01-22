@@ -3,10 +3,9 @@ package com.han.common.mybatis.annotation;
 import java.lang.annotation.*;
 
 /**
- * 数据权限组注解，用于标记数据权限配置数组
- *
- * @author Lion Li
- * @version 3.5.0
+ * @Author: Lion Li
+ * @CreateTime: 2026-01-22
+ * @Description: 数据权限组注解，用于标记数据权限配置数组
  */
 @Target({ElementType.METHOD, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
@@ -26,5 +25,4 @@ public @interface DataPermission {
      * 内容 OR 或者 AND
      */
     String joinStr() default "";
-
 }

@@ -15,15 +15,19 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 /**
- * 数据库助手
- *
- * @author Lion Li
+ * @Author: Lion Li
+ * @CreateTime: 2026-01-22
+ * @Description: 数据库助手
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class DataBaseHelper {
 
     private static final DynamicRoutingDataSource DS = SpringUtils.getBean(DynamicRoutingDataSource.class);
+    private static final Map<DataSource, DataBaseType> CACHE = new ConcurrentHashMap<>();
 
     /**
      * 获取当前数据源对应的数据库类型
@@ -37,13 +41,15 @@ public class DataBaseHelper {
      */
     public static DataBaseType getDataBaseType() {
         DataSource dataSource = DS.determineDataSource();
-        try (Connection conn = dataSource.getConnection()) {
-            DatabaseMetaData metaData = conn.getMetaData();
-            String databaseProductName = metaData.getDatabaseProductName();
-            return DataBaseType.find(databaseProductName);
-        } catch (SQLException e) {
-            throw new ServiceException(e.getMessage());
-        }
+        return CACHE.computeIfAbsent(dataSource, ds -> {
+            try (Connection conn = ds.getConnection()) {
+                DatabaseMetaData metaData = conn.getMetaData();
+                String databaseProductName = metaData.getDatabaseProductName();
+                return DataBaseType.find(databaseProductName);
+            } catch (SQLException e) {
+                throw new ServiceException(e.getMessage());
+            }
+        });
     }
 
     /**

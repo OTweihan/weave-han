@@ -16,9 +16,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 分页查询实体类
- *
- * @author Lion Li
+ * @Author: Lion Li
+ * @CreateTime: 2026-01-22
+ * @Description: 分页查询实体类
  */
 @Data
 public class PageQuery implements Serializable {
@@ -75,7 +75,6 @@ public class PageQuery implements Serializable {
 
     /**
      * 构建排序
-     *
      * 支持的用法如下:
      * {isAsc:"asc",orderByColumn:"id"} order by id asc
      * {isAsc:"asc",orderByColumn:"id,createTime"} order by id asc,create_time asc
@@ -123,5 +122,4 @@ public class PageQuery implements Serializable {
         this.pageSize = pageSize;
         this.pageNum = pageNum;
     }
-
 }

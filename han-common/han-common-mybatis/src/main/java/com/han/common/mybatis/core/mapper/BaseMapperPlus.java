@@ -21,12 +21,9 @@ import java.util.Map;
 import java.util.function.Function;
 
 /**
- * 自定义 Mapper 接口, 实现 自定义扩展
- *
- * @param <T> table 泛型
- * @param <V> vo 泛型
- * @author Lion Li
- * @since 2021-05-13
+ * @Author: Lion Li
+ * @CreateTime: 2021-05-13
+ * @Description: 自定义 Mapper 接口, 实现 自定义扩展
  */
 @SuppressWarnings("unchecked")
 public interface BaseMapperPlus<T, V> extends BaseMapper<T> {
@@ -330,5 +327,4 @@ public interface BaseMapperPlus<T, V> extends BaseMapper<T> {
     default <C> List<C> selectObjs(Wrapper<T> wrapper, Function<? super Object, C> mapper) {
         return StreamUtils.toList(this.selectObjs(wrapper), mapper);
     }
-
 }

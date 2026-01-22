@@ -11,9 +11,9 @@ import java.io.Serializable;
 import java.util.List;
 
 /**
- * 表格分页数据对象
- *
- * @author Lion Li
+ * @Author: Lion Li
+ * @CreateTime: 2026-01-22
+ * @Description: 表格分页数据对象
  */
 @Data
 @NoArgsConstructor
@@ -103,5 +103,4 @@ public class TableDataInfo<T> implements Serializable {
         List<T> pageList = CollUtil.page((int) page.getCurrent() - 1, (int) page.getSize(), list);
         return new TableDataInfo<>(pageList, list.size());
     }
-
 }

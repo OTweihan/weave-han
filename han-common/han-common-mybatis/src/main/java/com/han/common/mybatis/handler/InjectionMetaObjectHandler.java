@@ -14,10 +14,9 @@ import com.han.common.satoken.utils.LoginHelper;
 import java.util.Date;
 
 /**
- * MP注入处理器
- *
- * @author Lion Li
- * @date 2021/4/25
+ * @Author: Lion Li
+ * @CreateTime: 2021-04-25
+ * @Description: MP 注入处理器
  */
 @Slf4j
 public class InjectionMetaObjectHandler implements MetaObjectHandler {

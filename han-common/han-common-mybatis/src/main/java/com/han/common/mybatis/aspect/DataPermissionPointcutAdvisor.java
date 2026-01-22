@@ -5,9 +5,9 @@ import org.springframework.aop.Pointcut;
 import org.springframework.aop.support.AbstractPointcutAdvisor;
 
 /**
- * 数据权限注解切面定义
- *
- * @author 秋辞未寒
+ * @Author: 秋辞未寒
+ * @CreateTime: 2026-01-22
+ * @Description: 数据权限注解切面定义
  */
 @SuppressWarnings("all")
 public class DataPermissionPointcutAdvisor extends AbstractPointcutAdvisor {
@@ -29,5 +29,4 @@ public class DataPermissionPointcutAdvisor extends AbstractPointcutAdvisor {
     public Advice getAdvice() {
         return this.advice;
     }
-
 }

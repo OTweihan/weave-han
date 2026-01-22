@@ -12,9 +12,9 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 /**
- * Mybatis异常处理器
- *
- * @author Lion Li
+ * @Author: Lion Li
+ * @CreateTime: 2026-01-22
+ * @Description: Mybatis 异常处理器
  */
 @Slf4j
 @RestControllerAdvice
@@ -85,5 +85,4 @@ public class MybatisExceptionHandler {
         }
         return null;
     }
-
 }

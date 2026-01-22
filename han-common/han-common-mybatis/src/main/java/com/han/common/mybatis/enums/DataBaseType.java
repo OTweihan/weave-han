@@ -5,9 +5,9 @@ import lombok.Getter;
 import com.han.common.core.utils.StringUtils;
 
 /**
- * 数据库类型
- *
- * @author Lion Li
+ * @Author: Lion Li
+ * @CreateTime: 2026-01-22
+ * @Description: 数据库类型
  */
 @Getter
 @AllArgsConstructor
@@ -83,5 +83,4 @@ public enum DataBaseType {
     public boolean isSqlServer() {
         return this == SQL_SERVER;
     }
-
 }

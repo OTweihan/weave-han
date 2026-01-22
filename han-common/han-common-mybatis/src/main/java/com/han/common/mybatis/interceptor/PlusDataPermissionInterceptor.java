@@ -23,14 +23,12 @@ import org.apache.ibatis.session.RowBounds;
 import com.han.common.mybatis.handler.PlusDataPermissionHandler;
 
 import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.List;
 
 /**
- * 数据权限拦截器
- *
- * @author Lion Li
- * @version 3.5.0
+ * @Author: Lion Li
+ * @CreateTime: 2026-01-22
+ * @Description: 数据权限拦截器
  */
 @Slf4j
 public class PlusDataPermissionInterceptor extends BaseMultiTableInnerInterceptor implements InnerInterceptor {
@@ -46,10 +44,9 @@ public class PlusDataPermissionInterceptor extends BaseMultiTableInnerIntercepto
      * @param rowBounds     分页对象
      * @param resultHandler 结果处理器
      * @param boundSql      绑定的 SQL 对象
-     * @throws SQLException 如果发生 SQL 异常
      */
     @Override
-    public void beforeQuery(Executor executor, MappedStatement ms, Object parameter, RowBounds rowBounds, ResultHandler resultHandler, BoundSql boundSql) throws SQLException {
+    public void beforeQuery(Executor executor, MappedStatement ms, Object parameter, RowBounds rowBounds, ResultHandler resultHandler, BoundSql boundSql) {
         // 检查是否需要忽略数据权限处理
         if (InterceptorIgnoreHelper.willIgnoreDataPermission(ms.getId())) {
             return;
@@ -102,10 +99,10 @@ public class PlusDataPermissionInterceptor extends BaseMultiTableInnerIntercepto
     @Override
     protected void processSelect(Select select, int index, String sql, Object obj) {
         if (select instanceof PlainSelect) {
-            this.setWhere((PlainSelect) select, (String) obj);
+            this.setWhere((PlainSelect) select);
         } else if (select instanceof SetOperationList setOperationList) {
             List<Select> selectBodyList = setOperationList.getSelects();
-            selectBodyList.forEach(s -> this.setWhere((PlainSelect) s, (String) obj));
+            selectBodyList.forEach(s -> this.setWhere((PlainSelect) s));
         }
     }
 
@@ -145,9 +142,8 @@ public class PlusDataPermissionInterceptor extends BaseMultiTableInnerIntercepto
      * 设置 SELECT 语句的 WHERE 条件
      *
      * @param plainSelect       SELECT 查询对象
-     * @param mappedStatementId 映射语句的 ID
      */
-    protected void setWhere(PlainSelect plainSelect, String mappedStatementId) {
+    protected void setWhere(PlainSelect plainSelect) {
         Expression sqlSegment = dataPermissionHandler.getSqlSegment(plainSelect.getWhere(), true);
         if (null != sqlSegment) {
             plainSelect.setWhere(sqlSegment);
@@ -169,4 +165,3 @@ public class PlusDataPermissionInterceptor extends BaseMultiTableInnerIntercepto
         return handler.getSqlSegment(table, where, whereSegment);
     }
 }
-

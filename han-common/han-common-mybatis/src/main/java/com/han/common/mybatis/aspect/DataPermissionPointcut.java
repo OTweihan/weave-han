@@ -8,9 +8,9 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 
 /**
- * 数据权限匹配切点
- *
- * @author 秋辞未寒
+ * @Author: 秋辞未寒
+ * @CreateTime: 2026-01-22
+ * @Description: 数据权限匹配切点
  */
 @Slf4j
 @SuppressWarnings("all")
@@ -35,5 +35,4 @@ public class DataPermissionPointcut extends StaticMethodMatcherPointcut {
         }
         return targetClassRef.isAnnotationPresent(DataPermission.class);
     }
-
 }

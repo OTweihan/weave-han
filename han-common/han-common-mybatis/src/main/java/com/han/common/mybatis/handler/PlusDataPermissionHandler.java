@@ -25,15 +25,17 @@ import org.springframework.expression.*;
 import org.springframework.expression.common.TemplateParserContext;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
 /**
- * 数据权限过滤
- *
- * @author Lion Li
- * @version 3.5.0
+ * @Author: Lion Li
+ * @CreateTime: 2026-01-22
+ * @Description: 数据权限过滤
  */
 @Slf4j
 public class PlusDataPermissionHandler {
@@ -47,12 +49,16 @@ public class PlusDataPermissionHandler {
      * bean解析器 用于处理 spel 表达式中对 bean 的调用
      */
     private final BeanResolver beanResolver = new BeanFactoryResolver(SpringUtils.getBeanFactory());
+    /**
+     * 表达式缓存
+     */
+    private final Map<String, org.springframework.expression.Expression> expressionCache = new ConcurrentHashMap<>();
 
     /**
      * 获取数据过滤条件的 SQL 片段
      *
-     * @param where             原始的查询条件表达式
-     * @param isSelect          是否为查询语句
+     * @param where    原始的查询条件表达式
+     * @param isSelect 是否为查询语句
      * @return 数据过滤条件的 SQL 片段
      */
     public Expression getSqlSegment(Expression where, boolean isSelect) {
@@ -106,7 +112,7 @@ public class PlusDataPermissionHandler {
         LoginUser user = DataPermissionHelper.getVariable("user");
         Object defaultValue = "-1";
         NullSafeStandardEvaluationContext context = new NullSafeStandardEvaluationContext(defaultValue);
-        context.addPropertyAccessor(new NullSafePropertyAccessor(context.getPropertyAccessors().get(0), defaultValue));
+        context.addPropertyAccessor(new NullSafePropertyAccessor(context.getPropertyAccessors().getFirst(), defaultValue));
         context.setBeanResolver(beanResolver);
         DataPermissionHelper.getContext().forEach(context::setVariable);
         Set<String> conditions = new HashSet<>();
@@ -160,9 +166,10 @@ public class PlusDataPermissionHandler {
                     continue;
                 }
                 // 忽略数据权限 防止spel表达式内有其他sql查询导致死循环调用
-                String sql = DataPermissionHelper.ignore(() ->
-                    parser.parseExpression(type.getSqlTemplate(), parserContext).getValue(context, String.class)
-                );
+                String sql = DataPermissionHelper.ignore(() -> {
+                    org.springframework.expression.Expression expression = expressionCache.computeIfAbsent(type.getSqlTemplate(), k -> parser.parseExpression(k, parserContext));
+                    return expression.getValue(context, String.class);
+                });
                 // 解析sql模板并填充
                 conditions.add(joinStr + sql);
                 isSuccess = true;
@@ -207,7 +214,7 @@ public class PlusDataPermissionHandler {
         private final Object defaultValue;
 
         @Override
-        public Object lookupVariable(String name) {
+        public Object lookupVariable(@NonNull String name) {
             Object obj = super.lookupVariable(name);
             // 如果读取到的值是 null，则返回默认值
             if (obj == null) {
@@ -215,17 +222,13 @@ public class PlusDataPermissionHandler {
             }
             return obj;
         }
-
     }
 
     /**
      * 对所有null变量找不到的变量返回默认值 委托模式 将不需要处理的方法委托给原处理器
      */
-    @AllArgsConstructor
-    private static class NullSafePropertyAccessor implements PropertyAccessor {
-
-        private final PropertyAccessor delegate;
-        private final Object defaultValue;
+    private record NullSafePropertyAccessor(PropertyAccessor delegate,
+                                            Object defaultValue) implements PropertyAccessor {
 
         @Override
         public Class<?>[] getSpecificTargetClasses() {
@@ -233,12 +236,13 @@ public class PlusDataPermissionHandler {
         }
 
         @Override
-        public boolean canRead(EvaluationContext context, Object target, String name) throws AccessException {
+        public boolean canRead(@NonNull EvaluationContext context, @Nullable Object target, @NonNull String name) throws AccessException {
             return delegate.canRead(context, target, name);
         }
 
         @Override
-        public TypedValue read(EvaluationContext context, Object target, String name) throws AccessException {
+        @NonNull
+        public TypedValue read(@NonNull EvaluationContext context, @Nullable Object target, @NonNull String name) throws AccessException {
             TypedValue value = delegate.read(context, target, name);
             // 如果读取到的值是 null，则返回默认值
             if (value.getValue() == null) {
@@ -248,14 +252,13 @@ public class PlusDataPermissionHandler {
         }
 
         @Override
-        public boolean canWrite(EvaluationContext context, Object target, String name) throws AccessException {
+        public boolean canWrite(@NonNull EvaluationContext context, @Nullable Object target, @NonNull String name) throws AccessException {
             return delegate.canWrite(context, target, name);
         }
 
         @Override
-        public void write(EvaluationContext context, Object target, String name, Object newValue) throws AccessException {
+        public void write(@NonNull EvaluationContext context, @Nullable Object target, @NonNull String name, @Nullable Object newValue) throws AccessException {
             delegate.write(context, target, name, newValue);
         }
     }
-
 }

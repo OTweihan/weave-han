@@ -17,19 +17,16 @@ import java.util.Stack;
 import java.util.function.Supplier;
 
 /**
- * 数据权限助手
- *
- * @author Lion Li
- * @version 3.5.0
+ * @Author: Lion Li
+ * @CreateTime: 2026-01-22
+ * @Description: 数据权限助手
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @SuppressWarnings("unchecked cast")
 public class DataPermissionHelper {
 
     private static final String DATA_PERMISSION_KEY = "data:permission";
-
     private static final ThreadLocal<Stack<Integer>> REENTRANT_IGNORE = ThreadLocal.withInitial(Stack::new);
-
     private static final ThreadLocal<DataPermission> PERMISSION_CACHE = new ThreadLocal<>();
 
     /**
@@ -86,6 +83,7 @@ public class DataPermissionHelper {
      * @return 存储在SaStorage中的Map对象，用于存储数据权限相关的上下文信息
      * @throws NullPointerException 如果数据权限上下文类型异常，则抛出NullPointerException
      */
+    @SuppressWarnings("unchecked")
     public static Map<String, Object> getContext() {
         SaStorage saStorage = SaHolder.getStorage();
         Object attribute = saStorage.get(DATA_PERMISSION_KEY);
@@ -93,8 +91,8 @@ public class DataPermissionHelper {
             saStorage.set(DATA_PERMISSION_KEY, new HashMap<>());
             attribute = saStorage.get(DATA_PERMISSION_KEY);
         }
-        if (attribute instanceof Map map) {
-            return map;
+        if (attribute instanceof Map<?, ?>) {
+            return (Map<String, Object>) attribute;
         }
         throw new NullPointerException("data permission context type exception");
     }
@@ -171,5 +169,4 @@ public class DataPermissionHelper {
             disableIgnore();
         }
     }
-
 }

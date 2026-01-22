@@ -10,9 +10,9 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 
 /**
- * 数据权限注解Advice
- *
- * @author 秋辞未寒
+ * @Author: 秋辞未寒
+ * @CreateTime: 2026-01-22
+ * @Description: 数据权限注解 Advice
  */
 @Slf4j
 public class DataPermissionAdvice implements MethodInterceptor {
@@ -23,7 +23,7 @@ public class DataPermissionAdvice implements MethodInterceptor {
         Method method = invocation.getMethod();
         Object[] args = invocation.getArguments();
         // 设置权限注解
-        DataPermissionHelper.setPermission(getDataPermissionAnnotation(target, method, args));
+        DataPermissionHelper.setPermission(getDataPermissionAnnotation(target, method));
         try {
             // 执行代理方法
             return invocation.proceed();
@@ -36,7 +36,7 @@ public class DataPermissionAdvice implements MethodInterceptor {
     /**
      * 获取数据权限注解
      */
-    private DataPermission getDataPermissionAnnotation(Object target, Method method,Object[] args){
+    private DataPermission getDataPermissionAnnotation(Object target, Method method) {
         DataPermission dataPermission = method.getAnnotation(DataPermission.class);
         // 优先获取方法上的注解
         if (dataPermission != null) {
