@@ -12,9 +12,9 @@ import java.util.*;
 import java.util.regex.Pattern;
 
 /**
- * 获取所有Url配置
- *
- * @author Lion Li
+ * @Author: Lion Li
+ * @CreateTime: 2026-01-22
+ * @Description: 获取所有 Url 配置
  */
 @Data
 public class AllUrlHandler implements InitializingBean {
@@ -30,10 +30,11 @@ public class AllUrlHandler implements InitializingBean {
         Map<RequestMappingInfo, HandlerMethod> map = mapping.getHandlerMethods();
         map.keySet().forEach(info -> {
             // 获取注解上边的 path 替代 path variable 为 *
-            Objects.requireNonNull(info.getPathPatternsCondition().getPatterns())
-                    .forEach(url -> set.add(ReUtil.replaceAll(url.getPatternString(), PATTERN, "*")));
+            if (info.getPathPatternsCondition() != null) {
+                Objects.requireNonNull(info.getPathPatternsCondition().getPatterns())
+                        .forEach(url -> set.add(ReUtil.replaceAll(url.getPatternString(), PATTERN, "*")));
+            }
         });
         urls.addAll(set);
     }
-
 }
