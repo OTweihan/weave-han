@@ -11,15 +11,19 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * 数据脱敏注解
- *
- * @author zhujie
+ * @Author: zhujie
+ * @CreateTime: 2026-01-22
+ * @Description: 数据脱敏注解
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
 @JacksonAnnotationsInside
 @JsonSerialize(using = SensitiveHandler.class)
 public @interface Sensitive {
+
+    /**
+     * 脱敏策略
+     */
     SensitiveStrategy strategy();
 
     /**

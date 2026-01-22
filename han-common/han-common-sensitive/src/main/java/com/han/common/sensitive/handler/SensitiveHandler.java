@@ -18,9 +18,9 @@ import java.io.IOException;
 import java.util.Objects;
 
 /**
- * 数据脱敏json序列化工具
- *
- * @author Yjoioooo
+ * @Author: Yjoioooo
+ * @CreateTime: 2026-01-22
+ * @Description: 数据脱敏 json 序列化工具
  */
 @Slf4j
 public class SensitiveHandler extends JsonSerializer<String> implements ContextualSerializer {
@@ -39,7 +39,7 @@ public class SensitiveHandler extends JsonSerializer<String> implements Contextu
                 gen.writeString(value);
             }
         } catch (BeansException e) {
-            log.error("脱敏实现不存在, 采用默认处理 => {}", e.getMessage());
+            log.debug("脱敏实现不存在, 采用默认处理 => {}", e.getMessage());
             gen.writeString(value);
         }
     }

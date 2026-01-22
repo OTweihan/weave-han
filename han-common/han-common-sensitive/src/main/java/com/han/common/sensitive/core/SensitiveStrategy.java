@@ -7,10 +7,9 @@ import lombok.AllArgsConstructor;
 import java.util.function.Function;
 
 /**
- * 脱敏策略
- *
- * @author Yjoioooo
- * @version 3.6.0
+ * @Author: Yjoioooo
+ * @CreateTime: 2026-01-22
+ * @Description: 脱敏策略
  */
 @AllArgsConstructor
 public enum SensitiveStrategy {
