@@ -1,7 +1,7 @@
 package com.han.common.oss.core;
 
-import cn.hutool.core.io.IoUtil;
 import cn.hutool.core.util.IdUtil;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import com.han.common.core.constant.Constants;
 import com.han.common.core.utils.DateUtils;
@@ -32,22 +32,24 @@ import java.nio.channels.Channels;
 import java.nio.channels.WritableByteChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.time.Duration;
 import java.util.Optional;
 import java.util.function.Consumer;
 
 /**
- * S3 存储协议 所有兼容S3协议的云厂商均支持
+ * @Author: AprilWind
+ * @CreateTime: 2026-01-22
+ * @Description: S3 存储协议 所有兼容S3协议的云厂商均支持
  * 阿里云 腾讯云 七牛云 minio
- *
- * @author AprilWind
  */
 @Slf4j
-public class OssClient {
+public class OssClient implements AutoCloseable {
 
     /**
      * 服务商
      */
+    @Getter
     private final String configKey;
 
     /**
@@ -172,41 +174,21 @@ public class OssClient {
      * @throws OssException 如果上传失败，抛出自定义异常
      */
     public UploadResult upload(InputStream inputStream, String key, Long length, String contentType) {
-        // 如果输入流不是 ByteArrayInputStream，则将其读取为字节数组再创建 ByteArrayInputStream
-        if (!(inputStream instanceof ByteArrayInputStream)) {
-            inputStream = new ByteArrayInputStream(IoUtil.readBytes(inputStream));
-        }
+        Path tempFilePath = null;
         try {
-            // 创建异步请求体（length如果为空会报错）
-            BlockingInputStreamAsyncRequestBody body = BlockingInputStreamAsyncRequestBody.builder()
-                .contentLength(length)
-                .subscribeTimeout(Duration.ofSeconds(120))
-                .build();
-
-            // 使用 transferManager 进行上传
-            Upload upload = transferManager.upload(
-                x -> x.requestBody(body).addTransferListener(LoggingTransferListener.create())
-                    .putObjectRequest(
-                        y -> y.bucket(properties.getBucketName())
-                            .key(key)
-                            .contentType(contentType)
-                            // 用于设置对象的访问控制列表（ACL）。不同云厂商对ACL的支持和实现方式有所不同，
-                            // 因此根据具体的云服务提供商，你可能需要进行不同的配置（自行开启，阿里云有acl权限配置，腾讯云没有acl权限配置）
-                            //.acl(getAccessPolicy().getObjectCannedACL())
-                            .build())
-                    .build());
-
-            // 将输入流写入请求体
-            body.writeInputStream(inputStream);
-
-            // 等待文件上传操作完成
-            CompletedUpload uploadResult = upload.completionFuture().join();
-            String eTag = uploadResult.response().eTag();
-
-            // 提取上传结果中的 ETag，并构建一个自定义的 UploadResult 对象
-            return UploadResult.builder().url(getUrl() + StringUtils.SLASH + key).filename(key).eTag(eTag).build();
+            // 创建临时文件
+            tempFilePath = Files.createTempFile("oss-upload-", ".tmp");
+            // 将输入流复制到临时文件
+            Files.copy(inputStream, tempFilePath, StandardCopyOption.REPLACE_EXISTING);
+            // 上传文件
+            return upload(tempFilePath, key, null, contentType);
         } catch (Exception e) {
             throw new OssException("上传文件失败，请检查配置信息:[" + e.getMessage() + "]");
+        } finally {
+            // 无论上传是否成功，最终都会删除临时文件
+            if (tempFilePath != null) {
+                FileUtils.del(tempFilePath);
+            }
         }
     }
 
@@ -381,12 +363,8 @@ public class OssClient {
     public InputStream getObjectContent(String path) throws IOException {
         // 下载文件到临时目录
         Path tempFilePath = fileDownload(path);
-        // 创建输入流
-        InputStream inputStream = Files.newInputStream(tempFilePath);
-        // 删除临时文件
-        FileUtils.del(tempFilePath);
-        // 返回对象内容的输入流
-        return inputStream;
+        // 返回流，关闭流时自动删除临时文件
+        return new DeleteFileOnCloseInputStream(tempFilePath);
     }
 
     /**
@@ -491,13 +469,6 @@ public class OssClient {
     }
 
     /**
-     * 服务商
-     */
-    public String getConfigKey() {
-        return configKey;
-    }
-
-    /**
      * 获取是否使用 HTTPS 的配置，并返回相应的协议头部。
      *
      * @return 协议头部，根据是否使用 HTTPS 返回 "https://" 或 "http://"
@@ -510,7 +481,7 @@ public class OssClient {
      * 检查配置是否相同
      */
     public boolean checkPropertiesSame(OssProperties properties) {
-        return this.properties.equals(properties);
+        return !this.properties.equals(properties);
     }
 
     /**
@@ -522,4 +493,49 @@ public class OssClient {
         return AccessPolicyType.getByType(properties.getAccessPolicy());
     }
 
+    @Override
+    public void close() {
+        if (transferManager != null) {
+            try {
+                transferManager.close();
+            } catch (Exception e) {
+                log.error("S3TransferManager close error", e);
+            }
+        }
+        if (presigner != null) {
+            try {
+                presigner.close();
+            } catch (Exception e) {
+                log.error("S3Presigner close error", e);
+            }
+        }
+        if (client != null) {
+            try {
+                client.close();
+            } catch (Exception e) {
+                log.error("S3AsyncClient close error", e);
+            }
+        }
+    }
+
+    /**
+     * 关闭时自动删除文件的 InputStream
+     */
+    private static class DeleteFileOnCloseInputStream extends FileInputStream {
+        private final Path path;
+
+        public DeleteFileOnCloseInputStream(Path path) throws IOException {
+            super(path.toFile());
+            this.path = path;
+        }
+
+        @Override
+        public void close() throws IOException {
+            try {
+                super.close();
+            } finally {
+                FileUtils.del(path);
+            }
+        }
+    }
 }

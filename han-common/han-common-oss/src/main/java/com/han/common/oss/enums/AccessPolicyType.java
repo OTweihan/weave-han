@@ -6,9 +6,9 @@ import software.amazon.awssdk.services.s3.model.BucketCannedACL;
 import software.amazon.awssdk.services.s3.model.ObjectCannedACL;
 
 /**
- * 桶访问策略配置
- *
- * @author 陈賝
+ * @Author: 陈賝
+ * @CreateTime: 2026-01-22
+ * @Description: 桶访问策略配置
  */
 @Getter
 @AllArgsConstructor
@@ -52,5 +52,4 @@ public enum AccessPolicyType {
         }
         throw new RuntimeException("'type' not found By " + type);
     }
-
 }

@@ -3,9 +3,9 @@ package com.han.common.oss.exception;
 import java.io.Serial;
 
 /**
- * OSS异常类
- *
- * @author Lion Li
+ * @Author: Lion Li
+ * @CreateTime: 2026-01-22
+ * @Description: OSS 异常类
  */
 public class OssException extends RuntimeException {
 
@@ -15,5 +15,4 @@ public class OssException extends RuntimeException {
     public OssException(String msg) {
         super(msg);
     }
-
 }

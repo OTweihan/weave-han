@@ -16,9 +16,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
- * 文件上传Factory
- *
- * @author Lion Li
+ * @Author: Lion Li
+ * @CreateTime: 2026-01-22
+ * @Description: 文件上传 Factory
  */
 @Slf4j
 public class OssFactory {
@@ -49,11 +49,11 @@ public class OssFactory {
         OssProperties properties = JsonUtils.parseObject(json, OssProperties.class);
         OssClient client = CLIENT_CACHE.get(configKey);
         // 客户端不存在或配置不相同则重新构建
-        if (client == null || !client.checkPropertiesSame(properties)) {
+        if (client == null || client.checkPropertiesSame(properties)) {
             LOCK.lock();
             try {
                 client = CLIENT_CACHE.get(configKey);
-                if (client == null || !client.checkPropertiesSame(properties)) {
+                if (client == null || client.checkPropertiesSame(properties)) {
                     CLIENT_CACHE.put(configKey, new OssClient(configKey, properties));
                     log.info("创建OSS实例 key => {}", configKey);
                     return CLIENT_CACHE.get(configKey);
@@ -64,5 +64,4 @@ public class OssFactory {
         }
         return client;
     }
-
 }

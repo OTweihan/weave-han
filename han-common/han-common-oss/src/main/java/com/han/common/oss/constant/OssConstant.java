@@ -6,9 +6,9 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * 对象存储常量
- *
- * @author Lion Li
+ * @Author: Lion Li
+ * @CreateTime: 2026-01-22
+ * @Description: 对象存储常量
  */
 public interface OssConstant {
 
@@ -36,5 +36,4 @@ public interface OssConstant {
      * https 状态
      */
     String IS_HTTPS = "Y";
-
 }

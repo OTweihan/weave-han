@@ -3,9 +3,9 @@ package com.han.common.oss.properties;
 import lombok.Data;
 
 /**
- * OSS对象存储 配置属性
- *
- * @author Lion Li
+ * @Author: Lion Li
+ * @CreateTime: 2026-01-22
+ * @Description: OSS对象存储 配置属性
  */
 @Data
 public class OssProperties {
@@ -54,5 +54,4 @@ public class OssProperties {
      * 桶权限类型(0private 1public 2custom)
      */
     private String accessPolicy;
-
 }

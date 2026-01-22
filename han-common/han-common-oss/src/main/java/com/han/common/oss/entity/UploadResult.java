@@ -4,9 +4,9 @@ import lombok.Builder;
 import lombok.Data;
 
 /**
- * 上传返回体
- *
- * @author Lion Li
+ * @Author: Lion Li
+ * @CreateTime: 2026-01-22
+ * @Description: 上传返回体
  */
 @Data
 @Builder
@@ -26,5 +26,4 @@ public class UploadResult {
      * 已上传对象的实体标记（用来校验文件）
      */
     private String eTag;
-
 }
