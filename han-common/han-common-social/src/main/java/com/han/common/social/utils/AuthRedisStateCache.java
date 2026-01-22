@@ -1,6 +1,5 @@
 package com.han.common.social.utils;
 
-import lombok.AllArgsConstructor;
 import me.zhyd.oauth.cache.AuthStateCache;
 import com.han.common.core.constant.GlobalConstants;
 import com.han.common.redis.utils.RedisUtils;
@@ -8,9 +7,10 @@ import com.han.common.redis.utils.RedisUtils;
 import java.time.Duration;
 
 /**
- * 授权状态缓存
+ * @Author: Lion Li
+ * @CreateTime: 2026-01-22
+ * @Description: 授权状态缓存
  */
-@AllArgsConstructor
 public class AuthRedisStateCache implements AuthStateCache {
 
     /**

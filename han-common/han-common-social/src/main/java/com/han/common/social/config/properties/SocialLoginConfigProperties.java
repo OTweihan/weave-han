@@ -5,9 +5,9 @@ import lombok.Data;
 import java.util.List;
 
 /**
- * 社交登录配置
- *
- * @author thiszhc
+ * @Author: thiszhc
+ * @CreateTime: 2026-01-22
+ * @Description: 社交登录配置
  */
 @Data
 public class SocialLoginConfigProperties {
@@ -33,43 +33,7 @@ public class SocialLoginConfigProperties {
     private boolean unionId;
 
     /**
-     * Coding 企业名称
-     */
-    private String codingGroupName;
-
-    /**
-     * 支付宝公钥
-     */
-    private String alipayPublicKey;
-
-    /**
-     * 企业微信应用ID
-     */
-    private String agentId;
-
-    /**
-     * stackoverflow api key
-     */
-    private String stackOverflowKey;
-
-    /**
-     * 设备ID
-     */
-    private String deviceId;
-
-    /**
-     * 客户端系统类型
-     */
-    private String clientOsType;
-
-    /**
-     * maxkey 服务器地址
-     */
-    private String serverUrl;
-
-    /**
      * 请求范围
      */
     private List<String> scopes;
-
 }

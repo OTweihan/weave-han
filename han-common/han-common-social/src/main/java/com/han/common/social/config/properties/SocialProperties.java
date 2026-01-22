@@ -7,12 +7,11 @@ import org.springframework.stereotype.Component;
 import java.util.Map;
 
 /**
- * Social 配置属性
- *
- * @author thiszhc
+ * @Author: thiszhc
+ * @CreateTime: 2026-01-22
+ * @Description: Social 配置属性
  */
 @Data
-@Component
 @ConfigurationProperties(prefix = "justauth")
 public class SocialProperties {
 
@@ -20,5 +19,4 @@ public class SocialProperties {
      * 授权类型
      */
     private Map<String, SocialLoginConfigProperties> type;
-
 }
