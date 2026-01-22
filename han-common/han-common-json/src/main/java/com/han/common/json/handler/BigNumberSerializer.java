@@ -8,9 +8,9 @@ import com.fasterxml.jackson.databind.ser.std.NumberSerializer;
 import java.io.IOException;
 
 /**
- * 超出 JS 最大最小值 处理
- *
- * @author Lion Li
+ * @Author: Lion Li
+ * @CreateTime: 2026-01-22
+ * @Description: 超出 JS 最大最小值 处理
  */
 @JacksonStdImpl
 public class BigNumberSerializer extends NumberSerializer {

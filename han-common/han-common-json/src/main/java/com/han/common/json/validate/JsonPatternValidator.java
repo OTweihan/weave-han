@@ -6,9 +6,9 @@ import com.han.common.core.utils.StringUtils;
 import com.han.common.json.utils.JsonUtils;
 
 /**
- * JSON 格式校验器
- *
- * @author AprilWind
+ * @Author: AprilWind
+ * @CreateTime: 2026-01-22
+ * @Description: JSON 格式校验器
  */
 public class JsonPatternValidator implements ConstraintValidator<JsonPattern, String> {
 
@@ -47,5 +47,4 @@ public class JsonPatternValidator implements ConstraintValidator<JsonPattern, St
             case ARRAY -> JsonUtils.isJsonArray(value);
         };
     }
-
 }

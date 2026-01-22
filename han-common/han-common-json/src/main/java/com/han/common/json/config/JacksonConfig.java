@@ -21,9 +21,9 @@ import java.util.Date;
 import java.util.TimeZone;
 
 /**
- * jackson 配置
- *
- * @author Lion Li
+ * @Author: Lion Li
+ * @CreateTime: 2026-01-22
+ * @Description: Jackson 全局配置
  */
 @Slf4j
 @AutoConfiguration(before = JacksonAutoConfiguration.class)
@@ -48,8 +48,9 @@ public class JacksonConfig {
     public Jackson2ObjectMapperBuilderCustomizer customizer() {
         return builder -> {
             builder.timeZone(TimeZone.getDefault());
+            builder.failOnUnknownProperties(false);
+            builder.failOnEmptyBeans(false);
             log.info("初始化 jackson 配置");
         };
     }
-
 }

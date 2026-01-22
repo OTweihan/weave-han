@@ -6,9 +6,9 @@ import jakarta.validation.Payload;
 import java.lang.annotation.*;
 
 /**
- * JSON 格式校验注解
- *
- * @author AprilWind
+ * @Author: AprilWind
+ * @CreateTime: 2026-01-22
+ * @Description: JSON 格式校验注解
  */
 @Documented
 @Target({ElementType.METHOD, ElementType.FIELD})
@@ -29,5 +29,4 @@ public @interface JsonPattern {
     Class<?>[] groups() default {};
 
     Class<? extends Payload>[] payload() default {};
-
 }

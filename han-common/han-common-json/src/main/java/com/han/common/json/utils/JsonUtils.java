@@ -18,9 +18,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * JSON 工具类
- *
- * @author 芋道源码
+ * @Author: 芋道源码
+ * @CreateTime: 2026-01-22
+ * @Description: JSON 工具类
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class JsonUtils {
@@ -196,6 +196,11 @@ public class JsonUtils {
         if (StringUtils.isBlank(str)) {
             return false;
         }
+        // 快速检查
+        String trimmed = str.trim();
+        if (!trimmed.startsWith("{") || !trimmed.endsWith("}")) {
+            return false;
+        }
         try {
             JsonNode node = OBJECT_MAPPER.readTree(str);
             return node.isObject();
@@ -214,6 +219,11 @@ public class JsonUtils {
         if (StringUtils.isBlank(str)) {
             return false;
         }
+        // 快速检查
+        String trimmed = str.trim();
+        if (!trimmed.startsWith("[") || !trimmed.endsWith("]")) {
+            return false;
+        }
         try {
             JsonNode node = OBJECT_MAPPER.readTree(str);
             return node.isArray();
@@ -221,5 +231,4 @@ public class JsonUtils {
             return false;
         }
     }
-
 }

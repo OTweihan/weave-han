@@ -11,9 +11,9 @@ import java.io.IOException;
 import java.util.Date;
 
 /**
- * 自定义 Date 类型反序列化处理器（支持多种格式）
- *
- * @author AprilWind
+ * @Author: AprilWind
+ * @CreateTime: 2026-01-22
+ * @Description: 自定义 Date 类型反序列化处理器（支持多种格式）
  */
 public class CustomDateDeserializer extends JsonDeserializer<Date> {
 
@@ -33,5 +33,4 @@ public class CustomDateDeserializer extends JsonDeserializer<Date> {
         }
         return parse.toJdkDate();
     }
-
 }
