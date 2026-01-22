@@ -4,14 +4,14 @@ import java.lang.annotation.*;
 import java.util.concurrent.TimeUnit;
 
 /**
- * 自定义注解防止表单重复提交
- *
- * @author Lion Li
+ * @Author: Lion Li
+ * @CreateTime: 2026-01-22
+ * @Description: 自定义注解防止表单重复提交
  */
 @Inherited
+@Documented
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-@Documented
 public @interface RepeatSubmit {
 
     /**
@@ -19,6 +19,9 @@ public @interface RepeatSubmit {
      */
     int interval() default 5000;
 
+    /**
+     * 时间单位
+     */
     TimeUnit timeUnit() default TimeUnit.MILLISECONDS;
 
     /**
@@ -26,4 +29,9 @@ public @interface RepeatSubmit {
      */
     String message() default "{repeat.submit.message}";
 
+    /**
+     * 业务Key (支持Spring SpEL表达式)
+     * 例如: #user.id
+     */
+    String key() default "";
 }

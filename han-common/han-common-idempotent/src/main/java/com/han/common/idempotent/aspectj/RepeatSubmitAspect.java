@@ -20,6 +20,11 @@ import com.han.common.core.utils.StringUtils;
 import com.han.common.idempotent.annotation.RepeatSubmit;
 import com.han.common.json.utils.JsonUtils;
 import com.han.common.redis.utils.RedisUtils;
+import org.aspectj.lang.reflect.MethodSignature;
+import org.springframework.expression.EvaluationContext;
+import org.springframework.expression.ExpressionParser;
+import org.springframework.expression.spel.standard.SpelExpressionParser;
+import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -29,14 +34,16 @@ import java.util.Map;
 import java.util.StringJoiner;
 
 /**
- * 防止重复提交(参考美团GTIS防重系统)
- *
- * @author Lion Li
+ * @Author: Lion Li
+ * @CreateTime: 2026-01-22
+ * @Description: 防止重复提交(参考美团GTIS防重系统)
  */
 @Aspect
 public class RepeatSubmitAspect {
 
     private static final ThreadLocal<String> KEY_CACHE = new ThreadLocal<>();
+
+    private static final ExpressionParser PARSER = new SpelExpressionParser();
 
     @Before("@annotation(repeatSubmit)")
     public void doBefore(JoinPoint point, RepeatSubmit repeatSubmit) throws Throwable {
@@ -47,7 +54,9 @@ public class RepeatSubmitAspect {
             throw new ServiceException("重复提交间隔时间不能小于'1'秒");
         }
         HttpServletRequest request = ServletUtils.getRequest();
-        String nowParams = argsArrayToString(point.getArgs());
+        if (request == null) {
+            return;
+        }
 
         // 请求地址（作为存放cache的key值）
         String url = request.getRequestURI();
@@ -55,7 +64,25 @@ public class RepeatSubmitAspect {
         // 唯一值（没有消息头则使用请求地址）
         String submitKey = StringUtils.trimToEmpty(request.getHeader(SaManager.getConfig().getTokenName()));
 
-        submitKey = SecureUtil.md5(submitKey + ":" + nowParams);
+        if (StringUtils.isNotBlank(repeatSubmit.key())) {
+            MethodSignature signature = (MethodSignature) point.getSignature();
+            EvaluationContext context = new StandardEvaluationContext();
+            String[] paramNames = signature.getParameterNames();
+            Object[] args = point.getArgs();
+            for (int i = 0; i < args.length; i++) {
+                context.setVariable(paramNames[i], args[i]);
+            }
+            try {
+                Object value = PARSER.parseExpression(repeatSubmit.key()).getValue(context);
+                submitKey = ObjectUtil.toString(value);
+            } catch (Exception e) {
+                throw new ServiceException("幂等Key解析失败");
+            }
+        } else {
+            String nowParams = argsArrayToString(point.getArgs());
+            submitKey = SecureUtil.md5(submitKey + ":" + nowParams);
+        }
+
         // 唯一标识（指定key + url + 消息头）
         String cacheRepeatKey = GlobalConstants.REPEAT_SUBMIT_KEY + url + submitKey;
         if (RedisUtils.setObjectIfAbsent(cacheRepeatKey, "", Duration.ofMillis(interval))) {
@@ -111,7 +138,11 @@ public class RepeatSubmitAspect {
         }
         for (Object o : paramsArray) {
             if (ObjectUtil.isNotNull(o) && !isFilterObject(o)) {
-                params.add(JsonUtils.toJsonString(o));
+                try {
+                    params.add(JsonUtils.toJsonString(o));
+                } catch (Exception e) {
+                    // ignore
+                }
             }
         }
         return params.toString();
@@ -131,16 +162,19 @@ public class RepeatSubmitAspect {
         } else if (Collection.class.isAssignableFrom(clazz)) {
             Collection collection = (Collection) o;
             for (Object value : collection) {
-                return value instanceof MultipartFile;
+                if (value instanceof MultipartFile) {
+                    return true;
+                }
             }
         } else if (Map.class.isAssignableFrom(clazz)) {
             Map map = (Map) o;
             for (Object value : map.values()) {
-                return value instanceof MultipartFile;
+                if (value instanceof MultipartFile) {
+                    return true;
+                }
             }
         }
         return o instanceof MultipartFile || o instanceof HttpServletRequest || o instanceof HttpServletResponse
                || o instanceof BindingResult;
     }
-
 }
