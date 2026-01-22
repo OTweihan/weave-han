@@ -1,12 +1,12 @@
 package com.han.common.ratelimiter.enums;
 
 /**
- * 限流类型
- *
- * @author ruoyi
+ * @Author: ruoyi
+ * @CreateTime: 2026-01-22
+ * @Description: 限流类型
  */
-
 public enum LimitType {
+
     /**
      * 默认策略全局限流
      */

@@ -5,14 +5,15 @@ import com.han.common.ratelimiter.enums.LimitType;
 import java.lang.annotation.*;
 
 /**
- * 限流注解
- *
- * @author Lion Li
+ * @Author: Lion Li
+ * @CreateTime: 2026-01-22
+ * @Description: 限流注解
  */
+@Documented
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-@Documented
 public @interface RateLimiter {
+
     /**
      * 限流key,支持使用Spring el表达式来动态获取方法上的参数值
      * 格式类似于  #code.id #{#code}
@@ -43,5 +44,4 @@ public @interface RateLimiter {
      * 限流策略超时时间 默认一天(策略存活时间 会清除已存在的策略数据)
      */
     int timeout() default 86400;
-
 }

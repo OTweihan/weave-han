@@ -6,9 +6,11 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.data.redis.connection.RedisConfiguration;
 
 /**
- * @author guangxin
- * @date 2023/1/18
+ * @Author: guangxin
+ * @CreateTime: 2023-01-18
+ * @Description: 限流配置
  */
+
 @AutoConfiguration(after = RedisConfiguration.class)
 public class RateLimiterConfig {
 
@@ -16,5 +18,4 @@ public class RateLimiterConfig {
     public RateLimiterAspect rateLimiterAspect() {
         return new RateLimiterAspect();
     }
-
 }

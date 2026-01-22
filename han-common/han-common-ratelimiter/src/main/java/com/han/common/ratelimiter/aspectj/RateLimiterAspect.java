@@ -1,5 +1,6 @@
 package com.han.common.ratelimiter.aspectj;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
@@ -26,11 +27,13 @@ import org.springframework.expression.common.TemplateParserContext;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 
 import java.lang.reflect.Method;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * 限流处理
- *
- * @author Lion Li
+ * @Author: Lion Li
+ * @CreateTime: 2026-01-22
+ * @Description: 限流处理
  */
 @Slf4j
 @Aspect
@@ -40,14 +43,21 @@ public class RateLimiterAspect {
      * 定义spel表达式解析器
      */
     private final ExpressionParser parser = new SpelExpressionParser();
+    
     /**
      * 定义spel解析模版
      */
     private final ParserContext parserContext = new TemplateParserContext();
+
     /**
      * 方法参数解析器
      */
     private final ParameterNameDiscoverer pnd = new DefaultParameterNameDiscoverer();
+
+    /**
+     * SpEL 表达式缓存
+     */
+    private final Map<String, Expression> expressionCache = new ConcurrentHashMap<>();
 
 
     @Before("@annotation(rateLimiter)")
@@ -69,7 +79,7 @@ public class RateLimiterAspect {
                 }
                 throw new ServiceException(message);
             }
-            log.info("限制令牌 => {}, 剩余令牌 => {}, 缓存key => '{}'", count, number, combineKey);
+            log.debug("限制令牌 => {}, 剩余令牌 => {}, 缓存key => '{}'", count, number, combineKey);
         } catch (Exception e) {
             if (e instanceof ServiceException) {
                 throw e;
@@ -87,22 +97,31 @@ public class RateLimiterAspect {
             Method targetMethod = signature.getMethod();
             Object[] args = point.getArgs();
             MethodBasedEvaluationContext context =
-                new MethodBasedEvaluationContext(null, targetMethod, args, pnd);
+                new MethodBasedEvaluationContext(point.getTarget(), targetMethod, args, pnd);
             context.setBeanResolver(new BeanFactoryResolver(SpringUtils.getBeanFactory()));
-            Expression expression;
-            if (StringUtils.startsWith(key, parserContext.getExpressionPrefix())
-                && StringUtils.endsWith(key, parserContext.getExpressionSuffix())) {
-                expression = parser.parseExpression(key, parserContext);
-            } else {
-                expression = parser.parseExpression(key);
-            }
+            Expression expression = expressionCache.computeIfAbsent(key, k -> {
+                if (StringUtils.startsWith(k, parserContext.getExpressionPrefix())
+                    && StringUtils.endsWith(k, parserContext.getExpressionSuffix())) {
+                    return parser.parseExpression(k, parserContext);
+                }
+                return parser.parseExpression(k);
+            });
             key = expression.getValue(context, String.class);
         }
         StringBuilder stringBuffer = new StringBuilder(GlobalConstants.RATE_LIMIT_KEY);
-        stringBuffer.append(ServletUtils.getRequest().getRequestURI()).append(":");
+        HttpServletRequest request = ServletUtils.getRequest();
+        if (request != null) {
+            stringBuffer.append(request.getRequestURI()).append(":");
+        } else {
+            stringBuffer.append("default:");
+        }
         if (rateLimiter.limitType() == LimitType.IP) {
             // 获取请求ip
-            stringBuffer.append(ServletUtils.getClientIP()).append(":");
+            if (request != null) {
+                stringBuffer.append(ServletUtils.getClientIP(request)).append(":");
+            } else {
+                stringBuffer.append("unknown:");
+            }
         } else if (rateLimiter.limitType() == LimitType.CLUSTER) {
             // 获取客户端实例id
             stringBuffer.append(RedisUtils.getClient().getId()).append(":");
