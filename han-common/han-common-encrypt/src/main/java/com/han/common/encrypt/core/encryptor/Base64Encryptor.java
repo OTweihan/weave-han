@@ -6,10 +6,9 @@ import com.han.common.encrypt.enumd.EncodeType;
 import com.han.common.encrypt.utils.EncryptUtils;
 
 /**
- * Base64算法实现
- *
- * @author 老马
- * @version 4.6.0
+ * @Author: 老马
+ * @CreateTime: 2026-01-22
+ * @Description: Base64 算法实现
  */
 public class Base64Encryptor extends AbstractEncryptor {
 

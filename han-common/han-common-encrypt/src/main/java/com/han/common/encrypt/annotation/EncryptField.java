@@ -6,12 +6,12 @@ import com.han.common.encrypt.enumd.EncodeType;
 import java.lang.annotation.*;
 
 /**
- * 字段加密注解
- *
- * @author 老马
+ * @Author: 老马
+ * @CreateTime: 2026-01-22
+ * @Description: 字段加密注解
  */
-@Documented
 @Inherited
+@Documented
 @Target({ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface EncryptField {
@@ -40,5 +40,4 @@ public @interface EncryptField {
      * 编码方式。对加密算法为BASE64的不起作用
      */
     EncodeType encode() default EncodeType.DEFAULT;
-
 }

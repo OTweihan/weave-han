@@ -11,9 +11,9 @@ import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 
 /**
- * api 解密自动配置
- *
- * @author wdhcr
+ * @Author: wdhcr
+ * @CreateTime: 2026-01-22
+ * @Description: api 解密自动配置
  */
 @AutoConfiguration
 @EnableConfigurationProperties(ApiDecryptProperties.class)
@@ -30,5 +30,4 @@ public class ApiDecryptAutoConfiguration {
     public CryptoFilter cryptoFilter(ApiDecryptProperties properties) {
         return new CryptoFilter(properties);
     }
-
 }

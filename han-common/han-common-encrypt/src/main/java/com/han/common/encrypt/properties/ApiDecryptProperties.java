@@ -4,8 +4,9 @@ import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
- * api解密属性配置类
- * @author wdhcr
+ * @Author: wdhcr
+ * @CreateTime: 2026-01-22
+ * @Description: api 解密属性配置类
  */
 @Data
 @ConfigurationProperties(prefix = "api-decrypt")
@@ -31,4 +32,8 @@ public class ApiDecryptProperties {
      */
     private String privateKey;
 
+    /**
+     * 排除路径
+     */
+    private java.util.List<String> excludePath;
 }

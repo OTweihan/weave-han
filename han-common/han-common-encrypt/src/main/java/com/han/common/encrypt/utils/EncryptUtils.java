@@ -14,9 +14,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * 安全相关工具类
- *
- * @author 老马
+ * @Author: 老马
+ * @CreateTime: 2026-01-22
+ * @Description: 安全相关工具类
  */
 public class EncryptUtils {
 
@@ -51,7 +51,7 @@ public class EncryptUtils {
     }
 
     /**
-     * AES加密
+     * AES 加密
      *
      * @param data     待加密数据
      * @param password 秘钥字符串
@@ -59,18 +59,18 @@ public class EncryptUtils {
      */
     public static String encryptByAes(String data, String password) {
         if (StrUtil.isBlank(password)) {
-            throw new IllegalArgumentException("AES需要传入秘钥信息");
+            throw new IllegalArgumentException("AES 需要传入秘钥信息");
         }
         // aes算法的秘钥要求是16位、24位、32位
         int[] array = {16, 24, 32};
         if (!ArrayUtil.contains(array, password.length())) {
-            throw new IllegalArgumentException("AES秘钥长度要求为16位、24位、32位");
+            throw new IllegalArgumentException("AES 秘钥长度要求为16位、24位、32位");
         }
         return SecureUtil.aes(password.getBytes(StandardCharsets.UTF_8)).encryptBase64(data, StandardCharsets.UTF_8);
     }
 
     /**
-     * AES加密
+     * AES 加密
      *
      * @param data     待加密数据
      * @param password 秘钥字符串
@@ -78,18 +78,18 @@ public class EncryptUtils {
      */
     public static String encryptByAesHex(String data, String password) {
         if (StrUtil.isBlank(password)) {
-            throw new IllegalArgumentException("AES需要传入秘钥信息");
+            throw new IllegalArgumentException("AES 需要传入秘钥信息");
         }
         // aes算法的秘钥要求是16位、24位、32位
         int[] array = {16, 24, 32};
         if (!ArrayUtil.contains(array, password.length())) {
-            throw new IllegalArgumentException("AES秘钥长度要求为16位、24位、32位");
+            throw new IllegalArgumentException("AES 秘钥长度要求为16位、24位、32位");
         }
         return SecureUtil.aes(password.getBytes(StandardCharsets.UTF_8)).encryptHex(data, StandardCharsets.UTF_8);
     }
 
     /**
-     * AES解密
+     * AES 解密
      *
      * @param data     待解密数据
      * @param password 秘钥字符串
@@ -97,18 +97,18 @@ public class EncryptUtils {
      */
     public static String decryptByAes(String data, String password) {
         if (StrUtil.isBlank(password)) {
-            throw new IllegalArgumentException("AES需要传入秘钥信息");
+            throw new IllegalArgumentException("AES 需要传入秘钥信息");
         }
         // aes算法的秘钥要求是16位、24位、32位
         int[] array = {16, 24, 32};
         if (!ArrayUtil.contains(array, password.length())) {
-            throw new IllegalArgumentException("AES秘钥长度要求为16位、24位、32位");
+            throw new IllegalArgumentException("AES 秘钥长度要求为16位、24位、32位");
         }
         return SecureUtil.aes(password.getBytes(StandardCharsets.UTF_8)).decryptStr(data, StandardCharsets.UTF_8);
     }
 
     /**
-     * SM4加密（Base64编码）
+     * SM4 加密（Base64编码）
      *
      * @param data     待加密数据
      * @param password 秘钥字符串
@@ -127,7 +127,7 @@ public class EncryptUtils {
     }
 
     /**
-     * SM4加密（Hex编码）
+     * SM4 加密（Hex编码）
      *
      * @param data     待加密数据
      * @param password 秘钥字符串
@@ -146,7 +146,7 @@ public class EncryptUtils {
     }
 
     /**
-     * sm4解密
+     * sm4 解密
      *
      * @param data     待解密数据（可以是Base64或Hex编码）
      * @param password 秘钥字符串
@@ -167,7 +167,7 @@ public class EncryptUtils {
     /**
      * 产生sm2加解密需要的公钥和私钥
      *
-     * @return 公私钥Map
+     * @return 公私钥 Map
      */
     public static Map<String, String> generateSm2Key() {
         Map<String, String> keyMap = new HashMap<>(2);
@@ -178,7 +178,7 @@ public class EncryptUtils {
     }
 
     /**
-     * sm2公钥加密
+     * sm2 公钥加密
      *
      * @param data      待加密数据
      * @param publicKey 公钥
@@ -193,7 +193,7 @@ public class EncryptUtils {
     }
 
     /**
-     * sm2公钥加密
+     * sm2 公钥加密
      *
      * @param data      待加密数据
      * @param publicKey 公钥
@@ -208,7 +208,7 @@ public class EncryptUtils {
     }
 
     /**
-     * sm2私钥解密
+     * sm2 私钥解密
      *
      * @param data       待解密数据
      * @param privateKey 私钥
@@ -223,9 +223,9 @@ public class EncryptUtils {
     }
 
     /**
-     * 产生RSA加解密需要的公钥和私钥
+     * 产生 RSA 加解密需要的公钥和私钥
      *
-     * @return 公私钥Map
+     * @return 公私钥 Map
      */
     public static Map<String, String> generateRsaKey() {
         Map<String, String> keyMap = new HashMap<>(2);
@@ -236,7 +236,7 @@ public class EncryptUtils {
     }
 
     /**
-     * rsa公钥加密
+     * rsa 公钥加密
      *
      * @param data      待加密数据
      * @param publicKey 公钥
@@ -244,14 +244,14 @@ public class EncryptUtils {
      */
     public static String encryptByRsa(String data, String publicKey) {
         if (StrUtil.isBlank(publicKey)) {
-            throw new IllegalArgumentException("RSA需要传入公钥进行加密");
+            throw new IllegalArgumentException("RSA 需要传入公钥进行加密");
         }
         RSA rsa = SecureUtil.rsa(null, publicKey);
         return rsa.encryptBase64(data, StandardCharsets.UTF_8, KeyType.PublicKey);
     }
 
     /**
-     * rsa公钥加密
+     * rsa 公钥加密
      *
      * @param data      待加密数据
      * @param publicKey 公钥
@@ -259,14 +259,14 @@ public class EncryptUtils {
      */
     public static String encryptByRsaHex(String data, String publicKey) {
         if (StrUtil.isBlank(publicKey)) {
-            throw new IllegalArgumentException("RSA需要传入公钥进行加密");
+            throw new IllegalArgumentException("RSA 需要传入公钥进行加密");
         }
         RSA rsa = SecureUtil.rsa(null, publicKey);
         return rsa.encryptHex(data, StandardCharsets.UTF_8, KeyType.PublicKey);
     }
 
     /**
-     * rsa私钥解密
+     * rsa 私钥解密
      *
      * @param data       待解密数据
      * @param privateKey 私钥
@@ -274,7 +274,7 @@ public class EncryptUtils {
      */
     public static String decryptByRsa(String data, String privateKey) {
         if (StrUtil.isBlank(privateKey)) {
-            throw new IllegalArgumentException("RSA需要传入私钥进行解密");
+            throw new IllegalArgumentException("RSA 需要传入私钥进行解密");
         }
         if (StrUtil.isBlank(data)) {
             return data;
@@ -283,7 +283,7 @@ public class EncryptUtils {
             RSA rsa = SecureUtil.rsa(privateKey, null);
             return rsa.decryptStr(data, KeyType.PrivateKey, StandardCharsets.UTF_8);
         } catch (Exception e) {
-            throw new IllegalArgumentException("RSA解密失败，可能原因：1.密钥不匹配 2.数据已损坏 3.数据未加密或使用了不同的公钥加密。原始数据: " + 
+            throw new IllegalArgumentException("RSA解密失败，可能原因：1.密钥不匹配 2.数据已损坏 3.数据未加密或使用了不同的公钥加密。原始数据: " +
                 (data.length() > 100 ? data.substring(0, 100) + "..." : data), e);
         }
     }
@@ -317,5 +317,4 @@ public class EncryptUtils {
     public static String encryptBySm3(String data) {
         return SmUtil.sm3(data);
     }
-
 }

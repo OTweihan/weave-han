@@ -5,10 +5,9 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 /**
- * 算法名称
- *
- * @author 老马
- * @version 4.6.0
+ * @Author: 老马
+ * @CreateTime: 2026-01-22
+ * @Description: 算法名称
  */
 @Getter
 @AllArgsConstructor

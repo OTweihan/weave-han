@@ -1,10 +1,9 @@
 package com.han.common.encrypt.enumd;
 
 /**
- * 编码类型
- *
- * @author 老马
- * @version 4.6.0
+ * @Author: 老马
+ * @CreateTime: 2026-01-22
+ * @Description: 编码类型
  */
 public enum EncodeType {
 
@@ -22,5 +21,4 @@ public enum EncodeType {
      * 16进制编码
      */
     HEX;
-
 }

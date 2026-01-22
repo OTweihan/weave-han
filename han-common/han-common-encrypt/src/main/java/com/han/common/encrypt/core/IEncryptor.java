@@ -4,10 +4,9 @@ import com.han.common.encrypt.enumd.AlgorithmType;
 import com.han.common.encrypt.enumd.EncodeType;
 
 /**
- * 加解者
- *
- * @author 老马
- * @version 4.6.0
+ * @Author: 老马
+ * @CreateTime: 2026-01-22
+ * @Description: 加解者
  */
 public interface IEncryptor {
 

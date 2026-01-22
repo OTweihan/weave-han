@@ -6,10 +6,9 @@ import com.han.common.encrypt.enumd.EncodeType;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
- * 加解密属性配置类
- *
- * @author 老马
- * @version 4.6.0
+ * @Author: 老马
+ * @CreateTime: 2026-01-22
+ * @Description: 加解密属性配置类
  */
 @Data
 @ConfigurationProperties(prefix = "mybatis-encryptor")
@@ -44,5 +43,4 @@ public class EncryptorProperties {
      * 编码方式，base64/hex
      */
     private EncodeType encode;
-
 }

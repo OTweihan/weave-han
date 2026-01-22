@@ -16,9 +16,9 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 
 /**
- * 解密请求参数工具类
- *
- * @author wdhcr
+ * @Author: wdhcr
+ * @CreateTime: 2026-01-22
+ * @Description: 解密请求参数工具类
  */
 public class DecryptRequestBodyWrapper extends HttpServletRequestWrapper {
 
@@ -44,7 +44,6 @@ public class DecryptRequestBodyWrapper extends HttpServletRequestWrapper {
         return new BufferedReader(new InputStreamReader(getInputStream()));
     }
 
-
     @Override
     public int getContentLength() {
         return body.length;
@@ -59,7 +58,6 @@ public class DecryptRequestBodyWrapper extends HttpServletRequestWrapper {
     public String getContentType() {
         return MediaType.APPLICATION_JSON_VALUE;
     }
-
 
     @Override
     public ServletInputStream getInputStream() {
@@ -87,7 +85,6 @@ public class DecryptRequestBodyWrapper extends HttpServletRequestWrapper {
 
             @Override
             public void setReadListener(ReadListener readListener) {
-
             }
         };
     }

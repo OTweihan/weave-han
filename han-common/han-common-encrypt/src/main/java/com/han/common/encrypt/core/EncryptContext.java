@@ -5,10 +5,9 @@ import com.han.common.encrypt.enumd.AlgorithmType;
 import com.han.common.encrypt.enumd.EncodeType;
 
 /**
- * 加密上下文 用于encryptor传递必要的参数。
- *
- * @author 老马
- * @version 4.6.0
+ * @Author: 老马
+ * @CreateTime: 2026-01-22
+ * @Description: 加密上下文 用于encryptor传递必要的参数。
  */
 @Data
 public class EncryptContext {
@@ -37,5 +36,4 @@ public class EncryptContext {
      * 编码方式，base64/hex
      */
     private EncodeType encode;
-
 }

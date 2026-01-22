@@ -6,6 +6,7 @@ import jakarta.servlet.WriteListener;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpServletResponseWrapper;
 import com.han.common.encrypt.utils.EncryptUtils;
+import lombok.NonNull;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -14,9 +15,9 @@ import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 
 /**
- * 加密响应参数包装类
- *
- * @author Michelle.Chung
+ * @Author: Michelle.Chung
+ * @CreateTime: 2026-01-22
+ * @Description: 加密响应参数包装类
  */
 public class EncryptResponseBodyWrapper extends HttpServletResponseWrapper {
 
@@ -68,7 +69,6 @@ public class EncryptResponseBodyWrapper extends HttpServletResponseWrapper {
      * @param publicKey       RSA公钥 (用于加密 AES 秘钥)
      * @param headerFlag      请求头标志
      * @return 加密内容
-     * @throws IOException
      */
     public String getEncryptContent(HttpServletResponse servletResponse, String publicKey, String headerFlag) throws IOException {
         // 生成秘钥
@@ -86,7 +86,6 @@ public class EncryptResponseBodyWrapper extends HttpServletResponseWrapper {
         servletResponse.setHeader(headerFlag, encryptPassword);
         servletResponse.setCharacterEncoding(StandardCharsets.UTF_8.toString());
 
-
         // 获取原始内容
         String originalBody = this.getContent();
         // 对内容进行加密
@@ -94,7 +93,7 @@ public class EncryptResponseBodyWrapper extends HttpServletResponseWrapper {
     }
 
     @Override
-    public ServletOutputStream getOutputStream() throws IOException {
+    public ServletOutputStream getOutputStream() {
         return new ServletOutputStream() {
             @Override
             public boolean isReady() {
@@ -103,24 +102,22 @@ public class EncryptResponseBodyWrapper extends HttpServletResponseWrapper {
 
             @Override
             public void setWriteListener(WriteListener writeListener) {
-
             }
 
             @Override
-            public void write(int b) throws IOException {
+            public void write(int b) {
                 byteArrayOutputStream.write(b);
             }
 
             @Override
-            public void write(byte[] b) throws IOException {
+            public void write(byte @NonNull [] b) throws IOException {
                 byteArrayOutputStream.write(b);
             }
 
             @Override
-            public void write(byte[] b, int off, int len) throws IOException {
+            public void write(byte @NonNull [] b, int off, int len) throws IOException {
                 byteArrayOutputStream.write(b, off, len);
             }
         };
     }
-
 }

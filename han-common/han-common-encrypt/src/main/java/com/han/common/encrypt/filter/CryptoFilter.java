@@ -11,6 +11,7 @@ import com.han.common.core.utils.StringUtils;
 import com.han.common.encrypt.annotation.ApiEncrypt;
 import com.han.common.encrypt.properties.ApiDecryptProperties;
 import org.springframework.http.HttpMethod;
+import org.springframework.util.AntPathMatcher;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 import org.springframework.web.servlet.HandlerExecutionChain;
@@ -18,14 +19,14 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandl
 
 import java.io.IOException;
 
-
 /**
- * Crypto 过滤器
- *
- * @author wdhcr
+ * @Author: wdhcr
+ * @CreateTime: 2026-01-22
+ * @Description: Crypto 过滤器
  */
 public class CryptoFilter implements Filter {
     private final ApiDecryptProperties properties;
+    private final AntPathMatcher pathMatcher = new AntPathMatcher();
 
     public CryptoFilter(ApiDecryptProperties properties) {
         this.properties = properties;
@@ -35,6 +36,17 @@ public class CryptoFilter implements Filter {
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         HttpServletRequest servletRequest = (HttpServletRequest) request;
         HttpServletResponse servletResponse = (HttpServletResponse) response;
+
+        // 检查是否在排除路径中
+        if (ObjectUtil.isNotEmpty(properties.getExcludePath())) {
+            for (String excludePath : properties.getExcludePath()) {
+                if (pathMatcher.match(excludePath, servletRequest.getRequestURI())) {
+                    chain.doFilter(request, response);
+                    return;
+                }
+            }
+        }
+
         // 获取加密注解
         ApiEncrypt apiEncrypt = this.getApiEncryptAnnotation(servletRequest);
         boolean responseFlag = apiEncrypt != null && apiEncrypt.response();
