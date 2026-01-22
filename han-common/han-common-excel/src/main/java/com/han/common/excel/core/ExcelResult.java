@@ -3,9 +3,9 @@ package com.han.common.excel.core;
 import java.util.List;
 
 /**
- * excel返回对象
- *
- * @author Lion Li
+ * @Author: Lion Li
+ * @CreateTime: 2026-01-22
+ * @Description: excel返回对象
  */
 public interface ExcelResult<T> {
 

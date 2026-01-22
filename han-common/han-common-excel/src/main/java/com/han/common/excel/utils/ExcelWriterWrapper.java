@@ -13,12 +13,9 @@ import java.util.Collection;
 import java.util.function.Supplier;
 
 /**
- * ExcelWriterWrapper Excel写出包装器
- * <br>
- * 提供了一组与 ExcelWriter 一一对应的写出方法，避免直接提供 ExcelWriter 而导致的一些不可控问题（比如提前关闭了IO流等）
- *
- * @author 秋辞未寒
- * @see ExcelWriter
+ * @Author: 秋辞未寒
+ * @CreateTime: 2026-01-22
+ * @Description: ExcelWriterWrapper Excel写出包装器
  */
 public record ExcelWriterWrapper<T>(ExcelWriter excelWriter) {
 
@@ -68,8 +65,6 @@ public record ExcelWriterWrapper<T>(ExcelWriter excelWriter) {
         return new ExcelWriterWrapper<>(excelWriter);
     }
 
-    // -------------------------------- sheet start
-
     public static WriteSheet buildSheet(Integer sheetNo, String sheetName) {
         return sheetBuilder(sheetNo, sheetName).build();
     }
@@ -102,10 +97,6 @@ public record ExcelWriterWrapper<T>(ExcelWriter excelWriter) {
         return FastExcel.writerSheet();
     }
 
-    // -------------------------------- sheet end
-
-    // -------------------------------- table start
-
     public static WriteTable buildTable(Integer tableNo) {
         return tableBuilder(tableNo).build();
     }
@@ -121,7 +112,4 @@ public record ExcelWriterWrapper<T>(ExcelWriter excelWriter) {
     public static ExcelWriterTableBuilder tableBuilder() {
         return FastExcel.writerTable();
     }
-
-    // -------------------------------- table end
-
 }

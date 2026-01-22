@@ -29,12 +29,9 @@ import java.lang.reflect.Field;
 import java.util.*;
 
 /**
- * <h1>Excel表格下拉选操作</h1>
- * 考虑到下拉选过多可能导致Excel打开缓慢的问题，只校验前1000行
- * <p>
- * 即只有前1000行的数据可以用下拉框，超出的自行通过限制数据量的形式，第二次输出
- *
- * @author Emil.Zhang
+ * @Author: Emil.Zhang
+ * @CreateTime: 2026-01-22
+ * @Description: Excel表格下拉选操作
  */
 @Slf4j
 public class ExcelDownHandler implements SheetWriteHandler {
@@ -44,28 +41,42 @@ public class ExcelDownHandler implements SheetWriteHandler {
      * 仅为了解析列英文，禁止修改
      */
     private static final String EXCEL_COLUMN_NAME = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
     /**
      * 单选数据Sheet名
      */
     private static final String OPTIONS_SHEET_NAME = "options";
+
     /**
      * 联动选择数据Sheet名的头
      */
     private static final String LINKED_OPTIONS_SHEET_NAME = "linkedOptions";
+
     /**
      * 下拉可选项
      */
     private final List<DropDownOptions> dropDownOptions;
+
+    /**
+     * 字典服务
+     */
     private final DictService dictService;
+
     /**
      * 当前单选进度
      */
     private int currentOptionsColumnIndex;
+
     /**
      * 当前联动选择进度
      */
     private int currentLinkedOptionsSheetIndex;
 
+    /**
+     * 构造方法
+     *
+     * @param options 下拉可选项
+     */
     public ExcelDownHandler(List<DropDownOptions> options) {
         this.dropDownOptions = options;
         this.currentOptionsColumnIndex = 0;
@@ -252,10 +263,10 @@ public class ExcelDownHandler implements SheetWriteHandler {
                     continue;
                 }
                 // 取第一个
-                String str = data.get(0);
+                String str = data.getFirst();
                 rowData.add(str);
                 // 通过移除的方式避免重复
-                data.remove(0);
+                data.removeFirst();
                 // 设置可以继续
                 flag = true;
             }

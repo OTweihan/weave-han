@@ -15,33 +15,37 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
- * <h1>Excel下拉可选项</h1>
- * 注意：为确保下拉框解析正确，传值务必使用createOptionValue()做为值的拼接
- *
- * @author Emil.Zhang
+ * @Author: Emil.Zhang
+ * @CreateTime: 2026-01-22
+ * @Description: Excel下拉可选项
  */
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 @SuppressWarnings("unused")
 public class DropDownOptions {
+
     /**
      * 一级下拉所在列index，从0开始算
      */
     private int index = 0;
+
     /**
      * 二级下拉所在的index，从0开始算，不能与一级相同
      */
     private int nextIndex = 0;
+
     /**
      * 一级下拉所包含的数据
      */
     private List<String> options = new ArrayList<>();
+
     /**
      * 二级下拉所包含的数据Map
      * <p>以每一个一级选项值为Key，每个一级选项对应的二级数据为Value</p>
      */
     private Map<String, List<String>> nextOptions = new HashMap<>();
+
     /**
      * 分隔符
      */
@@ -128,7 +132,7 @@ public class DropDownOptions {
         sonList.forEach(everySon -> {
             if (parentGroupByIdMap.containsKey(sonHowToGetParentIdFunction.apply(everySon))) {
                 // 找到对应的上级
-                T parentObj = parentGroupByIdMap.get(sonHowToGetParentIdFunction.apply(everySon)).get(0);
+                T parentObj = parentGroupByIdMap.get(sonHowToGetParentIdFunction.apply(everySon)).getFirst();
                 // 提取名称和ID作为Key
                 String key = howToBuildEveryOption.apply(parentObj);
                 // Key对应的Value

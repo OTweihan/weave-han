@@ -5,13 +5,13 @@ import com.han.common.core.utils.StringUtils;
 import java.lang.annotation.*;
 
 /**
- * 字典格式化
- *
- * @author Lion Li
+ * @Author: Lion Li
+ * @CreateTime: 2026-01-22
+ * @Description: 字典格式化
  */
+@Inherited
 @Target({ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
-@Inherited
 public @interface ExcelDictFormat {
 
     /**
@@ -28,5 +28,4 @@ public @interface ExcelDictFormat {
      * 分隔符，读取字符串组内容
      */
     String separator() default StringUtils.SEPARATOR;
-
 }

@@ -13,10 +13,10 @@ import lombok.extern.slf4j.Slf4j;
 import java.math.BigDecimal;
 
 /**
- * 大数值转换
+ * @Author: Lion Li
+ * @CreateTime: 2026-01-22
+ * @Description: 大数值转换
  * Excel 数值长度位15位 大于15位的数值转换位字符串
- *
- * @author Lion Li
  */
 @Slf4j
 public class ExcelBigNumberConvert implements Converter<Long> {
@@ -48,5 +48,4 @@ public class ExcelBigNumberConvert implements Converter<Long> {
         cellData.setType(CellDataTypeEnum.NUMBER);
         return cellData;
     }
-
 }

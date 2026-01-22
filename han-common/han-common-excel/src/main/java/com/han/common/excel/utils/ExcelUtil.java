@@ -29,9 +29,9 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 /**
- * Excel相关处理
- *
- * @author Lion Li
+ * @Author: Lion Li
+ * @CreateTime: 2026-01-22
+ * @Description: Excel相关处理
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ExcelUtil {
@@ -45,7 +45,6 @@ public class ExcelUtil {
     public static <T> List<T> importExcel(InputStream is, Class<T> clazz) {
         return FastExcel.read(is).head(clazz).autoCloseStream(false).sheet().doReadSync();
     }
-
 
     /**
      * 使用校验监听器 异步导入 同步返回
@@ -83,13 +82,7 @@ public class ExcelUtil {
      * @param response  响应体
      */
     public static <T> void exportExcel(List<T> list, String sheetName, Class<T> clazz, HttpServletResponse response) {
-        try {
-            resetResponse(sheetName, response);
-            ServletOutputStream os = response.getOutputStream();
-            exportExcel(list, sheetName, clazz, false, os, null);
-        } catch (IOException e) {
-            throw new RuntimeException("导出Excel异常");
-        }
+        exportExcel(list, sheetName, clazz, false, response, null);
     }
 
     /**
@@ -102,13 +95,7 @@ public class ExcelUtil {
      * @param options   级联下拉选
      */
     public static <T> void exportExcel(List<T> list, String sheetName, Class<T> clazz, HttpServletResponse response, List<DropDownOptions> options) {
-        try {
-            resetResponse(sheetName, response);
-            ServletOutputStream os = response.getOutputStream();
-            exportExcel(list, sheetName, clazz, false, os, options);
-        } catch (IOException e) {
-            throw new RuntimeException("导出Excel异常");
-        }
+        exportExcel(list, sheetName, clazz, false, response, options);
     }
 
     /**
@@ -121,13 +108,7 @@ public class ExcelUtil {
      * @param response  响应体
      */
     public static <T> void exportExcel(List<T> list, String sheetName, Class<T> clazz, boolean merge, HttpServletResponse response) {
-        try {
-            resetResponse(sheetName, response);
-            ServletOutputStream os = response.getOutputStream();
-            exportExcel(list, sheetName, clazz, merge, os, null);
-        } catch (IOException e) {
-            throw new RuntimeException("导出Excel异常");
-        }
+        exportExcel(list, sheetName, clazz, merge, response, null);
     }
 
     /**
@@ -280,7 +261,7 @@ public class ExcelUtil {
             .autoCloseStream(false)
             // 大数值自动转换 防止失真
             .registerConverter(new ExcelBigNumberConvert())
-            .registerWriteHandler(new DataWriteHandler(data.get(0).getClass()))
+            .registerWriteHandler(new DataWriteHandler(data.getFirst().getClass()))
             .build();
         WriteSheet writeSheet = FastExcel.writerSheet().build();
         FillConfig fillConfig = FillConfig.builder().forceNewRow(Boolean.TRUE).build();
@@ -426,7 +407,7 @@ public class ExcelUtil {
             if (StringUtils.containsAny(propertyValue, separator)) {
                 for (String value : propertyValue.split(separator)) {
                     if (itemArray[0].equals(value)) {
-                        propertyString.append(itemArray[1] + separator);
+                        propertyString.append(itemArray[1]).append(separator);
                         break;
                     }
                 }
@@ -455,7 +436,7 @@ public class ExcelUtil {
             if (StringUtils.containsAny(propertyValue, separator)) {
                 for (String value : propertyValue.split(separator)) {
                     if (itemArray[1].equals(value)) {
-                        propertyString.append(itemArray[0] + separator);
+                        propertyString.append(itemArray[0]).append(separator);
                         break;
                     }
                 }
@@ -474,5 +455,4 @@ public class ExcelUtil {
     public static String encodingFilename(String filename) {
         return IdUtil.fastSimpleUUID() + "_" + filename + ".xlsx";
     }
-
 }

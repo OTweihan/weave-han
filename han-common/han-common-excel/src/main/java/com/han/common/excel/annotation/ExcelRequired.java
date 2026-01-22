@@ -8,8 +8,9 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * 是否必填 此注解仅用于单表头 不支持多层级表头
- * @author guzhouyanyu
+ * @Author: guzhouyanyu
+ * @CreateTime: 2026-01-22
+ * @Description: 是否必填 此注解仅用于单表头 不支持多层级表头
  */
 @Target({ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)

@@ -19,9 +19,9 @@ import lombok.extern.slf4j.Slf4j;
 import java.lang.reflect.Field;
 
 /**
- * 字典格式化转换处理
- *
- * @author Lion Li
+ * @Author: Lion Li
+ * @CreateTime: 2026-01-22
+ * @Description: 字典格式化转换处理
  */
 @Slf4j
 public class ExcelDictConvert implements Converter<Object> {
@@ -36,6 +36,19 @@ public class ExcelDictConvert implements Converter<Object> {
         return null;
     }
 
+    private static volatile DictService dictService;
+
+    private DictService getDictService() {
+        if (dictService == null) {
+            synchronized (ExcelDictConvert.class) {
+                if (dictService == null) {
+                    dictService = SpringUtils.getBean(DictService.class);
+                }
+            }
+        }
+        return dictService;
+    }
+
     @Override
     public Object convertToJavaData(ReadCellData<?> cellData, ExcelContentProperty contentProperty, GlobalConfiguration globalConfiguration) {
         ExcelDictFormat anno = getAnnotation(contentProperty.getField());
@@ -45,7 +58,7 @@ public class ExcelDictConvert implements Converter<Object> {
         if (StringUtils.isBlank(type)) {
             value = ExcelUtil.reverseByExp(label, anno.readConverterExp(), anno.separator());
         } else {
-            value = SpringUtils.getBean(DictService.class).getDictValue(type, label, anno.separator());
+            value = getDictService().getDictValue(type, label, anno.separator());
         }
         return Convert.convert(contentProperty.getField().getType(), value);
     }
@@ -62,7 +75,7 @@ public class ExcelDictConvert implements Converter<Object> {
         if (StringUtils.isBlank(type)) {
             label = ExcelUtil.convertByExp(value, anno.readConverterExp(), anno.separator());
         } else {
-            label = SpringUtils.getBean(DictService.class).getDictLabel(type, value, anno.separator());
+            label = getDictService().getDictLabel(type, value, anno.separator());
         }
         return new WriteCellData<>(label);
     }

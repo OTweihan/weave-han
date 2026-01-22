@@ -3,13 +3,13 @@ package com.han.common.excel.annotation;
 import java.lang.annotation.*;
 
 /**
- * 枚举格式化
- *
- * @author Liang
+ * @Author: Liang
+ * @CreateTime: 2026-01-22
+ * @Description: 枚举格式化
  */
+@Inherited
 @Target({ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
-@Inherited
 public @interface ExcelEnumFormat {
 
     /**
@@ -26,5 +26,4 @@ public @interface ExcelEnumFormat {
      * 字典枚举类中对应的text属性名称，默认为text
      */
     String textField() default "text";
-
 }

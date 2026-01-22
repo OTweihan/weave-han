@@ -16,14 +16,17 @@ import lombok.extern.slf4j.Slf4j;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * 枚举格式化转换处理
- *
- * @author Liang
+ * @Author: Liang
+ * @CreateTime: 2026-01-22
+ * @Description: 枚举格式化转换处理
  */
 @Slf4j
 public class ExcelEnumConvert implements Converter<Object> {
+
+    private static final Map<String, Map<Object, String>> ENUM_CACHE = new ConcurrentHashMap<>();
 
     @Override
     public Class<Object> supportJavaTypeKey() {
@@ -71,14 +74,17 @@ public class ExcelEnumConvert implements Converter<Object> {
 
     private Map<Object, String> beforeConvert(ExcelContentProperty contentProperty) {
         ExcelEnumFormat anno = getAnnotation(contentProperty.getField());
-        Map<Object, String> enumValueMap = new HashMap<>();
-        Enum<?>[] enumConstants = anno.enumClass().getEnumConstants();
-        for (Enum<?> enumConstant : enumConstants) {
-            Object codeValue = ReflectUtils.invokeGetter(enumConstant, anno.codeField());
-            String textValue = ReflectUtils.invokeGetter(enumConstant, anno.textField());
-            enumValueMap.put(codeValue, textValue);
-        }
-        return enumValueMap;
+        String key = anno.enumClass().getName() + "_" + anno.codeField() + "_" + anno.textField();
+        return ENUM_CACHE.computeIfAbsent(key, k -> {
+            Map<Object, String> enumValueMap = new HashMap<>();
+            Enum<?>[] enumConstants = anno.enumClass().getEnumConstants();
+            for (Enum<?> enumConstant : enumConstants) {
+                Object codeValue = ReflectUtils.invokeGetter(enumConstant, anno.codeField());
+                String textValue = ReflectUtils.invokeGetter(enumConstant, anno.textField());
+                enumValueMap.put(codeValue, textValue);
+            }
+            return enumValueMap;
+        });
     }
 
     private ExcelEnumFormat getAnnotation(Field field) {

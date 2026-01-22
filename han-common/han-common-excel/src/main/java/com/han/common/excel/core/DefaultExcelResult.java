@@ -7,10 +7,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 默认excel返回对象
- *
- * @author Yjoioooo
- * @author Lion Li
+ * @Author: Lion Li, Yjoioooo
+ * @CreateTime: 2026-01-22
+ * @Description: 默认excel返回对象
  */
 public class DefaultExcelResult<T> implements ExcelResult<T> {
 

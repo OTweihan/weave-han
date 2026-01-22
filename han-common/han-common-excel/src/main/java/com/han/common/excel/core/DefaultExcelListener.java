@@ -17,10 +17,9 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Excel 导入监听
- *
- * @author Yjoioooo
- * @author Lion Li
+ * @Author: Lion Li, Yjoioooo
+ * @CreateTime: 2026-01-22
+ * @Description: 默认Excel监听器
  */
 @Slf4j
 @NoArgsConstructor
@@ -30,6 +29,11 @@ public class DefaultExcelListener<T> extends AnalysisEventListener<T> implements
      * 是否Validator检验，默认为是
      */
     private Boolean isValidate = Boolean.TRUE;
+
+    /**
+     * 是否忽略异常，默认为否
+     */
+    private Boolean ignoreError = Boolean.FALSE;
 
     /**
      * excel 表头数据
@@ -44,6 +48,12 @@ public class DefaultExcelListener<T> extends AnalysisEventListener<T> implements
     public DefaultExcelListener(boolean isValidate) {
         this.excelResult = new DefaultExcelResult<>();
         this.isValidate = isValidate;
+    }
+
+    public DefaultExcelListener(boolean isValidate, boolean ignoreError) {
+        this.excelResult = new DefaultExcelResult<>();
+        this.isValidate = isValidate;
+        this.ignoreError = ignoreError;
     }
 
     /**
@@ -74,7 +84,9 @@ public class DefaultExcelListener<T> extends AnalysisEventListener<T> implements
             }
         }
         excelResult.getErrorList().add(errMsg);
-        throw new ExcelAnalysisException(errMsg);
+        if (!ignoreError) {
+            throw new ExcelAnalysisException(errMsg);
+        }
     }
 
     @Override
@@ -100,5 +112,4 @@ public class DefaultExcelListener<T> extends AnalysisEventListener<T> implements
     public ExcelResult<T> getExcelResult() {
         return excelResult;
     }
-
 }
