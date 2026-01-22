@@ -8,9 +8,9 @@ import com.han.common.sse.core.SseEmitterManager;
 import com.han.common.sse.dto.SseMessageDto;
 
 /**
- * SSE工具类
- *
- * @author Lion Li
+ * @Author: Lion Li
+ * @CreateTime: 2026-01-22
+ * @Description: SSE 工具类
  */
 @Slf4j
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -19,10 +19,8 @@ public class SseMessageUtils {
     private final static Boolean SSE_ENABLE = SpringUtils.getProperty("sse.enabled", Boolean.class, true);
     private static SseEmitterManager MANAGER;
 
-    static {
-        if (isEnable() && MANAGER == null) {
-            MANAGER = SpringUtils.getBean(SseEmitterManager.class);
-        }
+    public static void setManager(SseEmitterManager manager) {
+        MANAGER = manager;
     }
 
     /**
@@ -80,5 +78,4 @@ public class SseMessageUtils {
     public static Boolean isEnable() {
         return SSE_ENABLE;
     }
-
 }

@@ -1,22 +1,22 @@
 package com.han.common.sse.listener;
 
 import cn.hutool.core.collection.CollUtil;
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import com.han.common.sse.core.SseEmitterManager;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.core.Ordered;
 
 /**
- * SSE 主题订阅监听器
- *
- * @author Lion Li
+ * @Author: Lion Li
+ * @CreateTime: 2026-01-22
+ * @Description: SSE 主题订阅监听器
  */
 @Slf4j
 public class SseTopicListener implements ApplicationRunner, Ordered {
 
-    @Autowired
+    @Resource
     private SseEmitterManager sseEmitterManager;
 
     /**
@@ -28,7 +28,7 @@ public class SseTopicListener implements ApplicationRunner, Ordered {
     @Override
     public void run(ApplicationArguments args) throws Exception {
         sseEmitterManager.subscribeMessage((message) -> {
-            log.info("SSE主题订阅收到消息session keys={} message={}", message.getUserIds(), message.getMessage());
+            log.info("SSE 主题订阅收到消息 session keys={} message={}", message.getUserIds(), message.getMessage());
             // 如果key不为空就按照key发消息 如果为空就群发
             if (CollUtil.isNotEmpty(message.getUserIds())) {
                 message.getUserIds().forEach(key -> {
@@ -38,7 +38,7 @@ public class SseTopicListener implements ApplicationRunner, Ordered {
                 sseEmitterManager.sendMessage(message.getMessage());
             }
         });
-        log.info("初始化SSE主题订阅监听器成功");
+        log.info("初始化 SSE 主题订阅监听器成功");
     }
 
     @Override

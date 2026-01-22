@@ -9,9 +9,9 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 
 /**
- * SSE 自动装配
- *
- * @author Lion Li
+ * @Author: Lion Li
+ * @CreateTime: 2026-01-22
+ * @Description: SSE 自动装配
  */
 @AutoConfiguration
 @ConditionalOnProperty(value = "sse.enabled", havingValue = "true")
@@ -19,8 +19,8 @@ import org.springframework.context.annotation.Bean;
 public class SseAutoConfiguration {
 
     @Bean
-    public SseEmitterManager sseEmitterManager() {
-        return new SseEmitterManager();
+    public SseEmitterManager sseEmitterManager(SseProperties sseProperties) {
+        return new SseEmitterManager(sseProperties);
     }
 
     @Bean
@@ -32,5 +32,4 @@ public class SseAutoConfiguration {
     public SseController sseController(SseEmitterManager sseEmitterManager) {
         return new SseController(sseEmitterManager);
     }
-
 }

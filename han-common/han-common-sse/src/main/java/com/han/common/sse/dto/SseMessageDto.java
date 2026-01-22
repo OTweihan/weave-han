@@ -7,9 +7,9 @@ import java.io.Serializable;
 import java.util.List;
 
 /**
- * 消息的dto
- *
- * @author zendwang
+ * @Author: zendwang
+ * @CreateTime: 2023-10-07
+ * @Description: 消息的dto
  */
 @Data
 public class SseMessageDto implements Serializable {

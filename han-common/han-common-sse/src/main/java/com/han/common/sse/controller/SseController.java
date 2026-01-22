@@ -14,14 +14,14 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 /**
- * SSE 控制器
- *
- * @author Lion Li
+ * @Author: Lion Li
+ * @CreateTime: 2026-01-22
+ * @Description: SSE 控制器
  */
 @RestController
 @ConditionalOnProperty(value = "sse.enabled", havingValue = "true")
 @RequiredArgsConstructor
-public class SseController implements DisposableBean {
+public class SseController {
 
     private final SseEmitterManager sseEmitterManager;
 
@@ -49,40 +49,4 @@ public class SseController implements DisposableBean {
         sseEmitterManager.disconnect(userId, tokenValue);
         return R.ok();
     }
-
-    // 以下为demo仅供参考 禁止使用 请在业务逻辑中使用工具发送而不是用接口发送
-//    /**
-//     * 向特定用户发送消息
-//     *
-//     * @param userId 目标用户的 ID
-//     * @param msg    要发送的消息内容
-//     */
-//    @GetMapping(value = "${sse.path}/send")
-//    public R<Void> send(Long userId, String msg) {
-//        SseMessageDto dto = new SseMessageDto();
-//        dto.setUserIds(List.of(userId));
-//        dto.setMessage(msg);
-//        sseEmitterManager.publishMessage(dto);
-//        return R.ok();
-//    }
-//
-//    /**
-//     * 向所有用户发送消息
-//     *
-//     * @param msg 要发送的消息内容
-//     */
-//    @GetMapping(value = "${sse.path}/sendAll")
-//    public R<Void> send(String msg) {
-//        sseEmitterManager.publishAll(msg);
-//        return R.ok();
-//    }
-
-    /**
-     * 清理资源。此方法目前不执行任何操作，但避免因未实现而导致错误
-     */
-    @Override
-    public void destroy() throws Exception {
-        // 销毁时不需要做什么 此方法避免无用操作报错
-    }
-
 }

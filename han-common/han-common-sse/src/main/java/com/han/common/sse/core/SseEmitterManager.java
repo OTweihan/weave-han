@@ -2,10 +2,15 @@ package com.han.common.sse.core;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.map.MapUtil;
+import com.han.common.sse.config.SseProperties;
+import com.han.common.sse.utils.SseMessageUtils;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import com.han.common.core.utils.SpringUtils;
 import com.han.common.redis.utils.RedisUtils;
 import com.han.common.sse.dto.SseMessageDto;
+import org.springframework.beans.factory.DisposableBean;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
@@ -18,12 +23,15 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 /**
- * 管理 Server-Sent Events (SSE) 连接
- *
- * @author Lion Li
+ * @Author: Lion Li
+ * @CreateTime: 2026-01-22
+ * @Description: 管理 Server-Sent Events (SSE) 连接
  */
 @Slf4j
-public class SseEmitterManager {
+@RequiredArgsConstructor
+public class SseEmitterManager implements InitializingBean, DisposableBean {
+
+    private final SseProperties sseProperties;
 
     /**
      * 订阅的频道
@@ -32,10 +40,18 @@ public class SseEmitterManager {
 
     private final static Map<Long, Map<String, SseEmitter>> USER_TOKEN_EMITTERS = new ConcurrentHashMap<>();
 
-    public SseEmitterManager() {
+    @Override
+    public void afterPropertiesSet() {
+        SseMessageUtils.setManager(this);
         // 定时执行 SSE 心跳检测
         SpringUtils.getBean(ScheduledExecutorService.class)
-            .scheduleWithFixedDelay(this::sseMonitor, 60L, 60L, TimeUnit.SECONDS);
+            .scheduleWithFixedDelay(this::sseMonitor, sseProperties.getHeartbeat(), sseProperties.getHeartbeat(), TimeUnit.MILLISECONDS);
+    }
+
+    @Override
+    public void destroy() {
+        USER_TOKEN_EMITTERS.values().forEach(map -> map.values().forEach(SseEmitter::complete));
+        USER_TOKEN_EMITTERS.clear();
     }
 
     /**
@@ -57,7 +73,7 @@ public class SseEmitterManager {
         }
 
         // 创建一个新的 SseEmitter 实例，超时时间设置为一天 避免连接之后直接关闭浏览器导致连接停滞
-        SseEmitter emitter = new SseEmitter(86400000L);
+        SseEmitter emitter = new SseEmitter(sseProperties.getTimeout());
 
         emitters.put(token, emitter);
 
@@ -67,17 +83,26 @@ public class SseEmitterManager {
             if (remove != null) {
                 remove.complete();
             }
+            if (emitters.isEmpty()) {
+                USER_TOKEN_EMITTERS.remove(userId);
+            }
         });
         emitter.onTimeout(() -> {
             SseEmitter remove = emitters.remove(token);
             if (remove != null) {
                 remove.complete();
             }
+            if (emitters.isEmpty()) {
+                USER_TOKEN_EMITTERS.remove(userId);
+            }
         });
         emitter.onError((e) -> {
             SseEmitter remove = emitters.remove(token);
             if (remove != null) {
                 remove.complete();
+            }
+            if (emitters.isEmpty()) {
+                USER_TOKEN_EMITTERS.remove(userId);
             }
         });
 
@@ -87,6 +112,9 @@ public class SseEmitterManager {
         } catch (IOException e) {
             // 如果发送消息失败，则从映射表中移除 emitter
             emitters.remove(token);
+            if (emitters.isEmpty()) {
+                USER_TOKEN_EMITTERS.remove(userId);
+            }
         }
         return emitter;
     }
