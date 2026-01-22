@@ -5,9 +5,9 @@ import com.han.common.translation.core.TranslationInterface;
 import java.lang.annotation.*;
 
 /**
- * 翻译类型注解 (标注到{@link TranslationInterface} 的实现类)
- *
- * @author Lion Li
+ * @Author: Lion Li
+ * @CreateTime: 2026-01-22
+ * @Description: 翻译类型注解 (标注到{@link TranslationInterface} 的实现类)
  */
 @Inherited
 @Retention(RetentionPolicy.RUNTIME)

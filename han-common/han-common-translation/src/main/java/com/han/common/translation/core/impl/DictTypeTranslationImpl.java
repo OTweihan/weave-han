@@ -6,12 +6,14 @@ import com.han.common.core.utils.StringUtils;
 import com.han.common.translation.annotation.TranslationType;
 import com.han.common.translation.constant.TransConstant;
 import com.han.common.translation.core.TranslationInterface;
+import org.springframework.stereotype.Component;
 
 /**
- * 字典翻译实现
- *
- * @author Lion Li
+ * @Author: Lion Li
+ * @CreateTime: 2026-01-22
+ * @Description: 字典翻译实现
  */
+@Component
 @AllArgsConstructor
 @TranslationType(type = TransConstant.DICT_TYPE_TO_LABEL)
 public class DictTypeTranslationImpl implements TranslationInterface<String> {

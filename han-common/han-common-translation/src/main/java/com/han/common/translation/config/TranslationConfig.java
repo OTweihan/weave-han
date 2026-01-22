@@ -16,9 +16,9 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 翻译模块配置类
- *
- * @author Lion Li
+ * @Author: Lion Li
+ * @CreateTime: 2026-01-22
+ * @Description: 翻译模块配置类
  */
 @Slf4j
 @AutoConfiguration

@@ -3,9 +3,9 @@ package com.han.common.translation.core;
 import com.han.common.translation.annotation.TranslationType;
 
 /**
- * 翻译接口 (实现类需标注 {@link TranslationType} 注解标明翻译类型)
- *
- * @author Lion Li
+ * @Author: Lion Li
+ * @CreateTime: 2026-01-22
+ * @Description: 翻译接口 (实现类需标注 {@link TranslationType} 注解标明翻译类型)
  */
 public interface TranslationInterface<T> {
 

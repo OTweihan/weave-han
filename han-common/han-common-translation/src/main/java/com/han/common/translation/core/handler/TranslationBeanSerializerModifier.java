@@ -8,9 +8,9 @@ import com.fasterxml.jackson.databind.ser.BeanSerializerModifier;
 import java.util.List;
 
 /**
- * Bean 序列化修改器 解决 Null 被单独处理问题
- *
- * @author Lion Li
+ * @Author: Lion Li
+ * @CreateTime: 2026-01-22
+ * @Description: Bean 序列化修改器 解决 Null 被单独处理问题
  */
 public class TranslationBeanSerializerModifier extends BeanSerializerModifier {
 

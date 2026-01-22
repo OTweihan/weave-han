@@ -5,12 +5,14 @@ import com.han.common.core.service.UserService;
 import com.han.common.translation.annotation.TranslationType;
 import com.han.common.translation.constant.TransConstant;
 import com.han.common.translation.core.TranslationInterface;
+import org.springframework.stereotype.Component;
 
 /**
- * 用户名称翻译实现
- *
- * @author may
+ * @Author: may
+ * @CreateTime: 2026-01-22
+ * @Description: 用户名称翻译实现
  */
+@Component
 @AllArgsConstructor
 @TranslationType(type = TransConstant.USER_ID_TO_NICKNAME)
 public class NicknameTranslationImpl implements TranslationInterface<String> {

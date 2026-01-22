@@ -5,12 +5,14 @@ import com.han.common.core.service.UserService;
 import com.han.common.translation.annotation.TranslationType;
 import com.han.common.translation.constant.TransConstant;
 import com.han.common.translation.core.TranslationInterface;
+import org.springframework.stereotype.Component;
 
 /**
- * 用户名翻译实现
- *
- * @author Lion Li
+ * @Author: Lion Li
+ * @CreateTime: 2026-01-22
+ * @Description: 用户名翻译实现
  */
+@Component
 @AllArgsConstructor
 @TranslationType(type = TransConstant.USER_ID_TO_NAME)
 public class UserNameTranslationImpl implements TranslationInterface<String> {

@@ -5,12 +5,14 @@ import com.han.common.core.service.OssService;
 import com.han.common.translation.annotation.TranslationType;
 import com.han.common.translation.constant.TransConstant;
 import com.han.common.translation.core.TranslationInterface;
+import org.springframework.stereotype.Component;
 
 /**
- * OSS翻译实现
- *
- * @author Lion Li
+ * @Author: Lion Li
+ * @CreateTime: 2026-01-22
+ * @Description: OSS 翻译实现
  */
+@Component
 @AllArgsConstructor
 @TranslationType(type = TransConstant.OSS_ID_TO_URL)
 public class OssUrlTranslationImpl implements TranslationInterface<String> {

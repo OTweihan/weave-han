@@ -1,9 +1,9 @@
 package com.han.common.translation.constant;
 
 /**
- * 翻译常量
- *
- * @author Lion Li
+ * @Author: Lion Li
+ * @CreateTime: 2026-01-22
+ * @Description: 翻译常量
  */
 public interface TransConstant {
 

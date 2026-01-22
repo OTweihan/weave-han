@@ -7,9 +7,9 @@ import com.han.common.translation.core.handler.TranslationHandler;
 import java.lang.annotation.*;
 
 /**
- * 通用翻译注解
- *
- * @author Lion Li
+ * @Author: Lion Li
+ * @CreateTime: 2026-01-22
+ * @Description: 通用翻译注解
  */
 @Inherited
 @Retention(RetentionPolicy.RUNTIME)
