@@ -9,9 +9,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
 
 /**
- * 短信配置类
- *
- * @author Feng
+ * @Author: Feng
+ * @CreateTime: 2026-01-22
+ * @Description: 短信配置类
  */
 @AutoConfiguration(after = {RedisAutoConfiguration.class})
 public class SmsAutoConfiguration {
@@ -29,5 +29,4 @@ public class SmsAutoConfiguration {
     public SmsExceptionHandler smsExceptionHandler() {
         return new SmsExceptionHandler();
     }
-
 }

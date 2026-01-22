@@ -9,9 +9,9 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 /**
- * SMS异常处理器
- *
- * @author AprilWind
+ * @Author: AprilWind
+ * @CreateTime: 2026-01-22
+ * @Description: SMS 异常处理器
  */
 @Slf4j
 @RestControllerAdvice
@@ -26,5 +26,4 @@ public class SmsExceptionHandler {
         log.error("请求地址'{}',发生sms短信异常.", requestURI, e);
         return R.fail(HttpStatus.HTTP_INTERNAL_ERROR, "短信发送失败，请稍后再试...");
     }
-
 }

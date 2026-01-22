@@ -7,12 +7,14 @@ import org.dromara.sms4j.api.dao.SmsDao;
 import java.time.Duration;
 
 /**
- * SmsDao缓存配置 (使用框架自带RedisUtils实现 协议统一)
- * <p>主要用于短信重试和拦截的缓存
- *
- * @author Feng
+ * @Author: Feng
+ * @CreateTime: 2026-01-22
+ * @Description: SmsDao 缓存配置 (使用框架自带RedisUtils实现 协议统一)
+ * <p>主要用于短信重试和拦截的缓存</p>
  */
 public class PlusSmsDao implements SmsDao {
+
+    private static final String SMS_REDIS_PREFIX = GlobalConstants.GLOBAL_REDIS_KEY + "sms:";
 
     /**
      * 存储
@@ -23,7 +25,7 @@ public class PlusSmsDao implements SmsDao {
      */
     @Override
     public void set(String key, Object value, long cacheTime) {
-        RedisUtils.setCacheObject(GlobalConstants.GLOBAL_REDIS_KEY + key, value, Duration.ofSeconds(cacheTime));
+        RedisUtils.setCacheObject(SMS_REDIS_PREFIX + key, value, Duration.ofSeconds(cacheTime));
     }
 
     /**
@@ -34,7 +36,7 @@ public class PlusSmsDao implements SmsDao {
      */
     @Override
     public void set(String key, Object value) {
-        RedisUtils.setCacheObject(GlobalConstants.GLOBAL_REDIS_KEY + key, value, true);
+        RedisUtils.setCacheObject(SMS_REDIS_PREFIX + key, value, true);
     }
 
     /**
@@ -45,20 +47,22 @@ public class PlusSmsDao implements SmsDao {
      */
     @Override
     public Object get(String key) {
-        return RedisUtils.getCacheObject(GlobalConstants.GLOBAL_REDIS_KEY + key);
+        return RedisUtils.getCacheObject(SMS_REDIS_PREFIX + key);
     }
 
     /**
      * remove
-     * <p> 根据key移除缓存
+     * 根据key移除缓存
      *
      * @param key 缓存键
-     * @return 被删除的value
-     * @author :Wind
+     * @return 被删除的 value
      */
     @Override
     public Object remove(String key) {
-        return RedisUtils.deleteObject(GlobalConstants.GLOBAL_REDIS_KEY + key);
+        String redisKey = SMS_REDIS_PREFIX + key;
+        Object value = RedisUtils.getCacheObject(redisKey);
+        RedisUtils.deleteObject(redisKey);
+        return value;
     }
 
     /**
@@ -66,7 +70,6 @@ public class PlusSmsDao implements SmsDao {
      */
     @Override
     public void clean() {
-        RedisUtils.deleteKeys(GlobalConstants.GLOBAL_REDIS_KEY + "sms:*");
+        RedisUtils.deleteKeys(SMS_REDIS_PREFIX + "*");
     }
-
 }
