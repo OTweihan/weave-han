@@ -31,52 +31,17 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * 自定义 openapi 处理器
- * 对源码功能进行修改 增强使用
+ * @Author: Lion Li
+ * @CreateTime: 2026-01-22
+ * @Description: 自定义 openapi 处理器
  */
 @Slf4j
-@SuppressWarnings("all")
 public class OpenApiHandler extends OpenAPIService {
-
-    /**
-     * The Basic error controller.
-     */
-    private static Class<?> basicErrorController;
 
     /**
      * The Security parser.
      */
     private final SecurityService securityParser;
-
-    /**
-     * The Mappings map.
-     */
-    private final Map<String, Object> mappingsMap = new HashMap<>();
-
-    /**
-     * The Springdoc tags.
-     */
-    private final Map<HandlerMethod, Tag> springdocTags = new HashMap<>();
-
-    /**
-     * The Open api builder customisers.
-     */
-    private final Optional<List<OpenApiBuilderCustomizer>> openApiBuilderCustomisers;
-
-    /**
-     * The server base URL customisers.
-     */
-    private final Optional<List<ServerBaseUrlCustomizer>> serverBaseUrlCustomizers;
-
-    /**
-     * The Spring doc config properties.
-     */
-    private final SpringDocConfigProperties springDocConfigProperties;
-
-    /**
-     * The Cached open api map.
-     */
-    private final Map<String, OpenAPI> cachedOpenAPI = new HashMap<>();
 
     /**
      * The Property resolver utils.
@@ -86,27 +51,7 @@ public class OpenApiHandler extends OpenAPIService {
     /**
      * The javadoc provider.
      */
-    private final Optional<JavadocProvider> javadocProvider;
-
-    /**
-     * The Context.
-     */
-    private ApplicationContext context;
-
-    /**
-     * The Open api.
-     */
-    private OpenAPI openAPI;
-
-    /**
-     * The Is servers present.
-     */
-    private boolean isServersPresent;
-
-    /**
-     * The Server base url.
-     */
-    private String serverBaseUrl;
+    private final JavadocProvider javadocProvider;
 
     /**
      * Instantiates a new Open api builder.
@@ -119,29 +64,19 @@ public class OpenApiHandler extends OpenAPIService {
      * @param serverBaseUrlCustomizers  the server base url customizers
      * @param javadocProvider           the javadoc provider
      */
-    public OpenApiHandler(Optional<OpenAPI> openAPI, SecurityService securityParser,
+    public OpenApiHandler(OpenAPI openAPI, SecurityService securityParser,
                           SpringDocConfigProperties springDocConfigProperties, PropertyResolverUtils propertyResolverUtils,
-                          Optional<List<OpenApiBuilderCustomizer>> openApiBuilderCustomizers,
-                          Optional<List<ServerBaseUrlCustomizer>> serverBaseUrlCustomizers,
-                          Optional<JavadocProvider> javadocProvider) {
-        super(openAPI, securityParser, springDocConfigProperties, propertyResolverUtils, openApiBuilderCustomizers, serverBaseUrlCustomizers, javadocProvider);
-        if (openAPI.isPresent()) {
-            this.openAPI = openAPI.get();
-            if (this.openAPI.getComponents() == null)
-                this.openAPI.setComponents(new Components());
-            if (this.openAPI.getPaths() == null)
-                this.openAPI.setPaths(new Paths());
-            if (!CollectionUtils.isEmpty(this.openAPI.getServers()))
-                this.isServersPresent = true;
-        }
+                          List<OpenApiBuilderCustomizer> openApiBuilderCustomizers,
+                          List<ServerBaseUrlCustomizer> serverBaseUrlCustomizers,
+                          JavadocProvider javadocProvider) {
+        super(Optional.ofNullable(openAPI), securityParser, springDocConfigProperties, propertyResolverUtils,
+            Optional.ofNullable(openApiBuilderCustomizers), Optional.ofNullable(serverBaseUrlCustomizers), Optional.ofNullable(javadocProvider));
         this.propertyResolverUtils = propertyResolverUtils;
         this.securityParser = securityParser;
-        this.springDocConfigProperties = springDocConfigProperties;
-        this.openApiBuilderCustomisers = openApiBuilderCustomizers;
-        this.serverBaseUrlCustomizers = serverBaseUrlCustomizers;
         this.javadocProvider = javadocProvider;
-        if (springDocConfigProperties.isUseFqn())
+        if (springDocConfigProperties.isUseFqn()) {
             TypeNameResolver.std.setUseFqn(true);
+        }
     }
 
     @Override
@@ -153,23 +88,16 @@ public class OpenApiHandler extends OpenAPIService {
         buildTagsFromMethod(handlerMethod.getMethod(), tags, tagsStr, locale);
         buildTagsFromClass(handlerMethod.getBeanType(), tags, tagsStr, locale);
 
-        if (!CollectionUtils.isEmpty(tagsStr))
+        if (!CollectionUtils.isEmpty(tagsStr)) {
             tagsStr = tagsStr.stream()
                 .map(str -> propertyResolverUtils.resolve(str, locale))
                 .collect(Collectors.toSet());
-
-        if (springdocTags.containsKey(handlerMethod)) {
-            io.swagger.v3.oas.models.tags.Tag tag = springdocTags.get(handlerMethod);
-            tagsStr.add(tag.getName());
-            if (openAPI.getTags() == null || !openAPI.getTags().contains(tag)) {
-                openAPI.addTagsItem(tag);
-            }
         }
 
         if (!CollectionUtils.isEmpty(tagsStr)) {
-            if (CollectionUtils.isEmpty(operation.getTags()))
+            if (CollectionUtils.isEmpty(operation.getTags())) {
                 operation.setTags(new ArrayList<>(tagsStr));
-            else {
+            } else {
                 Set<String> operationTagsSet = new HashSet<>(operation.getTags());
                 operationTagsSet.addAll(tagsStr);
                 operation.getTags().clear();
@@ -178,22 +106,20 @@ public class OpenApiHandler extends OpenAPIService {
         }
 
         if (isAutoTagClasses(operation)) {
-
-
-            if (javadocProvider.isPresent()) {
-                String description = javadocProvider.get().getClassJavadoc(handlerMethod.getBeanType());
+            if (javadocProvider != null) {
+                String description = javadocProvider.getClassJavadoc(handlerMethod.getBeanType());
                 if (StringUtils.isNotBlank(description)) {
-                    io.swagger.v3.oas.models.tags.Tag tag = new io.swagger.v3.oas.models.tags.Tag();
+                    Tag tag = new Tag();
 
                     // 自定义部分 修改使用java注释当tag名
                     List<String> list = IoUtil.readLines(new StringReader(description), new ArrayList<>());
-                    // tag.setName(tagAutoName);
-                    tag.setName(list.get(0));
-                    operation.addTagsItem(list.get(0));
-
-                    tag.setDescription(description);
-                    if (openAPI.getTags() == null || !openAPI.getTags().contains(tag)) {
-                        openAPI.addTagsItem(tag);
+                    if (!CollectionUtils.isEmpty(list)) {
+                        tag.setName(list.getFirst());
+                        operation.addTagsItem(list.getFirst());
+                        tag.setDescription(description);
+                        if (openAPI.getTags() == null || !openAPI.getTags().contains(tag)) {
+                            openAPI.addTagsItem(tag);
+                        }
                     }
                 }
             } else {
@@ -204,9 +130,10 @@ public class OpenApiHandler extends OpenAPIService {
 
         if (!CollectionUtils.isEmpty(tags)) {
             // Existing tags
-            List<io.swagger.v3.oas.models.tags.Tag> openApiTags = openAPI.getTags();
-            if (!CollectionUtils.isEmpty(openApiTags))
+            List<Tag> openApiTags = openAPI.getTags();
+            if (!CollectionUtils.isEmpty(openApiTags)) {
                 tags.addAll(openApiTags);
+            }
             openAPI.setTags(new ArrayList<>(tags));
         }
 
@@ -214,10 +141,11 @@ public class OpenApiHandler extends OpenAPIService {
         io.swagger.v3.oas.annotations.security.SecurityRequirement[] securityRequirements = securityParser
             .getSecurityRequirements(handlerMethod);
         if (securityRequirements != null) {
-            if (securityRequirements.length == 0)
+            if (securityRequirements.length == 0) {
                 operation.setSecurity(Collections.emptyList());
-            else
+            } else {
                 securityParser.buildSecurityRequirement(securityRequirements, operation);
+            }
         }
 
         return operation;
@@ -244,10 +172,10 @@ public class OpenApiHandler extends OpenAPIService {
             tagsSet.forEach(tag -> {
                 tag.name(propertyResolverUtils.resolve(tag.getName(), locale));
                 tag.description(propertyResolverUtils.resolve(tag.getDescription(), locale));
-                if (tags.stream().noneMatch(t -> t.getName().equals(tag.getName())))
+                if (tags.stream().noneMatch(t -> t.getName().equals(tag.getName()))) {
                     tags.add(tag);
+                }
             });
         });
     }
-
 }

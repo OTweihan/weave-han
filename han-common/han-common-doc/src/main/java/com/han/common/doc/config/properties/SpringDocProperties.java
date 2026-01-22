@@ -13,9 +13,9 @@ import org.springframework.boot.context.properties.NestedConfigurationProperty;
 import java.util.List;
 
 /**
- * swagger 配置属性
- *
- * @author Lion Li
+ * @Author: Lion Li
+ * @CreateTime: 2026-01-22
+ * @Description: Swagger 配置属性
  */
 @Data
 @ConfigurationProperties(prefix = "springdoc")
@@ -88,7 +88,5 @@ public class SpringDocProperties {
          * 版本
          */
         private String version = null;
-
     }
-
 }

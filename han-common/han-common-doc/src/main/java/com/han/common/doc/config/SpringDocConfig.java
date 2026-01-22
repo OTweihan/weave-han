@@ -30,9 +30,9 @@ import java.util.Optional;
 import java.util.Set;
 
 /**
- * 接口文档配置
- *
- * @author Lion Li
+ * @Author: Lion Li
+ * @CreateTime: 2026-01-22
+ * @Description: 接口文档配置
  */
 @RequiredArgsConstructor
 @AutoConfiguration(before = SpringDocConfiguration.class)
@@ -87,7 +87,8 @@ public class SpringDocConfig {
                                          SpringDocConfigProperties springDocConfigProperties, PropertyResolverUtils propertyResolverUtils,
                                          Optional<List<OpenApiBuilderCustomizer>> openApiBuilderCustomisers,
                                          Optional<List<ServerBaseUrlCustomizer>> serverBaseUrlCustomisers, Optional<JavadocProvider> javadocProvider) {
-        return new OpenApiHandler(openAPI, securityParser, springDocConfigProperties, propertyResolverUtils, openApiBuilderCustomisers, serverBaseUrlCustomisers, javadocProvider);
+        return new OpenApiHandler(openAPI.orElse(null), securityParser, springDocConfigProperties, propertyResolverUtils,
+            openApiBuilderCustomisers.orElse(null), serverBaseUrlCustomisers.orElse(null), javadocProvider.orElse(null));
     }
 
     /**
@@ -96,12 +97,7 @@ public class SpringDocConfig {
     @Bean
     public OpenApiCustomizer openApiCustomizer() {
         String contextPath = serverProperties.getServlet().getContextPath();
-        String finalContextPath;
-        if (StringUtils.isBlank(contextPath) || "/".equals(contextPath)) {
-            finalContextPath = "";
-        } else {
-            finalContextPath = contextPath;
-        }
+        String finalContextPath = (StringUtils.isBlank(contextPath) || "/".equals(contextPath)) ? "" : contextPath;
         // 对所有路径增加前置上下文路径
         return openApi -> {
             Paths oldPaths = openApi.getPaths();
@@ -125,5 +121,4 @@ public class SpringDocConfig {
             super();
         }
     }
-
 }
