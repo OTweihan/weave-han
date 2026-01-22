@@ -18,10 +18,10 @@ import org.springframework.scheduling.annotation.EnableScheduling;
  * @CreateTime: 2024-05-17
  * @Description: 启动定时任务
  */
-@EnableSnailJob
-@EnableScheduling
 @AutoConfiguration
 @ConditionalOnProperty(prefix = "snail-job", name = "enabled", havingValue = "true")
+@EnableSnailJob
+@EnableScheduling
 public class SnailJobConfig {
 
     @EventListener(SnailClientStartingEvent.class)
