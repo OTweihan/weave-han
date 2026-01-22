@@ -11,18 +11,10 @@ import com.han.common.core.constant.SystemConstants;
 import com.han.common.core.domain.model.LoginUser;
 import com.han.common.core.enums.UserType;
 
-
 /**
- * 登录鉴权助手
- * <p>
- * user_type 为 用户类型 同一个用户表 可以有多种用户类型 例如 pc,app
- * deivce 为 设备类型 同一个用户类型 可以有 多种设备类型 例如 web,ios
- * 可以组成 用户类型与设备类型多对多的 权限灵活控制
- * <p>
- * 多用户体系 针对 多种用户类型 但权限控制不一致
- * 可以组成 多用户类型表与多设备类型 分别控制权限
- *
- * @author Lion Li
+ * @Author: Lion Li
+ * @CreateTime: 2026-01-22
+ * @Description: 登录鉴权助手
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class LoginHelper {
@@ -30,7 +22,7 @@ public class LoginHelper {
     public static final String LOGIN_USER_KEY = "loginUser";
     public static final String USER_KEY = "userId";
     public static final String USER_NAME_KEY = "userName";
-    public static final String CLIENT_KEY = "clientid";
+    public static final String CLIENT_KEY = "clientId";
 
     /**
      * 登录系统 基于 设备类型
@@ -53,11 +45,15 @@ public class LoginHelper {
      */
     @SuppressWarnings("unchecked cast")
     public static <T extends LoginUser> T getLoginUser() {
-        SaSession session = StpUtil.getTokenSession();
-        if (ObjectUtil.isNull(session)) {
+        try {
+            SaSession session = StpUtil.getTokenSession();
+            if (ObjectUtil.isNull(session)) {
+                return null;
+            }
+            return (T) session.get(LOGIN_USER_KEY);
+        } catch (Exception e) {
             return null;
         }
-        return (T) session.get(LOGIN_USER_KEY);
     }
 
     /**

@@ -13,13 +13,9 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Sa-Token持久层接口(使用框架自带RedisUtils实现 协议统一)
- * <p>
- * 采用 caffeine + redis 多级缓存 优化并发查询效率
- * <p>
- * SaTokenDaoBySessionFollowObject 是 SaTokenDao 子集简化了session方法处理
- *
- * @author Lion Li
+ * @Author: Lion Li
+ * @CreateTime: 2026-01-22
+ * @Description: Sa-Token 持久层接口(使用框架自带RedisUtils实现 协议统一)
  */
 public class PlusSaTokenDao implements SaTokenDaoBySessionFollowObject {
 
@@ -96,7 +92,6 @@ public class PlusSaTokenDao implements SaTokenDaoBySessionFollowObject {
     public void updateTimeout(String key, long timeout) {
         RedisUtils.expire(key, Duration.ofSeconds(timeout));
     }
-
 
     /**
      * 获取Object，如无返空
@@ -183,10 +178,10 @@ public class PlusSaTokenDao implements SaTokenDaoBySessionFollowObject {
     @Override
     public List<String> searchData(String prefix, String keyword, int start, int size, boolean sortType) {
         String keyStr = prefix + "*" + keyword + "*";
-        return (List<String>) CAFFEINE.get(keyStr, k -> {
+        List<String> allKeys = (List<String>) CAFFEINE.get(keyStr, k -> {
             Collection<String> keys = RedisUtils.keys(keyStr);
-            List<String> list = new ArrayList<>(keys);
-            return SaFoxUtil.searchList(list, start, size, sortType);
+            return new ArrayList<>(keys);
         });
+        return SaFoxUtil.searchList(allKeys, start, size, sortType);
     }
 }

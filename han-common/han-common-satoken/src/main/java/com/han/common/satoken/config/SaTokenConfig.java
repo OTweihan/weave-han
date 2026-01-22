@@ -13,9 +13,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.PropertySource;
 
 /**
- * sa-token 配置
- *
- * @author Lion Li
+ * @Author: Lion Li
+ * @CreateTime: 2026-01-22
+ * @Description: Sa-Token 配置
  */
 @AutoConfiguration
 @PropertySource(value = "classpath:common-satoken.yml", factory = YmlPropertySourceFactory.class)
@@ -50,5 +50,4 @@ public class SaTokenConfig {
     public SaTokenExceptionHandler saTokenExceptionHandler() {
         return new SaTokenExceptionHandler();
     }
-
 }

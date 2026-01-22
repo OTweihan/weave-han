@@ -15,9 +15,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * sa-token 权限管理实现类
- *
- * @author Lion Li
+ * @Author: Lion Li
+ * @CreateTime: 2026-01-22
+ * @Description: Sa-Token 权限管理实现类
  */
 public class SaPermissionImpl implements StpInterface {
 
@@ -75,12 +75,16 @@ public class SaPermissionImpl implements StpInterface {
         }
     }
 
-    private PermissionService getPermissionService() {
-        try {
-            return SpringUtils.getBean(PermissionService.class);
-        } catch (Exception e) {
-            return null;
-        }
-    }
+    private PermissionService permissionService;
 
+    private PermissionService getPermissionService() {
+        if (permissionService == null) {
+            try {
+                permissionService = SpringUtils.getBean(PermissionService.class);
+            } catch (Exception e) {
+                return null;
+            }
+        }
+        return permissionService;
+    }
 }
