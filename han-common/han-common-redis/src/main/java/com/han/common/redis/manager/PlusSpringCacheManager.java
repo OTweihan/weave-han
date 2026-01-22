@@ -1,21 +1,8 @@
-/**
- * Copyright (c) 2013-2021 Nikita Koksharov
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package com.han.common.redis.manager;
 
 import com.han.common.redis.utils.RedisUtils;
+import lombok.Setter;
+import org.jspecify.annotations.NonNull;
 import org.redisson.api.RMap;
 import org.redisson.api.RMapCache;
 import org.redisson.spring.cache.CacheConfig;
@@ -33,65 +20,27 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 /**
- * A {@link org.springframework.cache.CacheManager} implementation
- * backed by Redisson instance.
- * <p>
- * 修改 RedissonSpringCacheManager 源码
- * 重写 cacheName 处理方法 支持多参数
- *
- * @author Nikita Koksharov
- *
+ * @Author: Nikita Koksharov
+ * @CreateTime: 2022-7-14
+ * @Description: Redis 缓存管理器
  */
 @SuppressWarnings("unchecked")
 public class PlusSpringCacheManager implements CacheManager {
 
     private boolean dynamic = true;
 
+    @Setter
     private boolean allowNullValues = true;
 
+    @Setter
     private boolean transactionAware = true;
 
     Map<String, CacheConfig> configMap = new ConcurrentHashMap<>();
     ConcurrentMap<String, Cache> instanceMap = new ConcurrentHashMap<>();
 
-    /**
-     * Creates CacheManager supplied by Redisson instance
-     */
     public PlusSpringCacheManager() {
     }
 
-
-    /**
-     * Defines possibility of storing {@code null} values.
-     * <p>
-     * Default is <code>true</code>
-     *
-     * @param allowNullValues stores if <code>true</code>
-     */
-    public void setAllowNullValues(boolean allowNullValues) {
-        this.allowNullValues = allowNullValues;
-    }
-
-    /**
-     * Defines if cache aware of Spring-managed transactions.
-     * If {@code true} put/evict operations are executed only for successful transaction in after-commit phase.
-     * <p>
-     * Default is <code>false</code>
-     *
-     * @param transactionAware cache is transaction aware if <code>true</code>
-     */
-    public void setTransactionAware(boolean transactionAware) {
-        this.transactionAware = transactionAware;
-    }
-
-    /**
-     * Defines 'fixed' cache names.
-     * A new cache instance will not be created in dynamic for non-defined names.
-     * <p>
-     * `null` parameter setups dynamic mode
-     *
-     * @param names of caches
-     */
     public void setCacheNames(Collection<String> names) {
         if (names != null) {
             for (String name : names) {
@@ -103,11 +52,6 @@ public class PlusSpringCacheManager implements CacheManager {
         }
     }
 
-    /**
-     * Set cache config mapped by cache name
-     *
-     * @param config object
-     */
     public void setConfig(Map<String, ? extends CacheConfig> config) {
         this.configMap = (Map<String, CacheConfig>) config;
     }
@@ -117,7 +61,7 @@ public class PlusSpringCacheManager implements CacheManager {
     }
 
     @Override
-    public Cache getCache(String name) {
+    public Cache getCache(@NonNull String name) {
         // 重写 cacheName 支持多参数
         String[] array = StringUtils.delimitedListToStringArray(name, "#");
         name = array[0];
@@ -184,9 +128,7 @@ public class PlusSpringCacheManager implements CacheManager {
     }
 
     @Override
-    public Collection<String> getCacheNames() {
+    public @NonNull Collection<String> getCacheNames() {
         return Collections.unmodifiableSet(configMap.keySet());
     }
-
-
 }

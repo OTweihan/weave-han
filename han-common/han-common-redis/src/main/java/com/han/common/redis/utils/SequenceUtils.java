@@ -16,10 +16,9 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAccessor;
 
 /**
- * 发号器工具类
- *
- * @author 秋辞未寒
- * @date 2024-12-10
+ * @Author: 秋辞未寒
+ * @CreateTime: 2024-12-10
+ * @Description: Redisson 配置属性
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class SequenceUtils {

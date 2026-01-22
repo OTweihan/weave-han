@@ -1,14 +1,15 @@
 package com.han.common.redis.manager;
 
 import com.han.common.core.utils.SpringUtils;
+import org.jspecify.annotations.NonNull;
 import org.springframework.cache.Cache;
 
 import java.util.concurrent.Callable;
 
 /**
- * Cache 装饰器模式(用于扩展 Caffeine 一级缓存)
- *
- * @author LionLi
+ * @Author: Lion Li
+ * @CreateTime: 2026-01-22
+ * @Description: Cache 装饰器模式(用于扩展 Caffeine 一级缓存)
  */
 public class CaffeineCacheDecorator implements Cache {
 
@@ -24,12 +25,12 @@ public class CaffeineCacheDecorator implements Cache {
     }
 
     @Override
-    public String getName() {
+    public @NonNull String getName() {
         return name;
     }
 
     @Override
-    public Object getNativeCache() {
+    public @NonNull Object getNativeCache() {
         return cache.getNativeCache();
     }
 
@@ -38,37 +39,37 @@ public class CaffeineCacheDecorator implements Cache {
     }
 
     @Override
-    public ValueWrapper get(Object key) {
+    public ValueWrapper get(@NonNull Object key) {
         Object o = CAFFEINE.get(getUniqueKey(key), k -> cache.get(key));
         return (ValueWrapper) o;
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T> T get(Object key, Class<T> type) {
+    public <T> T get(@NonNull Object key, Class<T> type) {
         Object o = CAFFEINE.get(getUniqueKey(key), k -> cache.get(key, type));
         return (T) o;
     }
 
     @Override
-    public void put(Object key, Object value) {
+    public void put(@NonNull Object key, Object value) {
         CAFFEINE.invalidate(getUniqueKey(key));
         cache.put(key, value);
     }
 
     @Override
-    public ValueWrapper putIfAbsent(Object key, Object value) {
+    public ValueWrapper putIfAbsent(@NonNull Object key, Object value) {
         CAFFEINE.invalidate(getUniqueKey(key));
         return cache.putIfAbsent(key, value);
     }
 
     @Override
-    public void evict(Object key) {
+    public void evict(@NonNull Object key) {
         evictIfPresent(key);
     }
 
     @Override
-    public boolean evictIfPresent(Object key) {
+    public boolean evictIfPresent(@NonNull Object key) {
         boolean b = cache.evictIfPresent(key);
         if (b) {
             CAFFEINE.invalidate(getUniqueKey(key));
@@ -89,9 +90,8 @@ public class CaffeineCacheDecorator implements Cache {
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T> T get(Object key, Callable<T> valueLoader) {
+    public <T> T get(@NonNull Object key, @NonNull Callable<T> valueLoader) {
         Object o = CAFFEINE.get(getUniqueKey(key), k -> cache.get(key, valueLoader));
         return (T) o;
     }
-
 }

@@ -9,9 +9,9 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 /**
- * Redis异常处理器
- *
- * @author AprilWind
+ * @Author: AprilWind
+ * @CreateTime: 2026-01-22
+ * @Description: Redis 异常处理器
  */
 @Slf4j
 @RestControllerAdvice
@@ -26,5 +26,4 @@ public class RedisExceptionHandler {
         log.error("获取锁失败了'{}',发生Lock4j异常.", requestURI, e);
         return R.fail(HttpStatus.HTTP_UNAVAILABLE, "业务处理中，请稍后再试...");
     }
-
 }

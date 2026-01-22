@@ -11,9 +11,9 @@ import org.springframework.context.annotation.Bean;
 import java.util.concurrent.TimeUnit;
 
 /**
- * 缓存配置
- *
- * @author Lion Li
+ * @Author: Lion Li
+ * @CreateTime: 2026-01-22
+ * @Description: 缓存配置
  */
 @AutoConfiguration
 @EnableCaching
@@ -41,5 +41,4 @@ public class CacheConfig {
     public CacheManager cacheManager() {
         return new PlusSpringCacheManager();
     }
-
 }

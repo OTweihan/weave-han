@@ -6,10 +6,12 @@ import com.han.common.core.utils.SpringUtils;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 
+import java.util.Objects;
+
 /**
- * 缓存操作工具类
- *
- * @author Michelle.Chung
+ * @Author: Michelle.Chung
+ * @CreateTime: 2026-01-22
+ * @Description: 缓存操作工具类
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @SuppressWarnings(value = {"unchecked"})
@@ -24,7 +26,7 @@ public class CacheUtils {
      * @param key        缓存key
      */
     public static <T> T get(String cacheNames, Object key) {
-        Cache.ValueWrapper wrapper = CACHE_MANAGER.getCache(cacheNames).get(key);
+        Cache.ValueWrapper wrapper = Objects.requireNonNull(CACHE_MANAGER.getCache(cacheNames)).get(key);
         return wrapper != null ? (T) wrapper.get() : null;
     }
 
@@ -36,7 +38,7 @@ public class CacheUtils {
      * @param value      缓存值
      */
     public static void put(String cacheNames, Object key, Object value) {
-        CACHE_MANAGER.getCache(cacheNames).put(key, value);
+        Objects.requireNonNull(CACHE_MANAGER.getCache(cacheNames)).put(key, value);
     }
 
     /**
@@ -46,7 +48,7 @@ public class CacheUtils {
      * @param key        缓存key
      */
     public static void evict(String cacheNames, Object key) {
-        CACHE_MANAGER.getCache(cacheNames).evict(key);
+        Objects.requireNonNull(CACHE_MANAGER.getCache(cacheNames)).evict(key);
     }
 
     /**
@@ -55,7 +57,6 @@ public class CacheUtils {
      * @param cacheNames 缓存组名称
      */
     public static void clear(String cacheNames) {
-        CACHE_MANAGER.getCache(cacheNames).clear();
+        Objects.requireNonNull(CACHE_MANAGER.getCache(cacheNames)).clear();
     }
-
 }

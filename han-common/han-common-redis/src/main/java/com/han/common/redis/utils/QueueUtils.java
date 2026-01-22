@@ -10,20 +10,14 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
 /**
- * 分布式队列工具
- * 轻量级队列 重量级数据量 请使用 MQ
- * 要求 redis 5.X 以上
- *
- * @author Lion Li
- * @version 3.6.0 新增
- * @deprecated redisson 新版本已经将队列功能标记删除 一些技术问题无法解决 建议搭建MQ使用
+ * @Author: Lion Li
+ * @CreateTime: 2026-01-22
+ * @Description: 分布式队列工具
  */
-@Deprecated
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class QueueUtils {
 
     private static final RedissonClient CLIENT = SpringUtils.getBean(RedissonClient.class);
-
 
     /**
      * 获取客户端实例
@@ -235,5 +229,4 @@ public class QueueUtils {
         }
         queue.subscribeOnElements(consumer);
     }
-
 }

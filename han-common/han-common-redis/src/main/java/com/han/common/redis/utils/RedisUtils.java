@@ -16,10 +16,9 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * redis 工具类
- *
- * @author Lion Li
- * @version 3.1.0 新增
+ * @Author: Lion Li
+ * @CreateTime: 2026-01-22
+ * @Description: redis 工具类
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @SuppressWarnings(value = {"unchecked", "rawtypes"})
@@ -407,7 +406,7 @@ public class RedisUtils {
      */
     public static <T> Map<String, T> getCacheMap(final String key) {
         RMap<String, T> rMap = CLIENT.getMap(key);
-        return rMap.getAll(rMap.keySet());
+        return rMap.readAllMap();
     }
 
     /**
@@ -418,7 +417,7 @@ public class RedisUtils {
      */
     public static <T> Set<String> getCacheMapKeySet(final String key) {
         RMap<String, T> rMap = CLIENT.getMap(key);
-        return rMap.keySet();
+        return rMap.readAllKeySet();
     }
 
     /**
@@ -526,6 +525,17 @@ public class RedisUtils {
     public static long decrAtomicValue(String key) {
         RAtomicLong atomic = CLIENT.getAtomicLong(key);
         return atomic.decrementAndGet();
+    }
+
+    /**
+     * 扫描缓存的基本对象
+     *
+     * @param pattern  字符串前缀
+     * @param consumer 消费函数
+     */
+    public static void scan(String pattern, Consumer<String> consumer) {
+        KeysScanOptions options = KeysScanOptions.defaults().pattern(pattern).chunkSize(1000);
+        CLIENT.getKeys().getKeysStream(options).forEach(consumer);
     }
 
     /**

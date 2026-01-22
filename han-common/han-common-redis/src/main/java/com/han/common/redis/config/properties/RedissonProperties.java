@@ -7,9 +7,9 @@ import org.redisson.config.SubscriptionMode;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
- * Redisson 配置属性
- *
- * @author Lion Li
+ * @Author: Lion Li
+ * @CreateTime: 2026-01-22
+ * @Description: Redisson 配置属性
  */
 @Data
 @ConfigurationProperties(prefix = "redisson")
@@ -73,7 +73,6 @@ public class RedissonProperties {
          * 发布和订阅连接池大小
          */
         private int subscriptionConnectionPoolSize;
-
     }
 
     @Data
@@ -129,7 +128,5 @@ public class RedissonProperties {
          * 订阅模式
          */
         private SubscriptionMode subscriptionMode;
-
     }
-
 }

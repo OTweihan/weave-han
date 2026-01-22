@@ -4,11 +4,9 @@ import com.han.common.core.utils.StringUtils;
 import org.redisson.api.NameMapper;
 
 /**
- * redis缓存key前缀处理
- *
- * @author ye
- * @date 2022/7/14 17:44
- * @since 4.3.0
+ * @Author: ye
+ * @CreateTime: 2022-7-14
+ * @Description: redis 缓存 key 前缀处理
  */
 public class KeyPrefixHandler implements NameMapper {
 
@@ -46,5 +44,4 @@ public class KeyPrefixHandler implements NameMapper {
         }
         return name;
     }
-
 }

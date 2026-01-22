@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import com.han.common.core.utils.SpringUtils;
 import com.han.common.redis.config.properties.RedissonProperties;
@@ -17,7 +18,6 @@ import org.redisson.client.codec.StringCodec;
 import org.redisson.codec.CompositeCodec;
 import org.redisson.codec.TypedJsonJacksonCodec;
 import org.redisson.spring.starter.RedissonAutoConfigurationCustomizer;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -28,16 +28,16 @@ import java.time.format.DateTimeFormatter;
 import java.util.TimeZone;
 
 /**
- * redis配置
- *
- * @author Lion Li
+ * @Author: Lion Li
+ * @CreateTime: 2026-01-22
+ * @Description: redis 配置
  */
 @Slf4j
 @AutoConfiguration
 @EnableConfigurationProperties(RedissonProperties.class)
 public class RedisConfig {
 
-    @Autowired
+    @Resource
     private RedissonProperties redissonProperties;
 
     @Bean
@@ -109,51 +109,50 @@ public class RedisConfig {
         return new RedisExceptionHandler();
     }
 
-    /**
-     * redis集群配置 yml
-     *
-     * --- # redis 集群配置(单机与集群只能开启一个另一个需要注释掉)
-     * spring.data:
-     *   redis:
-     *     cluster:
-     *       nodes:
-     *         - 192.168.0.100:6379
-     *         - 192.168.0.101:6379
-     *         - 192.168.0.102:6379
-     *     # 密码
-     *     password:
-     *     # 连接超时时间
-     *     timeout: 10s
-     *     # 是否开启ssl
-     *     ssl.enabled: false
-     *
-     * redisson:
-     *   # 线程池数量
-     *   threads: 16
-     *   # Netty线程池数量
-     *   nettyThreads: 32
-     *   # 集群配置
-     *   clusterServersConfig:
-     *     # 客户端名称
-     *     clientName: ${ruoyi.name}
-     *     # master最小空闲连接数
-     *     masterConnectionMinimumIdleSize: 32
-     *     # master连接池大小
-     *     masterConnectionPoolSize: 64
-     *     # slave最小空闲连接数
-     *     slaveConnectionMinimumIdleSize: 32
-     *     # slave连接池大小
-     *     slaveConnectionPoolSize: 64
-     *     # 连接空闲超时，单位：毫秒
-     *     idleConnectionTimeout: 10000
-     *     # 命令等待超时，单位：毫秒
-     *     timeout: 3000
-     *     # 发布和订阅连接池大小
-     *     subscriptionConnectionPoolSize: 50
-     *     # 读取模式
-     *     readMode: "SLAVE"
-     *     # 订阅模式
-     *     subscriptionMode: "MASTER"
-     */
+    /*
+      redis集群配置 yml
 
+      --- # redis 集群配置(单机与集群只能开启一个另一个需要注释掉)
+      spring.data:
+        redis:
+          cluster:
+            nodes:
+              - 192.168.0.100:6379
+              - 192.168.0.101:6379
+              - 192.168.0.102:6379
+          # 密码
+          password:
+          # 连接超时时间
+          timeout: 10s
+          # 是否开启ssl
+          ssl.enabled: false
+
+      redisson:
+        # 线程池数量
+        threads: 16
+        # Netty线程池数量
+        nettyThreads: 32
+        # 集群配置
+        clusterServersConfig:
+          # 客户端名称
+          clientName: ${ruoyi.name}
+          # master最小空闲连接数
+          masterConnectionMinimumIdleSize: 32
+          # master连接池大小
+          masterConnectionPoolSize: 64
+          # slave最小空闲连接数
+          slaveConnectionMinimumIdleSize: 32
+          # slave连接池大小
+          slaveConnectionPoolSize: 64
+          # 连接空闲超时，单位：毫秒
+          idleConnectionTimeout: 10000
+          # 命令等待超时，单位：毫秒
+          timeout: 3000
+          # 发布和订阅连接池大小
+          subscriptionConnectionPoolSize: 50
+          # 读取模式
+          readMode: "SLAVE"
+          # 订阅模式
+          subscriptionMode: "MASTER"
+     */
 }
