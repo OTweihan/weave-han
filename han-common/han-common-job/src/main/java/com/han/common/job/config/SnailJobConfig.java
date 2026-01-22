@@ -6,6 +6,7 @@ import ch.qos.logback.classic.spi.ILoggingEvent;
 import com.aizuda.snailjob.client.common.appender.SnailLogbackAppender;
 import com.aizuda.snailjob.client.common.event.SnailClientStartingEvent;
 import com.aizuda.snailjob.client.starter.EnableSnailJob;
+import org.slf4j.ILoggerFactory;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -13,25 +14,33 @@ import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 /**
- * 启动定时任务
- *
- * @author opensnail
- * @date 2024-05-17
+ * @Author: opensnail
+ * @CreateTime: 2024-05-17
+ * @Description: 启动定时任务
  */
+@EnableSnailJob
+@EnableScheduling
 @AutoConfiguration
 @ConditionalOnProperty(prefix = "snail-job", name = "enabled", havingValue = "true")
-@EnableScheduling
-@EnableSnailJob
 public class SnailJobConfig {
 
     @EventListener(SnailClientStartingEvent.class)
     public void onStarting(SnailClientStartingEvent event) {
-        LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
+        ILoggerFactory loggerFactory = LoggerFactory.getILoggerFactory();
+        if (!(loggerFactory instanceof LoggerContext lc)) {
+            return;
+        }
+        Logger rootLogger = lc.getLogger(Logger.ROOT_LOGGER_NAME);
+
+        // 防止重复添加
+        if (rootLogger.getAppender("snail_log_appender") != null) {
+            return;
+        }
+
         SnailLogbackAppender<ILoggingEvent> ca = new SnailLogbackAppender<>();
         ca.setName("snail_log_appender");
+        ca.setContext(lc);
         ca.start();
-        Logger rootLogger = lc.getLogger(Logger.ROOT_LOGGER_NAME);
         rootLogger.addAppender(ca);
     }
-
 }
