@@ -4,9 +4,9 @@ import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
- * JavaMail 配置属性
- *
- * @author Michelle.Chung
+ * @Author: Michelle.Chung
+ * @CreateTime: 2026-01-22
+ * @Description: JavaMail 配置属性
  */
 @Data
 @ConfigurationProperties(prefix = "mail")

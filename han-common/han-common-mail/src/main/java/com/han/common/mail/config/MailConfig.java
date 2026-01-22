@@ -8,9 +8,9 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 
 /**
- * JavaMail 配置
- *
- * @author Michelle.Chung
+ * @Author: Michelle.Chung
+ * @CreateTime: 2026-01-22
+ * @Description: JavaMail 配置
  */
 @AutoConfiguration
 @EnableConfigurationProperties(MailProperties.class)
@@ -33,5 +33,4 @@ public class MailConfig {
         account.setConnectionTimeout(mailProperties.getConnectionTimeout());
         return account;
     }
-
 }
