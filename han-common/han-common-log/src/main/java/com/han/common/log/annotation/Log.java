@@ -6,14 +6,15 @@ import com.han.common.log.enums.OperatorType;
 import java.lang.annotation.*;
 
 /**
- * 自定义操作日志记录注解
- *
- * @author ruoyi
+ * @Author: ruoyi
+ * @CreateTime: 2026-01-22
+ * @Description: 自定义操作日志记录注解
  */
 @Target({ElementType.PARAMETER, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface Log {
+
     /**
      * 模块
      */
@@ -39,10 +40,8 @@ public @interface Log {
      */
     boolean isSaveResponseData() default true;
 
-
     /**
      * 排除指定的请求参数
      */
     String[] excludeParamNames() default {};
-
 }

@@ -1,11 +1,12 @@
 package com.han.common.log.enums;
 
 /**
- * 操作人类别
- *
- * @author ruoyi
+ * @Author: ruoyi
+ * @CreateTime: 2026-01-22
+ * @Description: 操作人类别
  */
 public enum OperatorType {
+
     /**
      * 其它
      */

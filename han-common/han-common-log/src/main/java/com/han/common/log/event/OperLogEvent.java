@@ -7,11 +7,10 @@ import java.io.Serializable;
 import java.util.Date;
 
 /**
- * 操作日志事件
- *
- * @author Lion Li
+ * @Author: Lion Li
+ * @CreateTime: 2026-01-22
+ * @Description: 操作日志事件
  */
-
 @Data
 public class OperLogEvent implements Serializable {
 

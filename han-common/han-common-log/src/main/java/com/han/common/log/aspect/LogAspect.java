@@ -30,9 +30,9 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.*;
 
 /**
- * 操作日志记录处理
- *
- * @author Lion Li
+ * @Author: Lion Li
+ * @CreateTime: 2026-01-22
+ * @Description: 操作日志记录处理
  */
 @Slf4j
 @Aspect
@@ -43,7 +43,6 @@ public class LogAspect {
      * 排除敏感属性字段
      */
     public static final String[] EXCLUDE_PROPERTIES = { "password", "oldPassword", "newPassword", "confirmPassword" };
-
 
     /**
      * 计时 key
@@ -83,16 +82,21 @@ public class LogAspect {
 
     protected void handleLog(final JoinPoint joinPoint, Log controllerLog, final Exception e, Object jsonResult) {
         try {
-
-            // *========数据库日志=========*//
+            // 数据库日志
             OperLogEvent operLog = new OperLogEvent();
             operLog.setStatus(BusinessStatus.SUCCESS.ordinal());
             // 请求的地址
             String ip = ServletUtils.getClientIP();
             operLog.setOperIp(ip);
-            operLog.setOperUrl(StringUtils.substring(ServletUtils.getRequest().getRequestURI(), 0, 255));
+            HttpServletRequest request = ServletUtils.getRequest();
+            if (ObjectUtil.isNotNull(request)) {
+                operLog.setOperUrl(StringUtils.substring(request.getRequestURI(), 0, 255));
+                operLog.setRequestMethod(request.getMethod());
+            }
             LoginUser loginUser = LoginHelper.getLoginUser();
-            operLog.setOperName(loginUser.getUsername());
+            if (ObjectUtil.isNotNull(loginUser)) {
+                operLog.setOperName(loginUser.getUsername());
+            }
 
             if (e != null) {
                 operLog.setStatus(BusinessStatus.FAIL.ordinal());
@@ -102,8 +106,6 @@ public class LogAspect {
             String className = joinPoint.getTarget().getClass().getName();
             String methodName = joinPoint.getSignature().getName();
             operLog.setMethod(className + "." + methodName + "()");
-            // 设置请求方式
-            operLog.setRequestMethod(ServletUtils.getRequest().getMethod());
             // 处理设置注解上的参数
             getControllerMethodDescription(joinPoint, controllerLog, operLog, jsonResult);
             // 设置消耗时间
@@ -125,9 +127,8 @@ public class LogAspect {
      *
      * @param log     日志
      * @param operLog 操作日志
-     * @throws Exception
      */
-    public void getControllerMethodDescription(JoinPoint joinPoint, Log log, OperLogEvent operLog, Object jsonResult) throws Exception {
+    public void getControllerMethodDescription(JoinPoint joinPoint, Log log, OperLogEvent operLog, Object jsonResult) {
         // 设置action动作
         operLog.setBusinessType(log.businessType().ordinal());
         // 设置标题
@@ -149,10 +150,13 @@ public class LogAspect {
      * 获取请求的参数，放到log中
      *
      * @param operLog 操作日志
-     * @throws Exception 异常
      */
-    private void setRequestValue(JoinPoint joinPoint, OperLogEvent operLog, String[] excludeParamNames) throws Exception {
-        Map<String, String> paramsMap = ServletUtils.getParamMap(ServletUtils.getRequest());
+    private void setRequestValue(JoinPoint joinPoint, OperLogEvent operLog, String[] excludeParamNames) {
+        HttpServletRequest request = ServletUtils.getRequest();
+        if (ObjectUtil.isNull(request)) {
+            return;
+        }
+        Map<String, String> paramsMap = ServletUtils.getParamMap(request);
         String requestMethod = operLog.getRequestMethod();
         if (MapUtil.isEmpty(paramsMap) && StringUtils.equalsAny(requestMethod, HttpMethod.PUT.name(), HttpMethod.POST.name(), HttpMethod.DELETE.name())) {
             String params = argsArrayToString(joinPoint.getArgs(), excludeParamNames);
@@ -175,7 +179,7 @@ public class LogAspect {
         String[] exclude = ArrayUtil.addAll(excludeParamNames, EXCLUDE_PROPERTIES);
         for (Object o : paramsArray) {
             if (ObjectUtil.isNotNull(o) && !isFilterObject(o)) {
-                String str = "";
+                String str;
                 if (o instanceof List<?> list) {
                     List<Dict> list1 = new ArrayList<>();
                     for (Object obj : list) {
@@ -215,12 +219,16 @@ public class LogAspect {
         } else if (Collection.class.isAssignableFrom(clazz)) {
             Collection collection = (Collection) o;
             for (Object value : collection) {
-                return value instanceof MultipartFile;
+                if (value instanceof MultipartFile) {
+                    return true;
+                }
             }
         } else if (Map.class.isAssignableFrom(clazz)) {
             Map map = (Map) o;
             for (Object value : map.values()) {
-                return value instanceof MultipartFile;
+                if (value instanceof MultipartFile) {
+                    return true;
+                }
             }
         }
         return o instanceof MultipartFile || o instanceof HttpServletRequest || o instanceof HttpServletResponse

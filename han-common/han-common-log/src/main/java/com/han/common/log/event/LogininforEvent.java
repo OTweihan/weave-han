@@ -7,11 +7,10 @@ import java.io.Serial;
 import java.io.Serializable;
 
 /**
- * 登录事件
- *
- * @author Lion Li
+ * @Author: Lion Li
+ * @CreateTime: 2026-01-22
+ * @Description: 登录事件
  */
-
 @Data
 public class LogininforEvent implements Serializable {
 
@@ -42,5 +41,4 @@ public class LogininforEvent implements Serializable {
      * 其他参数
      */
     private Object[] args;
-
 }
