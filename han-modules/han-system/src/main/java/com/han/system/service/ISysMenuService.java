@@ -141,7 +141,6 @@ public interface ISysMenuService {
      * 批量删除菜单管理信息
      *
      * @param menuIds 菜单ID串
-     * @return 结果
      */
     void deleteMenuById(List<Long> menuIds);
 

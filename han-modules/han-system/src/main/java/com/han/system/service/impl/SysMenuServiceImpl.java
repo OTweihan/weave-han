@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import lombok.RequiredArgsConstructor;
 import com.han.common.core.constant.Constants;
 import com.han.common.core.constant.SystemConstants;
+import com.han.common.core.exception.ServiceException;
 import com.han.common.core.utils.MapstructUtils;
 import com.han.common.core.utils.StreamUtils;
 import com.han.common.core.utils.StringUtils;
@@ -120,7 +121,7 @@ public class SysMenuServiceImpl implements ISysMenuService {
                     .orderByAsc(SysMenu::getParentId)
                     .orderByAsc(SysMenu::getOrderNum));
         }
-        return getChildPerms(menus, Constants.TOP_PARENT_ID);
+        return getChildPerms(menus);
     }
 
     /**
@@ -265,6 +266,11 @@ public class SysMenuServiceImpl implements ISysMenuService {
      */
     @Override
     public int insertMenu(SysMenuBo bo) {
+        if (checkMenuNameUnique(bo)) {
+            throw new ServiceException("新增菜单'" + bo.getMenuName() + "'失败，菜单名称已存在");
+        } else if (SystemConstants.YES_FRAME.equals(bo.getIsFrame()) && !StringUtils.ishttp(bo.getPath())) {
+            throw new ServiceException("新增菜单'" + bo.getMenuName() + "'失败，地址必须以http(s)://开头");
+        }
         SysMenu menu = MapstructUtils.convert(bo, SysMenu.class);
         return baseMapper.insert(menu);
     }
@@ -277,6 +283,13 @@ public class SysMenuServiceImpl implements ISysMenuService {
      */
     @Override
     public int updateMenu(SysMenuBo bo) {
+        if (checkMenuNameUnique(bo)) {
+            throw new ServiceException("修改菜单'" + bo.getMenuName() + "'失败，菜单名称已存在");
+        } else if (SystemConstants.YES_FRAME.equals(bo.getIsFrame()) && !StringUtils.ishttp(bo.getPath())) {
+            throw new ServiceException("修改菜单'" + bo.getMenuName() + "'失败，地址必须以http(s)://开头");
+        } else if (bo.getMenuId().equals(bo.getParentId())) {
+            throw new ServiceException("修改菜单'" + bo.getMenuName() + "'失败，上级菜单不能选择自己");
+        }
         SysMenu menu = MapstructUtils.convert(bo, SysMenu.class);
         return baseMapper.updateById(menu);
     }
@@ -289,6 +302,12 @@ public class SysMenuServiceImpl implements ISysMenuService {
      */
     @Override
     public int deleteMenuById(Long menuId) {
+        if (hasChildByMenuId(menuId)) {
+            throw new ServiceException("存在子菜单,不允许删除");
+        }
+        if (checkMenuExistRole(menuId)) {
+            throw new ServiceException("菜单已分配,不允许删除");
+        }
         return baseMapper.deleteById(menuId);
     }
 
@@ -296,11 +315,13 @@ public class SysMenuServiceImpl implements ISysMenuService {
      * 批量删除菜单管理信息
      *
      * @param menuIds 菜单ID串
-     * @return 结果
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void deleteMenuById(List<Long> menuIds) {
+        if (hasChildByMenuId(menuIds)) {
+            throw new ServiceException("存在子菜单,不允许删除");
+        }
         baseMapper.deleteByIds(menuIds);
         roleMenuMapper.deleteByMenuIds(menuIds);
     }
@@ -313,25 +334,23 @@ public class SysMenuServiceImpl implements ISysMenuService {
      */
     @Override
     public boolean checkMenuNameUnique(SysMenuBo menu) {
-        boolean exist = baseMapper.exists(new LambdaQueryWrapper<SysMenu>()
+        return baseMapper.exists(new LambdaQueryWrapper<SysMenu>()
             .eq(SysMenu::getMenuName, menu.getMenuName())
             .eq(SysMenu::getParentId, menu.getParentId())
             .ne(ObjectUtil.isNotNull(menu.getMenuId()), SysMenu::getMenuId, menu.getMenuId()));
-        return !exist;
     }
 
     /**
      * 根据父节点的ID获取所有子节点
      *
-     * @param list     分类表
-     * @param parentId 传入的父节点ID
+     * @param list 分类表
      * @return String
      */
-    private List<SysMenu> getChildPerms(List<SysMenu> list, Long parentId) {
+    private List<SysMenu> getChildPerms(List<SysMenu> list) {
         List<SysMenu> returnList = new ArrayList<>();
         for (SysMenu t : list) {
             // 一、根据传入的某个父节点ID,遍历该父节点的所有子节点
-            if (t.getParentId().equals(parentId)) {
+            if (t.getParentId().equals(Constants.TOP_PARENT_ID)) {
                 recursionFn(list, t);
                 returnList.add(t);
             }
