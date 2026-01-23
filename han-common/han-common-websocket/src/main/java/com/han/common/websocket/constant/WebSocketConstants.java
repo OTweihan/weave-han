@@ -1,9 +1,9 @@
 package com.han.common.websocket.constant;
 
 /**
- * websocket的常量配置
- *
- * @author zendwang
+ * @Author: zendwang
+ * @CreateTime: 2026-01-23
+ * @Description: WebSocket 的常量配置
  */
 public interface WebSocketConstants {
 

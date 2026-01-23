@@ -10,9 +10,9 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * WebSocketSession 用于保存当前所有在线的会话信息
- *
- * @author zendwang
+ * @Author: zendwang
+ * @CreateTime: 2026-01-23
+ * @Description: WebSocketSession 用于保存当前所有在线的会话信息
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class WebSocketSessionHolder {
@@ -37,9 +37,11 @@ public class WebSocketSessionHolder {
      */
     public static void removeSession(Long sessionKey) {
         WebSocketSession session = USER_SESSION_MAP.remove(sessionKey);
-        try {
-            session.close(CloseStatus.BAD_DATA);
-        } catch (Exception ignored) {
+        if (session != null) {
+            try {
+                session.close(CloseStatus.BAD_DATA);
+            } catch (Exception ignored) {
+            }
         }
     }
 
@@ -49,7 +51,7 @@ public class WebSocketSessionHolder {
      * @param sessionKey 要获取的会话键
      * @return 与给定会话键对应的WebSocket会话，如果不存在则返回null
      */
-    public static WebSocketSession getSessions(Long sessionKey) {
+    public static WebSocketSession getSession(Long sessionKey) {
         return USER_SESSION_MAP.get(sessionKey);
     }
 

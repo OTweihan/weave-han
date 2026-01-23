@@ -7,19 +7,21 @@ import com.han.common.core.domain.model.LoginUser;
 import com.han.common.core.utils.ServletUtils;
 import com.han.common.core.utils.StringUtils;
 import com.han.common.satoken.utils.LoginHelper;
+import org.jspecify.annotations.NonNull;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.server.HandshakeInterceptor;
 
 import java.util.Map;
+import java.util.Objects;
 
 import static com.han.common.websocket.constant.WebSocketConstants.LOGIN_USER_KEY;
 
 /**
- * WebSocket握手请求的拦截器
- *
- * @author zendwang
+ * @Author: zendwang
+ * @CreateTime: 2026-01-23
+ * @Description: WebSocket 握手请求的拦截器
  */
 @Slf4j
 public class PlusWebSocketInterceptor implements HandshakeInterceptor {
@@ -34,14 +36,15 @@ public class PlusWebSocketInterceptor implements HandshakeInterceptor {
      * @return 如果允许握手继续进行，则返回true；否则返回false
      */
     @Override
-    public boolean beforeHandshake(ServerHttpRequest request, ServerHttpResponse response, WebSocketHandler wsHandler, Map<String, Object> attributes) {
+    public boolean beforeHandshake(@NonNull ServerHttpRequest request, @NonNull ServerHttpResponse response,
+                                   @NonNull WebSocketHandler wsHandler, @NonNull Map<String, Object> attributes) {
         try {
             // 检查是否登录 是否有token
             LoginUser loginUser = LoginHelper.getLoginUser();
 
             // 解决 ws 不走 mvc 拦截器问题(cloud 版本不受影响)
-            // 检查 header 与 param 里的 clientid 与 token 里的是否一致
-            String headerCid = ServletUtils.getRequest().getHeader(LoginHelper.CLIENT_KEY);
+            // 检查 header 与 param 里的 clientId 与 token 里的是否一致
+            String headerCid = Objects.requireNonNull(ServletUtils.getRequest()).getHeader(LoginHelper.CLIENT_KEY);
             String paramCid = ServletUtils.getParameter(LoginHelper.CLIENT_KEY);
             String clientId = StpUtil.getExtra(LoginHelper.CLIENT_KEY).toString();
             if (!StringUtils.equalsAny(clientId, headerCid, paramCid)) {
@@ -68,8 +71,8 @@ public class PlusWebSocketInterceptor implements HandshakeInterceptor {
      * @param exception 握手过程中可能出现的异常
      */
     @Override
-    public void afterHandshake(ServerHttpRequest request, ServerHttpResponse response, WebSocketHandler wsHandler, Exception exception) {
+    public void afterHandshake(@NonNull ServerHttpRequest request, @NonNull ServerHttpResponse response,
+                               @NonNull WebSocketHandler wsHandler, Exception exception) {
         // 在这个方法中可以执行一些握手成功后的后续处理逻辑，比如记录日志或者其他操作
     }
-
 }

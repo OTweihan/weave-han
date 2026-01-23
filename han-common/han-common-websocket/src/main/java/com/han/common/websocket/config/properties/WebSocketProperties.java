@@ -4,14 +4,17 @@ import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
- * WebSocket 配置项
- *
- * @author zendwang
+ * @Author: zendwang
+ * @CreateTime: 2026-01-23
+ * @Description: WebSocket 配置项
  */
-@ConfigurationProperties("websocket")
 @Data
+@ConfigurationProperties("websocket")
 public class WebSocketProperties {
 
+    /**
+     * 是否启用 WebSocket
+     */
     private Boolean enabled;
 
     /**

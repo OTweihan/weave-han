@@ -20,10 +20,11 @@ import java.util.function.Consumer;
 import static com.han.common.websocket.constant.WebSocketConstants.WEB_SOCKET_TOPIC;
 
 /**
- * 工具类
- *
- * @author zendwang
+ * @Author: zendwang
+ * @CreateTime: 2026-01-23
+ * @Description: WebSocket 工具类
  */
+
 @Slf4j
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class WebSocketUtils {
@@ -35,7 +36,7 @@ public class WebSocketUtils {
      * @param message    要发送的消息内容
      */
     public static void sendMessage(Long sessionKey, String message) {
-        WebSocketSession session = WebSocketSessionHolder.getSessions(sessionKey);
+        WebSocketSession session = WebSocketSessionHolder.getSession(sessionKey);
         sendMessage(session, message);
     }
 
@@ -68,10 +69,9 @@ public class WebSocketUtils {
             WebSocketMessageDto broadcastMessage = new WebSocketMessageDto();
             broadcastMessage.setMessage(webSocketMessage.getMessage());
             broadcastMessage.setSessionKeys(unsentSessionKeys);
-            RedisUtils.publish(WEB_SOCKET_TOPIC, broadcastMessage, consumer -> {
+            RedisUtils.publish(WEB_SOCKET_TOPIC, broadcastMessage, consumer ->
                 log.info(" WebSocket发送主题订阅消息topic:{} session keys:{} message:{}",
-                    WEB_SOCKET_TOPIC, unsentSessionKeys, webSocketMessage.getMessage());
-            });
+                WEB_SOCKET_TOPIC, unsentSessionKeys, webSocketMessage.getMessage()));
         }
     }
 
@@ -83,9 +83,8 @@ public class WebSocketUtils {
     public static void publishAll(String message) {
         WebSocketMessageDto broadcastMessage = new WebSocketMessageDto();
         broadcastMessage.setMessage(message);
-        RedisUtils.publish(WEB_SOCKET_TOPIC, broadcastMessage, consumer -> {
-            log.info("WebSocket发送主题订阅消息topic:{} message:{}", WEB_SOCKET_TOPIC, message);
-        });
+        RedisUtils.publish(WEB_SOCKET_TOPIC, broadcastMessage, consumer ->
+            log.info("WebSocket发送主题订阅消息topic:{} message:{}", WEB_SOCKET_TOPIC, message));
     }
 
     /**
@@ -113,7 +112,7 @@ public class WebSocketUtils {
      * @param session WebSocket会话
      * @param message 要发送的WebSocket消息对象
      */
-    private synchronized static void sendMessage(WebSocketSession session, WebSocketMessage<?> message) {
+    private static void sendMessage(WebSocketSession session, WebSocketMessage<?> message) {
         if (session == null || !session.isOpen()) {
             log.warn("[send] session会话已经关闭");
         } else {

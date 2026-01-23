@@ -6,8 +6,10 @@ import com.han.common.core.domain.model.LoginUser;
 import com.han.common.websocket.dto.WebSocketMessageDto;
 import com.han.common.websocket.holder.WebSocketSessionHolder;
 import com.han.common.websocket.utils.WebSocketUtils;
+import org.jspecify.annotations.NonNull;
 import org.springframework.web.socket.*;
 import org.springframework.web.socket.handler.AbstractWebSocketHandler;
+import org.springframework.web.socket.handler.ConcurrentWebSocketSessionDecorator;
 
 import java.io.IOException;
 import java.util.List;
@@ -15,9 +17,9 @@ import java.util.List;
 import static com.han.common.websocket.constant.WebSocketConstants.LOGIN_USER_KEY;
 
 /**
- * WebSocketHandler 实现类
- *
- * @author zendwang
+ * @Author: zendwang
+ * @CreateTime: 2026-01-23
+ * @Description: WebSocketHandler 实现类
  */
 @Slf4j
 public class PlusWebSocketHandler extends AbstractWebSocketHandler {
@@ -33,7 +35,9 @@ public class PlusWebSocketHandler extends AbstractWebSocketHandler {
             log.info("[connect] invalid token received. sessionId: {}", session.getId());
             return;
         }
-        WebSocketSessionHolder.addSession(loginUser.getUserId(), session);
+        // 使用 ConcurrentWebSocketSessionDecorator 包装 session，保证并发发送安全
+        WebSocketSession wrappedSession = new ConcurrentWebSocketSessionDecorator(session, 1000, 1024 * 1024);
+        WebSocketSessionHolder.addSession(loginUser.getUserId(), wrappedSession);
         log.info("[connect] sessionId: {},userId:{},userType:{}", session.getId(), loginUser.getUserId(), loginUser.getUserType());
     }
 
@@ -42,10 +46,9 @@ public class PlusWebSocketHandler extends AbstractWebSocketHandler {
      *
      * @param session WebSocket会话
      * @param message 接收到的文本消息
-     * @throws Exception 处理消息过程中可能抛出的异常
      */
     @Override
-    protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
+    protected void handleTextMessage(WebSocketSession session, TextMessage message) {
         // 从WebSocket会话中获取登录用户信息
         LoginUser loginUser = (LoginUser) session.getAttributes().get(LOGIN_USER_KEY);
 
@@ -64,7 +67,7 @@ public class PlusWebSocketHandler extends AbstractWebSocketHandler {
      * @throws Exception 处理消息过程中可能抛出的异常
      */
     @Override
-    protected void handleBinaryMessage(WebSocketSession session, BinaryMessage message) throws Exception {
+    protected void handleBinaryMessage(@NonNull WebSocketSession session, @NonNull BinaryMessage message) throws Exception {
         super.handleBinaryMessage(session, message);
     }
 
@@ -73,11 +76,16 @@ public class PlusWebSocketHandler extends AbstractWebSocketHandler {
      *
      * @param session WebSocket会话
      * @param message 接收到的Pong消息
-     * @throws Exception 处理消息过程中可能抛出的异常
      */
     @Override
-    protected void handlePongMessage(WebSocketSession session, PongMessage message) throws Exception {
-        WebSocketUtils.sendPongMessage(session);
+    protected void handlePongMessage(@NonNull WebSocketSession session, @NonNull PongMessage message) {
+        LoginUser loginUser = (LoginUser) session.getAttributes().get(LOGIN_USER_KEY);
+        WebSocketSession wrappedSession = WebSocketSessionHolder.getSession(loginUser.getUserId());
+        if (wrappedSession != null) {
+            WebSocketUtils.sendPongMessage(wrappedSession);
+        } else {
+            WebSocketUtils.sendPongMessage(session);
+        }
     }
 
     /**
@@ -85,10 +93,9 @@ public class PlusWebSocketHandler extends AbstractWebSocketHandler {
      *
      * @param session   WebSocket会话
      * @param exception 发生的异常
-     * @throws Exception 处理过程中可能抛出的异常
      */
     @Override
-    public void handleTransportError(WebSocketSession session, Throwable exception) throws Exception {
+    public void handleTransportError(WebSocketSession session, Throwable exception) {
         log.error("[transport error] sessionId: {} , exception:{}", session.getId(), exception.getMessage());
     }
 
@@ -99,7 +106,7 @@ public class PlusWebSocketHandler extends AbstractWebSocketHandler {
      * @param status  关闭状态信息
      */
     @Override
-    public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
+    public void afterConnectionClosed(WebSocketSession session, @NonNull CloseStatus status) {
         LoginUser loginUser = (LoginUser) session.getAttributes().get(LOGIN_USER_KEY);
         if (ObjectUtil.isNull(loginUser)) {
             log.info("[disconnect] invalid token received. sessionId: {}", session.getId());
@@ -118,5 +125,4 @@ public class PlusWebSocketHandler extends AbstractWebSocketHandler {
     public boolean supportsPartialMessages() {
         return false;
     }
-
 }

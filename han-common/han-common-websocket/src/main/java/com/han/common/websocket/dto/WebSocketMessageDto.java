@@ -7,9 +7,9 @@ import java.io.Serializable;
 import java.util.List;
 
 /**
- * 消息的dto
- *
- * @author zendwang
+ * @Author: zendwang
+ * @CreateTime: 2026-01-23
+ * @Description: 消息的 DTO
  */
 @Data
 public class WebSocketMessageDto implements Serializable {
