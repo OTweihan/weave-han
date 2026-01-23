@@ -12,9 +12,9 @@ import reactor.core.publisher.Mono;
 import static de.codecentric.boot.admin.server.domain.values.StatusInfo.*;
 
 /**
- * 自定义事件通知处理
- *
- * @author Lion Li
+ * @Author: Lion Li
+ * @CreateTime: 2026-01-23
+ * @Description: 自定义事件通知处理
  */
 @Slf4j
 @Component

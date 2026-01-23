@@ -13,9 +13,9 @@ import org.springframework.security.web.authentication.SavedRequestAwareAuthenti
 import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 
 /**
- * admin 监控 安全配置
- *
- * @author Lion Li
+ * @Author: Lion Li
+ * @CreateTime: 2026-01-23
+ * @Description: Admin 监控安全配置
  */
 @EnableWebSecurity
 @Configuration
@@ -50,5 +50,4 @@ public class SecurityConfig {
             .csrf(AbstractHttpConfigurer::disable)
             .build();
     }
-
 }
