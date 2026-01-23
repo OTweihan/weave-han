@@ -1,6 +1,5 @@
 package com.han.system.service.impl;
 
-import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.crypto.SecureUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -44,7 +43,9 @@ public class SysClientServiceImpl implements ISysClientService {
     @Override
     public SysClientVo queryById(Long id) {
         SysClientVo vo = baseMapper.selectVoById(id);
-        vo.setGrantTypeList(StringUtils.splitList(vo.getGrantType()));
+        if (ObjectUtil.isNotNull(vo)) {
+            vo.setGrantTypeList(StringUtils.splitList(vo.getGrantType()));
+        }
         return vo;
     }
 
@@ -93,7 +94,10 @@ public class SysClientServiceImpl implements ISysClientService {
     @Override
     public Boolean insertByBo(SysClientBo bo) {
         SysClient add = MapstructUtils.convert(bo, SysClient.class);
-        add.setGrantType(CollUtil.join(bo.getGrantTypeList(), StringUtils.SEPARATOR));
+        if (add == null) {
+            return false;
+        }
+        add.setGrantType(StringUtils.joinComma(bo.getGrantTypeList()));
         // 生成clientid
         String clientKey = bo.getClientKey();
         String clientSecret = bo.getClientSecret();
@@ -112,6 +116,9 @@ public class SysClientServiceImpl implements ISysClientService {
     @Override
     public Boolean updateByBo(SysClientBo bo) {
         SysClient update = MapstructUtils.convert(bo, SysClient.class);
+        if (update == null) {
+            return false;
+        }
         update.setGrantType(StringUtils.joinComma(bo.getGrantTypeList()));
         return baseMapper.updateById(update) > 0;
     }
@@ -133,7 +140,7 @@ public class SysClientServiceImpl implements ISysClientService {
      */
     @CacheEvict(cacheNames = CacheNames.SYS_CLIENT, allEntries = true)
     @Override
-    public Boolean deleteWithValidByIds(Collection<Long> ids, Boolean isValid) {
+    public Boolean deleteWithValidByIds(Collection<Long> ids) {
         return baseMapper.deleteByIds(ids) > 0;
     }
 
@@ -145,9 +152,8 @@ public class SysClientServiceImpl implements ISysClientService {
      */
     @Override
     public boolean checkClickKeyUnique(SysClientBo client) {
-        boolean exist = baseMapper.exists(new LambdaQueryWrapper<SysClient>()
+        return baseMapper.exists(new LambdaQueryWrapper<SysClient>()
             .eq(SysClient::getClientKey, client.getClientKey())
             .ne(ObjectUtil.isNotNull(client.getId()), SysClient::getId, client.getId()));
-        return !exist;
     }
 }

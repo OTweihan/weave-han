@@ -53,7 +53,7 @@ public interface ISysClientService {
     /**
      * 校验并批量删除客户端管理信息
      */
-    Boolean deleteWithValidByIds(Collection<Long> ids, Boolean isValid);
+    Boolean deleteWithValidByIds(Collection<Long> ids);
 
     /**
      * 校验客户端key是否唯一
