@@ -7,9 +7,9 @@ import org.springframework.web.servlet.LocaleResolver;
 import java.util.Locale;
 
 /**
- * 获取请求头国际化信息
- *
- * @author Lion Li
+ * @Author: Lion Li
+ * @CreateTime: 2026-01-23
+ * @Description: 获取请求头国际化信息
  */
 public class I18nLocaleResolver implements LocaleResolver {
 
@@ -26,6 +26,5 @@ public class I18nLocaleResolver implements LocaleResolver {
 
     @Override
     public void setLocale(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Locale locale) {
-
     }
 }

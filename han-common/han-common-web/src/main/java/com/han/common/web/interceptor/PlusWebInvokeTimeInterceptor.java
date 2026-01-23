@@ -18,10 +18,9 @@ import java.io.BufferedReader;
 import java.util.Map;
 
 /**
- * web的调用时间统计拦截器
- *
- * @author Lion Li
- * @since 3.3.0
+ * @Author: Lion Li
+ * @CreateTime: 2026-01-23
+ * @Description: Web 的调用时间统计拦截器
  */
 @Slf4j
 public class PlusWebInvokeTimeInterceptor implements HandlerInterceptor {
@@ -38,6 +37,10 @@ public class PlusWebInvokeTimeInterceptor implements HandlerInterceptor {
             if (request instanceof RepeatedlyRequestWrapper) {
                 BufferedReader reader = request.getReader();
                 jsonParam = IoUtil.read(reader);
+                // 限制日志长度，避免过长
+                if (jsonParam.length() > 2000) {
+                    jsonParam = jsonParam.substring(0, 2000) + "...(truncated)";
+                }
             }
             log.info("[PLUS]开始请求 => URL[{}],参数类型[json],参数:[{}]", url, jsonParam);
         } else {
@@ -59,7 +62,6 @@ public class PlusWebInvokeTimeInterceptor implements HandlerInterceptor {
 
     @Override
     public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception {
-
     }
 
     @Override
@@ -85,5 +87,4 @@ public class PlusWebInvokeTimeInterceptor implements HandlerInterceptor {
         }
         return false;
     }
-
 }

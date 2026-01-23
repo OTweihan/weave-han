@@ -4,9 +4,9 @@ import com.han.common.core.domain.R;
 import com.han.common.core.utils.StringUtils;
 
 /**
- * web层通用数据处理
- *
- * @author Lion Li
+ * @Author: Lion Li
+ * @CreateTime: 2026-01-23
+ * @Description: Web 层通用数据处理
  */
 public class BaseController {
 
@@ -36,5 +36,4 @@ public class BaseController {
     public String redirect(String url) {
         return StringUtils.format("redirect:{}", url);
     }
-
 }

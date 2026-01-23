@@ -18,9 +18,9 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import java.util.Date;
 
 /**
- * 通用配置
- *
- * @author Lion Li
+ * @Author: Lion Li
+ * @CreateTime: 2026-01-22
+ * @Description: 通用配置
  */
 @AutoConfiguration
 public class ResourcesConfig implements WebMvcConfigurer {

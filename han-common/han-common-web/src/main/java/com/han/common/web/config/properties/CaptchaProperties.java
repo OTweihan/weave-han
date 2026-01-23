@@ -6,14 +6,17 @@ import com.han.common.web.enums.CaptchaType;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
- * 验证码 配置属性
- *
- * @author Lion Li
+ * @Author: Lion Li
+ * @CreateTime: 2026-01-22
+ * @Description: 验证码 配置属性
  */
 @Data
 @ConfigurationProperties(prefix = "captcha")
 public class CaptchaProperties {
 
+    /**
+     * 是否开启验证码
+     */
     private Boolean enable;
 
     /**

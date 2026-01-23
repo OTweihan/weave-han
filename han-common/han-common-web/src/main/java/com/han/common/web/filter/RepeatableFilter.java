@@ -8,14 +8,13 @@ import org.springframework.http.MediaType;
 import java.io.IOException;
 
 /**
- * Repeatable 过滤器
- *
- * @author ruoyi
+ * @Author: ruoyi
+ * @CreateTime: 2026-01-23
+ * @Description: Repeatable 过滤器
  */
 public class RepeatableFilter implements Filter {
     @Override
-    public void init(FilterConfig filterConfig) throws ServletException {
-
+    public void init(FilterConfig filterConfig) {
     }
 
     @Override
@@ -35,6 +34,5 @@ public class RepeatableFilter implements Filter {
 
     @Override
     public void destroy() {
-
     }
 }

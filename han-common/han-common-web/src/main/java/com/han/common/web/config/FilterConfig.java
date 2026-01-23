@@ -12,9 +12,9 @@ import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 
 /**
- * Filter配置
- *
- * @author Lion Li
+ * @Author: Lion Li
+ * @CreateTime: 2026-01-22
+ * @Description: Filter 配置
  */
 @AutoConfiguration
 @EnableConfigurationProperties(XssProperties.class)
@@ -37,5 +37,4 @@ public class FilterConfig {
     public RepeatableFilter repeatableFilter() {
         return new RepeatableFilter();
     }
-
 }

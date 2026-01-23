@@ -30,9 +30,9 @@ import org.springframework.web.servlet.NoHandlerFoundException;
 import java.io.IOException;
 
 /**
- * 全局异常处理器
- *
- * @author Lion Li
+ * @Author: Lion Li
+ * @CreateTime: 2026-01-23
+ * @Description: 全局异常处理器
  */
 @Slf4j
 @RestControllerAdvice
@@ -209,5 +209,4 @@ public class GlobalExceptionHandler {
         log.error("请求地址'{}', 参数解析失败: {}", request.getRequestURI(), e.getMessage());
         return R.fail(HttpStatus.HTTP_BAD_REQUEST, "请求参数格式错误：" + e.getMostSpecificCause().getMessage());
     }
-
 }

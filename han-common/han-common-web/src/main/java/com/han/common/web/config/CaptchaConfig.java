@@ -13,9 +13,9 @@ import org.springframework.context.annotation.Lazy;
 import java.awt.*;
 
 /**
- * 验证码配置
- *
- * @author Lion Li
+ * @Author: Lion Li
+ * @CreateTime: 2026-01-22
+ * @Description: 验证码配置
  */
 @AutoConfiguration
 @EnableConfigurationProperties(CaptchaProperties.class)
@@ -61,5 +61,4 @@ public class CaptchaConfig {
         captcha.setFont(FONT);
         return captcha;
     }
-
 }

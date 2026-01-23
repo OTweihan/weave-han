@@ -20,14 +20,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * XSS过滤处理
- *
- * @author ruoyi
+ * @Author: ruoyi
+ * @CreateTime: 2026-01-23
+ * @Description: XSS 过滤处理
  */
 public class XssHttpServletRequestWrapper extends HttpServletRequestWrapper {
-    /**
-     * @param request
-     */
+
     public XssHttpServletRequestWrapper(HttpServletRequest request) {
         super(request);
     }

@@ -7,9 +7,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * xss过滤 配置属性
- *
- * @author Lion Li
+ * @Author: Lion Li
+ * @CreateTime: 2026-01-22
+ * @Description: xss过滤 配置属性
  */
 @Data
 @ConfigurationProperties(prefix = "xss")
@@ -24,5 +24,4 @@ public class XssProperties {
      * 排除路径
      */
     private List<String> excludeUrls = new ArrayList<>();
-
 }

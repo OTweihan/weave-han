@@ -7,9 +7,9 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 /**
- * 验证码类型
- *
- * @author Lion Li
+ * @Author: Lion Li
+ * @CreateTime: 2026-01-23
+ * @Description: 验证码类型
  */
 @Getter
 @AllArgsConstructor
@@ -25,5 +25,8 @@ public enum CaptchaType {
      */
     CHAR(RandomGenerator.class);
 
+    /**
+     * 验证码生成器
+     */
     private final Class<? extends CodeGenerator> clazz;
 }

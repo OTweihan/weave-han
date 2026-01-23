@@ -14,9 +14,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 
 /**
- * 构建可重复读取inputStream的request
- *
- * @author ruoyi
+ * @Author: ruoyi
+ * @CreateTime: 2026-01-23
+ * @Description: 构建可重复读取 inputStream 的 request
  */
 public class RepeatedlyRequestWrapper extends HttpServletRequestWrapper {
     private final byte[] body;
@@ -26,7 +26,17 @@ public class RepeatedlyRequestWrapper extends HttpServletRequestWrapper {
         request.setCharacterEncoding(Constants.UTF8);
         response.setCharacterEncoding(Constants.UTF8);
 
-        body = IoUtil.readBytes(request.getInputStream(), false);
+        // 如果是文件上传请求，不缓存 body，避免 OOM
+        if (isMultipart(request)) {
+            this.body = null;
+        } else {
+            this.body = IoUtil.readBytes(request.getInputStream(), false);
+        }
+    }
+
+    private boolean isMultipart(HttpServletRequest request) {
+        String contentType = request.getContentType();
+        return contentType != null && contentType.toLowerCase().startsWith("multipart/");
     }
 
     @Override
@@ -36,15 +46,18 @@ public class RepeatedlyRequestWrapper extends HttpServletRequestWrapper {
 
     @Override
     public ServletInputStream getInputStream() throws IOException {
+        if (body == null) {
+            return super.getInputStream();
+        }
         final ByteArrayInputStream bais = new ByteArrayInputStream(body);
         return new ServletInputStream() {
             @Override
-            public int read() throws IOException {
+            public int read() {
                 return bais.read();
             }
 
             @Override
-            public int available() throws IOException {
+            public int available() {
                 return body.length;
             }
 
@@ -60,7 +73,6 @@ public class RepeatedlyRequestWrapper extends HttpServletRequestWrapper {
 
             @Override
             public void setReadListener(ReadListener readListener) {
-
             }
         };
     }

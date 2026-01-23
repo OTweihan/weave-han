@@ -7,9 +7,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.web.servlet.LocaleResolver;
 
 /**
- * 国际化配置
- *
- * @author Lion Li
+ * @Author: Lion Li
+ * @CreateTime: 2026-01-22
+ * @Description: 国际化配置
  */
 @AutoConfiguration(before = WebMvcAutoConfiguration.class)
 public class I18nConfig {
@@ -18,5 +18,4 @@ public class I18nConfig {
     public LocaleResolver localeResolver() {
         return new I18nLocaleResolver();
     }
-
 }
