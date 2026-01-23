@@ -9,11 +9,10 @@ import com.han.common.mybatis.core.domain.BaseEntity;
 import com.han.system.domain.SysConfig;
 
 /**
- * 参数配置业务对象 sys_config
- *
- * @author Michelle.Chung
+ * @Author Michelle.Chung
+ * @CreateTime: 2026-01-23
+ * @Description: 参数配置业务对象 sys_config
  */
-
 @Data
 @EqualsAndHashCode(callSuper = true)
 @AutoMapper(target = SysConfig.class, reverseConvertGenerate = false)

@@ -38,9 +38,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.*;
 
 /**
- * 用户 业务层处理
- *
- * @author Lion Li
+ * @Author Lion Li
+ * @CreateTime: 2026-01-23
+ * @Description: 用户 业务层处理
  */
 @Slf4j
 @RequiredArgsConstructor
@@ -48,9 +48,7 @@ import java.util.*;
 public class SysUserServiceImpl implements ISysUserService, UserService {
 
     private final SysUserMapper baseMapper;
-
     private final SysRoleMapper roleMapper;
-
     private final SysUserRoleMapper userRoleMapper;
 
     @Override

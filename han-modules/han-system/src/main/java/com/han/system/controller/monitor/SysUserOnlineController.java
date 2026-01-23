@@ -26,9 +26,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * 在线用户监控
- *
- * @author Lion Li
+ * @Author: Lion Li
+ * @CreateTime: 2026-01-23
+ * @Description: 在线用户监控
  */
 @RequiredArgsConstructor
 @RestController
@@ -118,7 +118,7 @@ public class SysUserOnlineController extends BaseController {
     @Log(title = "在线设备", businessType = BusinessType.FORCE)
     @RepeatSubmit()
     @DeleteMapping("/myself/{tokenId}")
-    public R<Void> remove(@PathVariable("tokenId") String tokenId) {
+    public R<Void> remove(@PathVariable String tokenId) {
         try {
             // 获取指定账号 id 的 token 集合
             List<String> keys = StpUtil.getTokenValueListByLoginId(StpUtil.getLoginIdAsString());

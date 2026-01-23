@@ -24,9 +24,9 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 /**
- * 角色信息
- *
- * @author Lion Li
+ * @Author: Lion Li
+ * @CreateTime: 2026-01-23
+ * @Description: 角色信息
  */
 @Validated
 @RequiredArgsConstructor
@@ -35,7 +35,6 @@ import java.util.List;
 public class SysRoleController extends BaseController {
 
     private final ISysRoleService roleService;
-    
     private final ISysUserService userService;
 
     /**

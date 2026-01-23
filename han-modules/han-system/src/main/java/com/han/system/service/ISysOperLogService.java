@@ -8,9 +8,9 @@ import com.han.system.domain.vo.SysOperLogVo;
 import java.util.List;
 
 /**
- * 操作日志 服务层
- *
- * @author Lion Li
+ * @Author Lion Li
+ * @CreateTime: 2026-01-23
+ * @Description: 操作日志 服务层
  */
 public interface ISysOperLogService {
 

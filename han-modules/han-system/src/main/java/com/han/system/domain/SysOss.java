@@ -7,9 +7,9 @@ import lombok.EqualsAndHashCode;
 import com.han.common.mybatis.core.domain.BaseEntity;
 
 /**
- * OSS对象存储对象
- *
- * @author Lion Li
+ * @Author Lion Li
+ * @CreateTime: 2026-01-23
+ * @Description: OSS对象存储对象
  */
 @Data
 @EqualsAndHashCode(callSuper = true)

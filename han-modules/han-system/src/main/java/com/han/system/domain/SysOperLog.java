@@ -9,9 +9,9 @@ import java.io.Serializable;
 import java.util.Date;
 
 /**
- * 操作日志记录表 oper_log
- *
- * @author Lion Li
+ * @Author Lion Li
+ * @CreateTime: 2026-01-23
+ * @Description: 操作日志记录表 oper_log
  */
 @Data
 @TableName("sys_oper_log")

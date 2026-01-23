@@ -14,9 +14,9 @@ import java.io.Serializable;
 import java.util.Date;
 
 /**
- * 角色信息视图对象 sys_role
- *
- * @author Michelle.Chung
+ * @Author Michelle.Chung
+ * @CreateTime: 2026-01-23
+ * @Description: 角色信息视图对象 sys_role
  */
 @Data
 @ExcelIgnoreUnannotated

@@ -9,9 +9,9 @@ import com.han.system.domain.vo.SysDictTypeVo;
 import java.util.List;
 
 /**
- * 字典 业务层
- *
- * @author Lion Li
+ * @Author Lion Li
+ * @CreateTime: 2026-01-23
+ * @Description: 字典 业务层
  */
 public interface ISysDictTypeService {
 

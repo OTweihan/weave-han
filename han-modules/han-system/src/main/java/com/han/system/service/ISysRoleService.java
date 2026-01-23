@@ -10,9 +10,9 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * 角色业务层
- *
- * @author Lion Li
+ * @Author Lion Li
+ * @CreateTime: 2026-01-23
+ * @Description: 角色业务层
  */
 public interface ISysRoleService {
 

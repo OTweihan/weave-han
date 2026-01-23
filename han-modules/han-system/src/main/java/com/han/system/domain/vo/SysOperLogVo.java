@@ -13,10 +13,9 @@ import java.io.Serializable;
 import java.util.Date;
 
 /**
- * 操作日志记录视图对象 sys_oper_log
- *
- * @author Michelle.Chung
- * @date 2023-02-07
+ * @Author Michelle.Chung
+ * @CreateTime: 2023-02-07
+ * @Description: 操作日志记录视图对象 sys_oper_log
  */
 @Data
 @ExcelIgnoreUnannotated

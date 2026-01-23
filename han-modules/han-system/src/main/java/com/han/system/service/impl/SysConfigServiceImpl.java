@@ -30,9 +30,9 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 参数配置 服务层实现
- *
- * @author Lion Li
+ * @Author Lion Li
+ * @CreateTime: 2026-01-23
+ * @Description: 参数配置 服务层实现
  */
 @RequiredArgsConstructor
 @Service
@@ -207,5 +207,4 @@ public class SysConfigServiceImpl implements ISysConfigService, ConfigService {
     public String getConfigValue(String configKey) {
         return SpringUtils.getAopProxy(this).selectConfigByKey(configKey);
     }
-
 }

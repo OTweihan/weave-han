@@ -37,9 +37,9 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * 字典 业务层处理
- *
- * @author Lion Li
+ * @Author Lion Li
+ * @CreateTime: 2026-01-23
+ * @Description: 字典 业务层处理
  */
 @RequiredArgsConstructor
 @Service
@@ -300,5 +300,4 @@ public class SysDictTypeServiceImpl implements ISysDictTypeService, DictService 
         List<SysDictDataVo> list = SpringUtils.getAopProxy(this).selectDictDataByType(dictType);
         return BeanUtil.copyToList(list, DictDataDTO.class);
     }
-
 }

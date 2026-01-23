@@ -10,9 +10,9 @@ import com.han.common.mybatis.core.domain.BaseEntity;
 import java.util.Date;
 
 /**
- * 用户对象 sys_user
- *
- * @author Lion Li
+ * @Author Lion Li
+ * @CreateTime: 2026-01-23
+ * @Description: 用户对象 sys_user
  */
 @Data
 @NoArgsConstructor

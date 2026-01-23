@@ -13,9 +13,9 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * 用户权限处理
- *
- * @author ruoyi
+ * @Author ruoyi
+ * @CreateTime: 2026-01-23
+ * @Description: 用户权限处理
  */
 @RequiredArgsConstructor
 @Service

@@ -6,9 +6,9 @@ import lombok.Data;
 import java.util.List;
 
 /**
- * 路由配置信息
- *
- * @author Lion Li
+ * @Author Lion Li
+ * @CreateTime: 2026-01-23
+ * @Description: 路由配置信息
  */
 @Data
 @JsonInclude(JsonInclude.Include.NON_EMPTY)

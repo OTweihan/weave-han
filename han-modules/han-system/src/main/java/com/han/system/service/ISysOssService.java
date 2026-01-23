@@ -13,9 +13,9 @@ import java.util.Collection;
 import java.util.List;
 
 /**
- * 文件上传 服务层
- *
- * @author Lion Li
+ * @Author Lion Li
+ * @CreateTime: 2026-01-23
+ * @Description: 文件上传 服务层
  */
 public interface ISysOssService {
 

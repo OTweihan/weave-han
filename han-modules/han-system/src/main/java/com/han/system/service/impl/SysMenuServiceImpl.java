@@ -29,9 +29,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.*;
 
 /**
- * 菜单 业务层处理
- *
- * @author Lion Li
+ * @Author Lion Li
+ * @CreateTime: 2026-01-23
+ * @Description: 菜单 业务层处理
  */
 @RequiredArgsConstructor
 @Service
@@ -353,5 +353,4 @@ public class SysMenuServiceImpl implements ISysMenuService {
             }
         }
     }
-
 }

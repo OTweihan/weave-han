@@ -12,9 +12,9 @@ import com.han.common.mybatis.core.domain.BaseEntity;
 import com.han.system.domain.SysSocial;
 
 /**
- * 社会化关系业务对象 sys_social
- *
- * @author Lion Li
+ * @Author Lion Li
+ * @CreateTime: 2026-01-23
+ * @Description: 社会化关系业务对象 sys_social
  */
 @Data
 @NoArgsConstructor

@@ -11,11 +11,10 @@ import com.han.common.mybatis.core.domain.BaseEntity;
 import com.han.system.domain.SysDictType;
 
 /**
- * 字典类型业务对象 sys_dict_type
- *
- * @author Michelle.Chung
+ * @Author Michelle.Chung
+ * @CreateTime: 2026-01-23
+ * @Description: 字典类型业务对象 sys_dict_type
  */
-
 @Data
 @EqualsAndHashCode(callSuper = true)
 @AutoMapper(target = SysDictType.class, reverseConvertGenerate = false)

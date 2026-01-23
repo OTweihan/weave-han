@@ -25,9 +25,9 @@ import com.han.system.service.ISysUserService;
 import java.util.List;
 
 /**
- * 系统用户自定义导入
- *
- * @author Lion Li
+ * @Author Lion Li
+ * @CreateTime: 2026-01-23
+ * @Description: 系统用户自定义导入
  */
 @Slf4j
 public class SysUserImportListener extends AnalysisEventListener<SysUserImportVo> implements ExcelListener<SysUserImportVo> {

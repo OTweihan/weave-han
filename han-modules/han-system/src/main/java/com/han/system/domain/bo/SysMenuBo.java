@@ -15,11 +15,10 @@ import com.han.common.mybatis.core.domain.BaseEntity;
 import com.han.system.domain.SysMenu;
 
 /**
- * 菜单权限业务对象 sys_menu
- *
- * @author Michelle.Chung
+ * @Author Michelle.Chung
+ * @CreateTime: 2026-01-23
+ * @Description: 菜单权限业务对象 sys_menu
  */
-
 @Data
 @EqualsAndHashCode(callSuper = true)
 @AutoMapper(target = SysMenu.class, reverseConvertGenerate = false)
@@ -39,7 +38,7 @@ public class SysMenuBo extends BaseEntity {
      * 菜单名称
      */
     @NotBlank(message = "菜单名称不能为空")
-    @Size(min = 0, max = 50, message = "菜单名称长度不能超过{max}个字符")
+    @Size(max = 50, message = "菜单名称长度不能超过{max}个字符")
     private String menuName;
 
     /**
@@ -51,13 +50,13 @@ public class SysMenuBo extends BaseEntity {
     /**
      * 路由地址
      */
-    @Size(min = 0, max = 200, message = "路由地址不能超过{max}个字符")
+    @Size(max = 200, message = "路由地址不能超过{max}个字符")
     private String path;
 
     /**
      * 组件路径
      */
-    @Size(min = 0, max = 200, message = "组件路径不能超过{max}个字符")
+    @Size(max = 200, message = "组件路径不能超过{max}个字符")
     private String component;
 
     /**
@@ -96,7 +95,7 @@ public class SysMenuBo extends BaseEntity {
      * 权限标识
      */
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    @Size(min = 0, max = 100, message = "权限标识长度不能超过{max}个字符")
+    @Size(max = 100, message = "权限标识长度不能超过{max}个字符")
     @Pattern(regexp = RegexConstants.PERMISSION_STRING, message = "权限标识必须符合 tool:build:list 格式")
     private String perms;
 

@@ -14,10 +14,9 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 /**
- * 社会化关系
- *
- * @author thiszhc
- * @date 2023-06-16
+ * @Author: thiszhc
+ * @CreateTime: 2023-06-16
+ * @Description: 社会化关系
  */
 @Validated
 @RequiredArgsConstructor

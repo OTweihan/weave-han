@@ -11,9 +11,9 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * 菜单权限视图对象 sys_menu
- *
- * @author Michelle.Chung
+ * @Author Michelle.Chung
+ * @CreateTime: 2026-01-23
+ * @Description: 菜单权限视图对象 sys_menu
  */
 @Data
 @AutoMapper(target = SysMenu.class)

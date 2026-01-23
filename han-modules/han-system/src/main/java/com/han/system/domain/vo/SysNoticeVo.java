@@ -11,9 +11,9 @@ import java.io.Serializable;
 import java.util.Date;
 
 /**
- * 通知公告视图对象 sys_notice
- *
- * @author Michelle.Chung
+ * @Author Michelle.Chung
+ * @CreateTime: 2026-01-23
+ * @Description: 通知公告视图对象 sys_notice
  */
 @Data
 @AutoMapper(target = SysNotice.class)

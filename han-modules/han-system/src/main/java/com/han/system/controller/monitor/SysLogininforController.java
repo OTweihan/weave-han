@@ -23,9 +23,9 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 /**
- * 系统访问记录
- *
- * @author Lion Li
+ * @Author: Lion Li
+ * @CreateTime: 2026-01-23
+ * @Description: 系统访问记录
  */
 @Validated
 @RequiredArgsConstructor

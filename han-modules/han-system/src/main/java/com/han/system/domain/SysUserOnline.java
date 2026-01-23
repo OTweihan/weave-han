@@ -3,9 +3,9 @@ package com.han.system.domain;
 import lombok.Data;
 
 /**
- * 当前在线会话
- *
- * @author Lion Li
+ * @Author Lion Li
+ * @CreateTime: 2026-01-23
+ * @Description: 当前在线会话
  */
 @Data
 public class SysUserOnline {

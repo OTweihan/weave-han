@@ -6,9 +6,9 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
 /**
- * 用户和角色关联 sys_user_role
- *
- * @author Lion Li
+ * @Author Lion Li
+ * @CreateTime: 2026-01-23
+ * @Description: 用户和角色关联 sys_user_role
  */
 @Data
 @TableName("sys_user_role")

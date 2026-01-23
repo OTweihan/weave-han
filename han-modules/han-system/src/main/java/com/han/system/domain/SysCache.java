@@ -5,9 +5,9 @@ import lombok.NoArgsConstructor;
 import com.han.common.core.utils.StringUtils;
 
 /**
- * 缓存信息
- *
- * @author Lion Li
+ * @Author Lion Li
+ * @CreateTime: 2026-01-23
+ * @Description: 缓存信息
  */
 @Data
 @NoArgsConstructor

@@ -22,9 +22,9 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * 数据字典信息
- *
- * @author Lion Li
+ * @Author: Lion Li
+ * @CreateTime: 2026-01-23
+ * @Description: 数据字典信息
  */
 @Validated
 @RequiredArgsConstructor

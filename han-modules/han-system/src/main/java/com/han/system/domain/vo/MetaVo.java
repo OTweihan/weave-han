@@ -4,11 +4,10 @@ import lombok.Data;
 import com.han.common.core.utils.StringUtils;
 
 /**
- * 路由显示信息
- *
- * @author ruoyi
+ * @Author ruoyi
+ * @CreateTime: 2026-01-23
+ * @Description: 路由显示信息
  */
-
 @Data
 public class MetaVo {
 

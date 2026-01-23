@@ -23,9 +23,9 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 /**
- * 字典 业务层处理
- *
- * @author Lion Li
+ * @Author Lion Li
+ * @CreateTime: 2026-01-23
+ * @Description: 字典 业务层处理
  */
 @RequiredArgsConstructor
 @Service
@@ -155,5 +155,4 @@ public class SysDictDataServiceImpl implements ISysDictDataService {
             .ne(ObjectUtil.isNotNull(dict.getDictCode()), SysDictData::getDictCode, dict.getDictCode()));
         return !exist;
     }
-
 }

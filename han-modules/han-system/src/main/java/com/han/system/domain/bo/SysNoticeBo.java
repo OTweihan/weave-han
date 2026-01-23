@@ -10,11 +10,10 @@ import com.han.common.mybatis.core.domain.BaseEntity;
 import com.han.system.domain.SysNotice;
 
 /**
- * 通知公告业务对象 sys_notice
- *
- * @author Michelle.Chung
+ * @Author Michelle.Chung
+ * @CreateTime: 2026-01-23
+ * @Description: 通知公告业务对象 sys_notice
  */
-
 @Data
 @EqualsAndHashCode(callSuper = true)
 @AutoMapper(target = SysNotice.class, reverseConvertGenerate = false)
@@ -30,7 +29,7 @@ public class SysNoticeBo extends BaseEntity {
      */
     @Xss(message = "公告标题不能包含脚本字符")
     @NotBlank(message = "公告标题不能为空")
-    @Size(min = 0, max = 50, message = "公告标题不能超过{max}个字符")
+    @Size(max = 50, message = "公告标题不能超过{max}个字符")
     private String noticeTitle;
 
     /**

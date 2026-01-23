@@ -5,9 +5,9 @@ import lombok.Data;
 import java.util.Set;
 
 /**
- * 登录用户信息
- *
- * @author Michelle.Chung
+ * @Author Michelle.Chung
+ * @CreateTime: 2026-01-23
+ * @Description: 登录用户信息
  */
 @Data
 public class UserInfoVo {

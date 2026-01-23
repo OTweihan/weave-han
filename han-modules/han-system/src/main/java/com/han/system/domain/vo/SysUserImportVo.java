@@ -10,9 +10,9 @@ import java.io.Serial;
 import java.io.Serializable;
 
 /**
- * 用户对象导入VO
- *
- * @author Lion Li
+ * @Author Lion Li
+ * @CreateTime: 2026-01-23
+ * @Description: 用户对象导入VO
  */
 @Data
 @NoArgsConstructor

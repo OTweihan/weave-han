@@ -8,9 +8,9 @@ import com.han.common.mybatis.core.domain.BaseEntity;
 
 
 /**
- * 通知公告表 sys_notice
- *
- * @author Lion Li
+ * @Author Lion Li
+ * @CreateTime: 2026-01-23
+ * @Description: 通知公告表 sys_notice
  */
 @Data
 @EqualsAndHashCode(callSuper = true)

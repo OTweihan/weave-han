@@ -12,11 +12,10 @@ import com.han.common.mybatis.core.domain.BaseEntity;
 import com.han.system.domain.SysRole;
 
 /**
- * 角色信息业务对象 sys_role
- *
- * @author Michelle.Chung
+ * @Author Michelle.Chung
+ * @CreateTime: 2026-01-23
+ * @Description: 角色信息业务对象 sys_role
  */
-
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)

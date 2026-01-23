@@ -23,11 +23,9 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 /**
- * 对象存储配置
- *
- * @author Lion Li
- * @author 孤舟烟雨
- * @date 2021-08-13
+ * @Author: Lion Li, 孤舟烟雨
+ * @CreateTime: 2026-01-23
+ * @Description: 对象存储配置
  */
 @Validated
 @RequiredArgsConstructor

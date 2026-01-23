@@ -8,9 +8,9 @@ import com.han.system.domain.vo.SysLogininforVo;
 import java.util.List;
 
 /**
- * 系统访问日志情况信息 服务层
- *
- * @author Lion Li
+ * @Author Lion Li
+ * @CreateTime: 2026-01-23
+ * @Description: 系统访问日志情况信息 服务层
  */
 public interface ISysLogininforService {
 

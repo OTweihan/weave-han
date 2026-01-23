@@ -8,9 +8,9 @@ import com.han.common.core.constant.SystemConstants;
 import com.han.common.mybatis.core.domain.BaseEntity;
 
 /**
- * 字典数据表 sys_dict_data
- *
- * @author Lion Li
+ * @Author Lion Li
+ * @CreateTime: 2026-01-23
+ * @Description: 字典数据表 sys_dict_data
  */
 @Data
 @EqualsAndHashCode(callSuper = true)

@@ -27,9 +27,9 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * 文件上传 控制层
- *
- * @author Lion Li
+ * @Author: Lion Li
+ * @CreateTime: 2026-01-23
+ * @Description: 文件上传 控制层
  */
 @Validated
 @RequiredArgsConstructor
@@ -104,5 +104,4 @@ public class SysOssController extends BaseController {
                           @PathVariable Long[] ossIds) {
         return toAjax(ossService.deleteWithValidByIds(List.of(ossIds), true));
     }
-
 }

@@ -36,9 +36,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 用户信息
- *
- * @author Lion Li
+ * @Author: Lion Li
+ * @CreateTime: 2026-01-23
+ * @Description: 用户信息
  */
 @Validated
 @RequiredArgsConstructor
@@ -47,7 +47,6 @@ import java.util.List;
 public class SysUserController extends BaseController {
 
     private final ISysUserService userService;
-
     private final ISysRoleService roleService;
 
     /**

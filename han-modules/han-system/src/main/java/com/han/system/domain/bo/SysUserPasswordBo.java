@@ -7,7 +7,9 @@ import java.io.Serial;
 import java.io.Serializable;
 
 /**
- * 用户密码修改bo
+ * @Author: Michelle.Chung
+ * @CreateTime: 2026-01-23
+ * @Description: 用户密码修改 BO
  */
 @Data
 public class SysUserPasswordBo implements Serializable {

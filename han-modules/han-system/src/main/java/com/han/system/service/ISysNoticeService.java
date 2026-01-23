@@ -8,9 +8,9 @@ import com.han.system.domain.vo.SysNoticeVo;
 import java.util.List;
 
 /**
- * 公告 服务层
- *
- * @author Lion Li
+ * @Author Lion Li
+ * @CreateTime: 2026-01-23
+ * @Description: 公告 服务层
  */
 public interface ISysNoticeService {
 

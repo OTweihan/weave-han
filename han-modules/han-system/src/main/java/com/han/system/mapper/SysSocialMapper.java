@@ -6,11 +6,10 @@ import com.han.system.domain.vo.SysSocialVo;
 import org.apache.ibatis.annotations.Mapper;
 
 /**
- * 社会化关系Mapper接口
- *
- * @author thiszhc
+ * @Author thiszhc
+ * @CreateTime: 2026-01-23
+ * @Description: 社会化关系Mapper接口
  */
 @Mapper
 public interface SysSocialMapper extends BaseMapperPlus<SysSocial, SysSocialVo> {
-
 }

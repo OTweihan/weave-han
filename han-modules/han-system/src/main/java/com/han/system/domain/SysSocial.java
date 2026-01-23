@@ -9,9 +9,9 @@ import com.han.common.mybatis.core.domain.BaseEntity;
 import java.io.Serial;
 
 /**
- * 社会化关系对象 sys_social
- *
- * @author thiszhc
+ * @Author thiszhc
+ * @CreateTime: 2026-01-23
+ * @Description: 社会化关系对象 sys_social
  */
 @Data
 @EqualsAndHashCode(callSuper = true)

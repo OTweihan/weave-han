@@ -24,10 +24,9 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 /**
- * 客户端管理
- *
- * @author Michelle.Chung
- * @date 2023-06-18
+ * @Author: Michelle.Chung
+ * @CreateTime: 2023-06-18
+ * @Description: 客户端管理
  */
 @Validated
 @RequiredArgsConstructor
@@ -115,8 +114,7 @@ public class SysClientController extends BaseController {
     @SaCheckPermission("system:client:remove")
     @Log(title = "客户端管理", businessType = BusinessType.DELETE)
     @DeleteMapping("/{ids}")
-    public R<Void> remove(@NotEmpty(message = "主键不能为空")
-                          @PathVariable Long[] ids) {
+    public R<Void> remove(@NotEmpty(message = "主键不能为空") @PathVariable Long[] ids) {
         return toAjax(sysClientService.deleteWithValidByIds(List.of(ids), true));
     }
 }

@@ -11,12 +11,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * 操作日志记录业务对象 sys_oper_log
- *
- * @author Michelle.Chung
- * @date 2023-02-07
+ * @Author Michelle.Chung
+ * @CreateTime: 2023-02-07
+ * @Description: 操作日志记录业务对象 sys_oper_log
  */
-
 @Data
 @AutoMappers({
     @AutoMapper(target = SysOperLog.class, reverseConvertGenerate = false),

@@ -14,9 +14,9 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * 菜单表 数据层
- *
- * @author Lion Li
+ * @Author Lion Li
+ * @CreateTime: 2026-01-23
+ * @Description: 菜单表 数据层
  */
 @Mapper
 public interface SysMenuMapper extends BaseMapperPlus<SysMenu, SysMenuVo> {
@@ -145,5 +145,4 @@ public interface SysMenuMapper extends BaseMapperPlus<SysMenu, SysMenuVo> {
         }
         return this.selectObjs(wrapper);
     }
-
 }

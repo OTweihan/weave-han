@@ -7,9 +7,9 @@ import com.han.common.mybatis.core.domain.BaseEntity;
 import com.han.system.domain.SysOss;
 
 /**
- * OSS对象存储分页查询对象 sys_oss
- *
- * @author Lion Li
+ * @Author Lion Li
+ * @CreateTime: 2026-01-23
+ * @Description: OSS对象存储分页查询对象 sys_oss
  */
 @Data
 @EqualsAndHashCode(callSuper = true)

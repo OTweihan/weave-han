@@ -9,9 +9,9 @@ import org.apache.ibatis.annotations.Mapper;
 import java.util.List;
 
 /**
- * 字典表 数据层
- *
- * @author Lion Li
+ * @Author Lion Li
+ * @CreateTime: 2026-01-23
+ * @Description: 字典表 数据层
  */
 @Mapper
 public interface SysDictDataMapper extends BaseMapperPlus<SysDictData, SysDictDataVo> {

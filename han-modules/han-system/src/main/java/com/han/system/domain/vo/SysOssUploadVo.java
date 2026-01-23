@@ -3,9 +3,9 @@ package com.han.system.domain.vo;
 import lombok.Data;
 
 /**
- * 上传对象信息
- *
- * @author Michelle.Chung
+ * @Author Michelle.Chung
+ * @CreateTime: 2026-01-23
+ * @Description: 上传对象信息
  */
 @Data
 public class SysOssUploadVo {

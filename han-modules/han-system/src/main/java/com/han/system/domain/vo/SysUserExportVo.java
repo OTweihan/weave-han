@@ -11,9 +11,9 @@ import java.io.Serializable;
 import java.util.Date;
 
 /**
- * 用户对象导出VO
- *
- * @author Lion Li
+ * @Author Lion Li
+ * @CreateTime: 2026-01-23
+ * @Description: 用户对象导出VO
  */
 @Data
 @NoArgsConstructor

@@ -23,9 +23,9 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * 公告 服务层实现
- *
- * @author Lion Li
+ * @Author Lion Li
+ * @CreateTime: 2026-01-23
+ * @Description: 公告 服务层实现
  */
 @RequiredArgsConstructor
 @Service

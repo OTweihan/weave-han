@@ -7,12 +7,9 @@ import com.han.common.sensitive.core.SensitiveService;
 import org.springframework.stereotype.Service;
 
 /**
- * 脱敏服务
- * 默认管理员不过滤
- * 需自行根据业务重写实现
- *
- * @author Lion Li
- * @version 3.6.0
+ * @Author Lion Li
+ * @CreateTime: 2026-01-23
+ * @Description: 脱敏服务 默认管理员不过滤 需自行根据业务重写实现
  */
 @Service
 public class SysSensitiveServiceImpl implements SensitiveService {
@@ -38,5 +35,4 @@ public class SysSensitiveServiceImpl implements SensitiveService {
         }
         return !LoginHelper.isSuperAdmin();
     }
-
 }

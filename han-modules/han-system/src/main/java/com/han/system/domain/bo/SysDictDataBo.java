@@ -9,11 +9,10 @@ import com.han.common.mybatis.core.domain.BaseEntity;
 import com.han.system.domain.SysDictData;
 
 /**
- * 字典数据业务对象 sys_dict_data
- *
- * @author Michelle.Chung
+ * @Author Michelle.Chung
+ * @CreateTime: 2026-01-23
+ * @Description: 字典数据业务对象 sys_dict_data
  */
-
 @Data
 @EqualsAndHashCode(callSuper = true)
 @AutoMapper(target = SysDictData.class, reverseConvertGenerate = false)

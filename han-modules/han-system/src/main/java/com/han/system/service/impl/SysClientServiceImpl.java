@@ -27,10 +27,9 @@ import java.util.Collection;
 import java.util.List;
 
 /**
- * 客户端管理Service业务层处理
- *
- * @author Michelle.Chung
- * @date 2023-06-18
+ * @Author Michelle.Chung
+ * @CreateTime: 2023-06-18
+ * @Description: 客户端管理 Service 业务层处理
  */
 @Slf4j
 @RequiredArgsConstructor
@@ -151,5 +150,4 @@ public class SysClientServiceImpl implements ISysClientService {
             .ne(ObjectUtil.isNotNull(client.getId()), SysClient::getId, client.getId()));
         return !exist;
     }
-
 }

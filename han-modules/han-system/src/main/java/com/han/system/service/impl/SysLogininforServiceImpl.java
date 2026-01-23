@@ -34,9 +34,9 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 系统访问日志情况信息 服务层处理
- *
- * @author Lion Li
+ * @Author Lion Li
+ * @CreateTime: 2026-01-23
+ * @Description: 系统访问日志情况信息 服务层处理
  */
 @RequiredArgsConstructor
 @Slf4j
@@ -44,7 +44,6 @@ import java.util.Map;
 public class SysLogininforServiceImpl implements ISysLogininforService {
 
     private final SysLogininforMapper baseMapper;
-
     private final ISysClientService clientService;
 
     /**

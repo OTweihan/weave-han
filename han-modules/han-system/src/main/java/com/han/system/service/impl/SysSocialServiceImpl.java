@@ -15,17 +15,15 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 /**
- * 社会化关系Service业务层处理
- *
- * @author thiszhc
- * @date 2023-06-12
+ * @Author thiszhc
+ * @CreateTime: 2023-06-12
+ * @Description: 社会化关系Service业务层处理
  */
 @RequiredArgsConstructor
 @Service
 public class SysSocialServiceImpl implements ISysSocialService {
 
     private final SysSocialMapper baseMapper;
-
 
     /**
      * 查询社会化关系
@@ -51,7 +49,6 @@ public class SysSocialServiceImpl implements ISysSocialService {
     public List<SysSocialVo> queryListByUserId(Long userId) {
         return baseMapper.selectVoList(new LambdaQueryWrapper<SysSocial>().eq(SysSocial::getUserId, userId));
     }
-
 
     /**
      * 新增社会化关系
@@ -88,7 +85,6 @@ public class SysSocialServiceImpl implements ISysSocialService {
         //TODO 做一些数据校验,如唯一约束
     }
 
-
     /**
      * 删除社会化关系
      */
@@ -96,7 +92,6 @@ public class SysSocialServiceImpl implements ISysSocialService {
     public Boolean deleteWithValidById(Long id) {
         return baseMapper.deleteById(id) > 0;
     }
-
 
     /**
      * 根据 authId 查询用户信息
@@ -108,5 +103,4 @@ public class SysSocialServiceImpl implements ISysSocialService {
     public List<SysSocialVo> selectByAuthId(String authId) {
         return baseMapper.selectVoList(new LambdaQueryWrapper<SysSocial>().eq(SysSocial::getAuthId, authId));
     }
-
 }

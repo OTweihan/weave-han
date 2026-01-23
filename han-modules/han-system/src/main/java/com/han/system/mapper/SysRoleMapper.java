@@ -15,9 +15,9 @@ import com.han.system.domain.vo.SysRoleVo;
 import java.util.List;
 
 /**
- * 角色表 数据层
- *
- * @author Lion Li
+ * @Author Lion Li
+ * @CreateTime: 2026-01-23
+ * @Description: 角色表 数据层
  */
 @Mapper
 public interface SysRoleMapper extends BaseMapperPlus<SysRole, SysRoleVo> {
@@ -99,5 +99,4 @@ public interface SysRoleMapper extends BaseMapperPlus<SysRole, SysRoleVo> {
                 SysRole::getRoleSort, SysRole::getDataScope, SysRole::getStatus)
             .inSql(SysRole::getRoleId, this.buildRoleByUserSql(userId)));
     }
-
 }

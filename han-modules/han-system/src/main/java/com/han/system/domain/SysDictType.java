@@ -7,9 +7,9 @@ import lombok.EqualsAndHashCode;
 import com.han.common.mybatis.core.domain.BaseEntity;
 
 /**
- * 字典类型表 sys_dict_type
- *
- * @author Lion Li
+ * @Author Lion Li
+ * @CreateTime: 2026-01-23
+ * @Description: 字典类型表 sys_dict_type
  */
 @Data
 @EqualsAndHashCode(callSuper = true)

@@ -13,11 +13,10 @@ import com.han.common.sensitive.annotation.Sensitive;
 import com.han.common.sensitive.core.SensitiveStrategy;
 
 /**
- * 个人信息业务处理
- *
- * @author Michelle.Chung
+ * @Author Michelle.Chung
+ * @CreateTime: 2026-01-23
+ * @Description: 个人信息业务处理
  */
-
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
@@ -27,7 +26,7 @@ public class SysUserProfileBo extends BaseEntity {
      * 用户昵称
      */
     @Xss(message = "用户昵称不能包含脚本字符")
-    @Size(min = 0, max = 30, message = "用户昵称长度不能超过{max}个字符")
+    @Size(max = 30, message = "用户昵称长度不能超过{max}个字符")
     private String nickName;
 
     /**
@@ -35,7 +34,7 @@ public class SysUserProfileBo extends BaseEntity {
      */
     @Sensitive(strategy = SensitiveStrategy.EMAIL)
     @Email(message = "邮箱格式不正确")
-    @Size(min = 0, max = 50, message = "邮箱长度不能超过{max}个字符")
+    @Size(max = 50, message = "邮箱长度不能超过{max}个字符")
     private String email;
 
     /**

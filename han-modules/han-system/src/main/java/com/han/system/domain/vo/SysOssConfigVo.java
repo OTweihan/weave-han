@@ -9,11 +9,9 @@ import java.io.Serial;
 import java.io.Serializable;
 
 /**
- * 对象存储配置视图对象 sys_oss_config
- *
- * @author Lion Li
- * @author 孤舟烟雨
- * @date 2021-08-13
+ * @Author Lion Li, 孤舟烟雨
+ * @CreateTime: 2021-08-13
+ * @Description: 对象存储配置视图对象 sys_oss_config
  */
 @Data
 @ExcelIgnoreUnannotated

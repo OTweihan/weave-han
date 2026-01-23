@@ -8,9 +8,9 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
 
 /**
- * 初始化 system 模块对应业务数据
- *
- * @author Lion Li
+ * @Author Lion Li
+ * @CreateTime: 2026-01-23
+ * @Description: 初始化 system 模块对应业务数据
  */
 @Slf4j
 @RequiredArgsConstructor
@@ -22,6 +22,6 @@ public class SystemApplicationRunner implements ApplicationRunner {
     @Override
     public void run(ApplicationArguments args) throws Exception {
         ossConfigService.init();
-        log.info("初始化OSS配置成功");
+        log.info("初始化 OSS 配置成功");
     }
 }

@@ -9,9 +9,9 @@ import com.han.system.domain.vo.SysUserVo;
 import java.util.List;
 
 /**
- * 用户 业务层
- *
- * @author Lion Li
+ * @Author Lion Li
+ * @CreateTime: 2026-01-23
+ * @Description: 用户 业务层
  */
 public interface ISysUserService {
 

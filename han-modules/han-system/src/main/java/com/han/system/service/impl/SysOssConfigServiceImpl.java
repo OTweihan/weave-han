@@ -31,11 +31,9 @@ import java.util.Collection;
 import java.util.List;
 
 /**
- * 对象存储配置Service业务层处理
- *
- * @author Lion Li
- * @author 孤舟烟雨
- * @date 2021-08-13
+ * @Author Lion Li, 孤舟烟雨
+ * @CreateTime: 2021-08-13
+ * @Description: 对象存储配置Service业务层处理
  */
 @Slf4j
 @RequiredArgsConstructor
@@ -173,5 +171,4 @@ public class SysOssConfigServiceImpl implements ISysOssConfigService {
         }
         return row;
     }
-
 }

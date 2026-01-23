@@ -8,11 +8,10 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.util.Date;
 
-
 /**
- * 用户信息视图对象 sys_user
- *
- * @author Lion Li
+ * @Author Lion Li
+ * @CreateTime: 2026-01-23
+ * @Description: 用户信息视图对象 sys_user
  */
 @Data
 public class ProfileUserVo implements Serializable {

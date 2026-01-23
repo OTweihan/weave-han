@@ -9,9 +9,9 @@ import lombok.NoArgsConstructor;
 import com.han.common.mybatis.core.domain.BaseEntity;
 
 /**
- * 角色表 sys_role
- *
- * @author Lion Li
+ * @Author Lion Li
+ * @CreateTime: 2026-01-23
+ * @Description: 角色表 sys_role
  */
 @Data
 @NoArgsConstructor

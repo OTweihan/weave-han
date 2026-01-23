@@ -6,11 +6,10 @@ import com.han.system.domain.vo.SysOperLogVo;
 import org.apache.ibatis.annotations.Mapper;
 
 /**
- * 操作日志 数据层
- *
- * @author Lion Li
+ * @Author Lion Li
+ * @CreateTime: 2026-01-23
+ * @Description: 操作日志 数据层
  */
 @Mapper
 public interface SysOperLogMapper extends BaseMapperPlus<SysOperLog, SysOperLogVo> {
-
 }

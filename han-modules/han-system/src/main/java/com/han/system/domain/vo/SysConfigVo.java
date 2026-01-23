@@ -13,9 +13,9 @@ import java.io.Serializable;
 import java.util.Date;
 
 /**
- * 参数配置视图对象 sys_config
- *
- * @author Michelle.Chung
+ * @Author Michelle.Chung
+ * @CreateTime: 2026-01-23
+ * @Description: 参数配置视图对象 sys_config
  */
 @Data
 @ExcelIgnoreUnannotated

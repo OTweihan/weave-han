@@ -6,9 +6,9 @@ import com.han.system.domain.vo.SysSocialVo;
 import java.util.List;
 
 /**
- * 社会化关系Service接口
- *
- * @author thiszhc
+ * @Author thiszhc
+ * @CreateTime: 2026-01-23
+ * @Description: 社会化关系Service接口
  */
 public interface ISysSocialService {
 

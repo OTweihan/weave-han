@@ -13,9 +13,9 @@ import java.io.Serializable;
 import java.util.Date;
 
 /**
- * 字典数据视图对象 sys_dict_data
- *
- * @author Michelle.Chung
+ * @Author Michelle.Chung
+ * @CreateTime: 2026-01-23
+ * @Description: 字典数据视图对象 sys_dict_data
  */
 @Data
 @ExcelIgnoreUnannotated

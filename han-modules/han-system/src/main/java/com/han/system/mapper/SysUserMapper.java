@@ -16,9 +16,9 @@ import com.han.system.domain.vo.SysUserVo;
 import java.util.List;
 
 /**
- * 用户表 数据层
- *
- * @author Lion Li
+ * @Author Lion Li
+ * @CreateTime: 2026-01-23
+ * @Description: 用户表 数据层
  */
 @Mapper
 public interface SysUserMapper extends BaseMapperPlus<SysUser, SysUserVo> {

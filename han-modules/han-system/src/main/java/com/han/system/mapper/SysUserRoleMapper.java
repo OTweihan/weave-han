@@ -8,9 +8,9 @@ import org.apache.ibatis.annotations.Mapper;
 import java.util.List;
 
 /**
- * 用户与角色关联表 数据层
- *
- * @author Lion Li
+ * @Author Lion Li
+ * @CreateTime: 2026-01-23
+ * @Description: 用户与角色关联表 数据层
  */
 @Mapper
 public interface SysUserRoleMapper extends BaseMapperPlus<SysUserRole, SysUserRole> {

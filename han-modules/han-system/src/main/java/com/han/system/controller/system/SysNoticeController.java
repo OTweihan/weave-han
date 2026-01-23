@@ -18,9 +18,9 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 /**
- * 公告 信息操作处理
- *
- * @author Lion Li
+ * @Author: Lion Li
+ * @CreateTime: 2026-01-23
+ * @Description: 公告 信息操作处理
  */
 @Validated
 @RequiredArgsConstructor

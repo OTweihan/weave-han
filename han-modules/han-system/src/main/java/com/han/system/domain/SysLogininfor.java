@@ -9,9 +9,9 @@ import java.io.Serializable;
 import java.util.Date;
 
 /**
- * 系统访问记录表 sys_logininfor
- *
- * @author Lion Li
+ * @Author Lion Li
+ * @CreateTime: 2026-01-23
+ * @Description: 系统访问记录表 sys_logininfor
  */
 @Data
 @TableName("sys_logininfor")

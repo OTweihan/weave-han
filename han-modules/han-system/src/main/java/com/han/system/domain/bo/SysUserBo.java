@@ -13,11 +13,10 @@ import com.han.common.mybatis.core.domain.BaseEntity;
 import com.han.system.domain.SysUser;
 
 /**
- * 用户信息业务对象 sys_user
- *
  * @author Michelle.Chung
+ * @CreateTime: 2026-01-23
+ * @Description: 用户信息业务对象 sys_user
  */
-
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)

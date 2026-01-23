@@ -11,9 +11,9 @@ import java.io.Serializable;
 import java.util.Date;
 
 /**
- * OSS对象存储视图对象 sys_oss
- *
- * @author Lion Li
+ * @Author Lion Li
+ * @CreateTime: 2026-01-23
+ * @Description: OSS对象存储视图对象 sys_oss
  */
 @Data
 @AutoMapper(target = SysOss.class)

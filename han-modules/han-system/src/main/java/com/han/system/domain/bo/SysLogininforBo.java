@@ -9,11 +9,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * 系统访问记录业务对象 sys_logininfor
- *
- * @author Michelle.Chung
+ * @Author Michelle.Chung
+ * @CreateTime: 2026-01-23
+ * @Description: 系统访问记录业务对象 sys_logininfor
  */
-
 @Data
 @AutoMapper(target = SysLogininfor.class, reverseConvertGenerate = false)
 public class SysLogininforBo {
