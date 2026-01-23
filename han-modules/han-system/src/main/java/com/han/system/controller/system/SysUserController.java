@@ -3,14 +3,12 @@ package com.han.system.controller.system;
 import cn.dev33.satoken.annotation.SaCheckPermission;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.ObjectUtil;
-import cn.hutool.crypto.digest.BCrypt;
 import com.han.system.domain.vo.*;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import com.han.common.core.domain.R;
 import com.han.common.core.domain.model.LoginUser;
 import com.han.common.core.utils.StreamUtils;
-import com.han.common.core.utils.StringUtils;
 import com.han.common.encrypt.annotation.ApiEncrypt;
 import com.han.common.excel.core.ExcelResult;
 import com.han.common.excel.utils.ExcelUtil;
@@ -100,6 +98,9 @@ public class SysUserController extends BaseController {
     public R<UserInfoVo> getInfo() {
         UserInfoVo userInfoVo = new UserInfoVo();
         LoginUser loginUser = LoginHelper.getLoginUser();
+        if (ObjectUtil.isNull(loginUser)) {
+            return R.fail("获取用户信息失败");
+        }
         SysUserVo user = DataPermissionHelper.ignore(() -> userService.selectUserById(loginUser.getUserId()));
         if (ObjectUtil.isNull(user)) {
             return R.fail("没有权限访问用户数据!");
@@ -139,15 +140,8 @@ public class SysUserController extends BaseController {
     @RepeatSubmit()
     @PostMapping
     public R<Void> add(@Validated @RequestBody SysUserBo user) {
-        if (userService.checkUserNameUnique(user)) {
-            return R.fail("新增用户'" + user.getUserName() + "'失败，登录账号已存在");
-        } else if (StringUtils.isNotEmpty(user.getPhonenumber()) && userService.checkPhoneUnique(user)) {
-            return R.fail("新增用户'" + user.getUserName() + "'失败，手机号码已存在");
-        } else if (StringUtils.isNotEmpty(user.getEmail()) && userService.checkEmailUnique(user)) {
-            return R.fail("新增用户'" + user.getUserName() + "'失败，邮箱账号已存在");
-        }
-        user.setPassword(BCrypt.hashpw(user.getPassword()));
-        return toAjax(userService.insertUser(user));
+        userService.insertUser(user);
+        return R.ok();
     }
 
     /**
@@ -158,31 +152,19 @@ public class SysUserController extends BaseController {
     @RepeatSubmit()
     @PutMapping
     public R<Void> edit(@Validated @RequestBody SysUserBo user) {
-        userService.checkUserAllowed(user.getUserId());
-        userService.checkUserDataScope(user.getUserId());
-        if (userService.checkUserNameUnique(user)) {
-            return R.fail("修改用户'" + user.getUserName() + "'失败，登录账号已存在");
-        } else if (StringUtils.isNotEmpty(user.getPhonenumber()) && userService.checkPhoneUnique(user)) {
-            return R.fail("修改用户'" + user.getUserName() + "'失败，手机号码已存在");
-        } else if (StringUtils.isNotEmpty(user.getEmail()) && userService.checkEmailUnique(user)) {
-            return R.fail("修改用户'" + user.getUserName() + "'失败，邮箱账号已存在");
-        }
-        return toAjax(userService.updateUser(user));
+        userService.updateUser(user);
+        return R.ok();
     }
 
     /**
      * 删除用户
-     *
-     * @param userIds 角色ID串
      */
     @SaCheckPermission("system:user:remove")
     @Log(title = "用户管理", businessType = BusinessType.DELETE)
     @DeleteMapping("/{userIds}")
     public R<Void> remove(@PathVariable Long[] userIds) {
-        if (ArrayUtil.contains(userIds, LoginHelper.getUserId())) {
-            return R.fail("当前用户不能删除");
-        }
-        return toAjax(userService.deleteUserByIds(userIds));
+        userService.deleteUserByIds(userIds);
+        return R.ok();
     }
 
     /**
@@ -205,8 +187,6 @@ public class SysUserController extends BaseController {
     @RepeatSubmit()
     @PutMapping("/resetPwd")
     public R<Void> resetPwd(@RequestBody SysUserBo user) {
-        userService.checkUserAllowed(user.getUserId());
-        userService.checkUserDataScope(user.getUserId());
         userService.resetUserPwd(user.getUserId(), user.getPassword());
         return R.ok();
     }
@@ -219,22 +199,18 @@ public class SysUserController extends BaseController {
     @RepeatSubmit()
     @PutMapping("/changeStatus")
     public R<Void> changeStatus(@RequestBody SysUserBo user) {
-        userService.checkUserAllowed(user.getUserId());
-        userService.checkUserDataScope(user.getUserId());
-        return toAjax(userService.updateUserStatus(user.getUserId(), user.getStatus()));
+        userService.updateUserStatus(user.getUserId(), user.getStatus());
+        return R.ok();
     }
 
     /**
      * 根据用户编号获取授权角色
-     *
-     * @param userId 用户ID
      */
     @SaCheckPermission("system:user:query")
     @GetMapping("/authRole/{userId}")
-    public R<SysUserInfoVo> authRole(@PathVariable Long userId) {
-        userService.checkUserDataScope(userId);
+    public R<SysUserInfoVo> authRole(@PathVariable("userId") Long userId) {
         SysUserVo user = userService.selectUserById(userId);
-        List<SysRoleVo> roles = roleService.selectRolesAuthByUserId(userId);
+        List<SysRoleVo> roles = roleService.selectRolesByUserId(userId);
         SysUserInfoVo userInfoVo = new SysUserInfoVo();
         userInfoVo.setUser(user);
         userInfoVo.setRoles(LoginHelper.isSuperAdmin(userId) ? roles : StreamUtils.filter(roles, r -> !r.isSuperAdmin()));
@@ -243,17 +219,13 @@ public class SysUserController extends BaseController {
 
     /**
      * 用户授权角色
-     *
-     * @param userId  用户Id
-     * @param roleIds 角色ID串
      */
     @SaCheckPermission("system:user:edit")
     @Log(title = "用户管理", businessType = BusinessType.GRANT)
     @RepeatSubmit()
     @PutMapping("/authRole")
-    public R<Void> insertAuthRole(Long userId, Long[] roleIds) {
-        userService.checkUserDataScope(userId);
-        userService.insertUserAuth(userId, roleIds);
+    public R<Void> insertAuthRole(@RequestBody SysUserBo user) {
+        userService.insertUserAuth(user.getUserId(), user.getRoleIds());
         return R.ok();
     }
 }

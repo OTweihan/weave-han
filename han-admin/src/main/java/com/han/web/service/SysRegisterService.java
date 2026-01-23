@@ -84,11 +84,7 @@ public class SysRegisterService {
         }
 
         // 执行注册（由 ISysUserService 处理完整注册流程，包括角色分配等）
-        boolean regFlag = userService.registerUser(sysUser);
-        if (!regFlag) {
-            log.error("注册用户：{} 执行失败", username);
-            throw new UserException("user.register.error");
-        }
+        userService.registerUser(sysUser);
 
         // 记录注册成功日志
         recordLogininfor(username, Constants.REGISTER, MessageUtils.message("user.register.success"));

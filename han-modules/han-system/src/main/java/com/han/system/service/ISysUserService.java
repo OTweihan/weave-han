@@ -136,25 +136,22 @@ public interface ISysUserService {
      * 新增用户信息
      *
      * @param user 用户信息
-     * @return 结果
      */
-    int insertUser(SysUserBo user);
+    void insertUser(SysUserBo user);
 
     /**
      * 注册用户信息
      *
      * @param user 用户信息
-     * @return 结果
      */
-    boolean registerUser(SysUserBo user);
+    void registerUser(SysUserBo user);
 
     /**
      * 修改用户信息
      *
      * @param user 用户信息
-     * @return 结果
      */
-    int updateUser(SysUserBo user);
+    void updateUser(SysUserBo user);
 
     /**
      * 用户授权角色
@@ -169,9 +166,8 @@ public interface ISysUserService {
      *
      * @param userId 用户ID
      * @param status 帐号状态
-     * @return 结果
      */
-    int updateUserStatus(Long userId, String status);
+    void updateUserStatus(Long userId, String status);
 
     /**
      * 修改用户基本信息
@@ -201,15 +197,13 @@ public interface ISysUserService {
      * 通过用户ID删除用户
      *
      * @param userId 用户ID
-     * @return 结果
      */
-    int deleteUserById(Long userId);
+    void deleteUserById(Long userId);
 
     /**
      * 批量删除用户信息
      *
      * @param userIds 需要删除的用户ID
-     * @return 结果
      */
-    int deleteUserByIds(Long[] userIds);
+    void deleteUserByIds(Long[] userIds);
 }

@@ -279,50 +279,72 @@ public class SysUserServiceImpl implements ISysUserService, UserService {
      * 新增保存用户信息
      *
      * @param user 用户信息
-     * @return 结果
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public int insertUser(SysUserBo user) {
+    public void insertUser(SysUserBo user) {
+        // 校验唯一性
+        if (checkUserNameUnique(user)) {
+            throw new ServiceException("新增用户'" + user.getUserName() + "'失败，登录账号已存在");
+        } else if (StringUtils.isNotEmpty(user.getPhonenumber()) && checkPhoneUnique(user)) {
+            throw new ServiceException("新增用户'" + user.getUserName() + "'失败，手机号码已存在");
+        } else if (StringUtils.isNotEmpty(user.getEmail()) && checkEmailUnique(user)) {
+            throw new ServiceException("新增用户'" + user.getUserName() + "'失败，邮箱账号已存在");
+        }
+        // 密码加密
+        user.setPassword(BCrypt.hashpw(user.getPassword()));
+
         SysUser sysUser = MapstructUtils.convert(user, SysUser.class);
         if (ObjectUtil.isNull(sysUser)) {
             throw new ServiceException("新增用户失败，请联系管理员");
         }
         // 新增用户信息
         int rows = baseMapper.insert(sysUser);
+        if (rows <= 0) {
+            throw new ServiceException("新增用户失败");
+        }
         user.setUserId(sysUser.getUserId());
         // 新增用户与角色管理
         insertUserRole(user, false);
-        return rows;
     }
 
     /**
      * 注册用户信息
      *
      * @param user 用户信息
-     * @return 结果
      */
     @Override
-    public boolean registerUser(SysUserBo user) {
+    public void registerUser(SysUserBo user) {
         user.setCreateBy(0L);
         user.setUpdateBy(0L);
         SysUser sysUser = MapstructUtils.convert(user, SysUser.class);
         if (ObjectUtil.isNull(sysUser)) {
             throw new ServiceException("注册用户失败，请联系管理员");
         }
-        return baseMapper.insert(sysUser) > 0;
+        if (baseMapper.insert(sysUser) <= 0) {
+            throw new ServiceException("注册用户失败");
+        }
     }
 
     /**
      * 修改保存用户信息
      *
      * @param user 用户信息
-     * @return 结果
      */
     @Override
     @CacheEvict(cacheNames = CacheNames.SYS_NICKNAME, key = "#user.userId")
     @Transactional(rollbackFor = Exception.class)
-    public int updateUser(SysUserBo user) {
+    public void updateUser(SysUserBo user) {
+        checkUserAllowed(user.getUserId());
+        checkUserDataScope(user.getUserId());
+        if (checkUserNameUnique(user)) {
+            throw new ServiceException("修改用户'" + user.getUserName() + "'失败，登录账号已存在");
+        } else if (StringUtils.isNotEmpty(user.getPhonenumber()) && checkPhoneUnique(user)) {
+            throw new ServiceException("修改用户'" + user.getUserName() + "'失败，手机号码已存在");
+        } else if (StringUtils.isNotEmpty(user.getEmail()) && checkEmailUnique(user)) {
+            throw new ServiceException("修改用户'" + user.getUserName() + "'失败，邮箱账号已存在");
+        }
+
         // 新增用户与角色管理
         insertUserRole(user, true);
         SysUser sysUser = MapstructUtils.convert(user, SysUser.class);
@@ -334,7 +356,6 @@ public class SysUserServiceImpl implements ISysUserService, UserService {
         if (flag < 1) {
             throw new ServiceException("修改用户{}信息失败", user.getUserName());
         }
-        return flag;
     }
 
     /**
@@ -346,6 +367,7 @@ public class SysUserServiceImpl implements ISysUserService, UserService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void insertUserAuth(Long userId, Long[] roleIds) {
+        checkUserDataScope(userId);
         insertUserRole(userId, roleIds, true);
     }
 
@@ -354,14 +376,18 @@ public class SysUserServiceImpl implements ISysUserService, UserService {
      *
      * @param userId 用户ID
      * @param status 帐号状态
-     * @return 结果
      */
     @Override
-    public int updateUserStatus(Long userId, String status) {
-        return baseMapper.update(null,
+    public void updateUserStatus(Long userId, String status) {
+        checkUserAllowed(userId);
+        checkUserDataScope(userId);
+        int rows = baseMapper.update(null,
             new LambdaUpdateWrapper<SysUser>()
                 .set(SysUser::getStatus, status)
                 .eq(SysUser::getUserId, userId));
+        if (rows <= 0) {
+            throw new ServiceException("修改用户状态失败");
+        }
     }
 
     /**
@@ -493,11 +519,10 @@ public class SysUserServiceImpl implements ISysUserService, UserService {
      * 通过用户ID删除用户
      *
      * @param userId 用户ID
-     * @return 结果
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public int deleteUserById(Long userId) {
+    public void deleteUserById(Long userId) {
         // 删除用户与角色关联
         userRoleMapper.delete(new LambdaQueryWrapper<SysUserRole>().eq(SysUserRole::getUserId, userId));
         // 防止更新失败导致的数据删除
@@ -505,21 +530,22 @@ public class SysUserServiceImpl implements ISysUserService, UserService {
         if (flag < 1) {
             throw new ServiceException("删除用户失败!");
         }
-        return flag;
     }
 
     /**
      * 批量删除用户信息
      *
      * @param userIds 需要删除的用户ID
-     * @return 结果
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public int deleteUserByIds(Long[] userIds) {
+    public void deleteUserByIds(Long[] userIds) {
         for (Long userId : userIds) {
             checkUserAllowed(userId);
             checkUserDataScope(userId);
+            if (LoginHelper.getUserId().equals(userId)) {
+                throw new ServiceException("当前用户不能删除");
+            }
         }
         List<Long> ids = List.of(userIds);
         // 删除用户与角色关联
@@ -529,7 +555,6 @@ public class SysUserServiceImpl implements ISysUserService, UserService {
         if (flag < 1) {
             throw new ServiceException("删除用户失败!");
         }
-        return flag;
     }
 
 
