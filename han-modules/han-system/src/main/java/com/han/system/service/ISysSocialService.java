@@ -12,7 +12,6 @@ import java.util.List;
  */
 public interface ISysSocialService {
 
-
     /**
      * 查询社会化关系
      */
@@ -31,23 +30,21 @@ public interface ISysSocialService {
     /**
      * 新增授权关系
      */
-    Boolean insertByBo(SysSocialBo bo);
+    void insertByBo(SysSocialBo bo);
 
     /**
      * 更新社会化关系
      */
-    Boolean updateByBo(SysSocialBo bo);
+    void updateByBo(SysSocialBo bo);
 
     /**
      * 删除社会化关系信息
      */
-    Boolean deleteWithValidById(Long id);
+    void deleteWithValidById(Long id);
 
 
     /**
      * 根据 authId 查询
      */
     List<SysSocialVo> selectByAuthId(String authId);
-
-
 }

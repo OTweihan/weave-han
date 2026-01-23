@@ -253,10 +253,7 @@ public class SysLoginService {
      * @throws ServiceException 解绑失败
      */
     public void unlockSocial(Long socialId) {
-        Boolean success = sysSocialService.deleteWithValidById(socialId);
-        if (!success) {
-            throw new ServiceException("取消授权失败");
-        }
+        sysSocialService.deleteWithValidById(socialId);
     }
 
     /**
@@ -295,7 +292,7 @@ public class SysLoginService {
             sysSocialService.insertByBo(bo);
         } else {
             // 更新已有绑定信息（通常不应走到这里，抛出提示）
-            bo.setId(exists.get(0).getId());
+            bo.setId(exists.getFirst().getId());
             sysSocialService.updateByBo(bo);
             throw new ServiceException("此平台账号已经被绑定");
         }

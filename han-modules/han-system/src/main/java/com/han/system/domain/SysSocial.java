@@ -33,7 +33,7 @@ public class SysSocial extends BaseEntity {
     private Long userId;
 
     /**
-     * 的唯一ID
+     * 授权的唯一ID
      */
     private String authId;
 

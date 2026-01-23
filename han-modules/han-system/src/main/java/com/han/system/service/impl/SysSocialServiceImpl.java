@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import lombok.RequiredArgsConstructor;
 import com.han.common.core.utils.MapstructUtils;
 import com.han.common.core.utils.StringUtils;
+import com.han.common.core.exception.ServiceException;
 import com.han.system.domain.SysSocial;
 import com.han.system.domain.bo.SysSocialBo;
 import com.han.system.domain.vo.SysSocialVo;
@@ -54,43 +55,70 @@ public class SysSocialServiceImpl implements ISysSocialService {
      * 新增社会化关系
      */
     @Override
-    public Boolean insertByBo(SysSocialBo bo) {
+    public void insertByBo(SysSocialBo bo) {
         SysSocial add = MapstructUtils.convert(bo, SysSocial.class);
+        if (ObjectUtil.isNull(add)) {
+            throw new ServiceException("新增社会化关系失败，请联系管理员");
+        }
         validEntityBeforeSave(add);
         boolean flag = baseMapper.insert(add) > 0;
         if (flag) {
-            if (add != null) {
-                bo.setId(add.getId());
-            } else {
-                return false;
-            }
+            bo.setId(add.getId());
+        } else {
+            throw new ServiceException("新增社会化关系失败，请联系管理员");
         }
-        return flag;
     }
 
     /**
      * 更新社会化关系
      */
     @Override
-    public Boolean updateByBo(SysSocialBo bo) {
+    public void updateByBo(SysSocialBo bo) {
         SysSocial update = MapstructUtils.convert(bo, SysSocial.class);
+        if (ObjectUtil.isNull(update)) {
+            throw new ServiceException("更新社会化关系失败，请联系管理员");
+        }
         validEntityBeforeSave(update);
-        return baseMapper.updateById(update) > 0;
+        int rows = baseMapper.updateById(update);
+        if (rows <= 0) {
+            throw new ServiceException("更新社会化关系失败，请联系管理员");
+        }
     }
 
     /**
      * 保存前的数据校验
      */
     private void validEntityBeforeSave(SysSocial entity) {
-        //TODO 做一些数据校验,如唯一约束
+        // 校验 AuthId 唯一性
+        if (StringUtils.isNotBlank(entity.getAuthId())) {
+            boolean exists = baseMapper.exists(new LambdaQueryWrapper<SysSocial>()
+                .eq(SysSocial::getAuthId, entity.getAuthId())
+                .ne(ObjectUtil.isNotNull(entity.getId()), SysSocial::getId, entity.getId()));
+            if (exists) {
+                throw new ServiceException("此三方账号已经被其他用户绑定");
+            }
+        }
+        // 校验 User + Source 唯一性
+        if (ObjectUtil.isNotNull(entity.getUserId()) && StringUtils.isNotBlank(entity.getSource())) {
+            boolean exists = baseMapper.exists(new LambdaQueryWrapper<SysSocial>()
+                .eq(SysSocial::getUserId, entity.getUserId())
+                .eq(SysSocial::getSource, entity.getSource())
+                .ne(ObjectUtil.isNotNull(entity.getId()), SysSocial::getId, entity.getId()));
+            if (exists) {
+                throw new ServiceException("该用户已绑定过[" + entity.getSource() + "]平台账号");
+            }
+        }
     }
 
     /**
      * 删除社会化关系
      */
     @Override
-    public Boolean deleteWithValidById(Long id) {
-        return baseMapper.deleteById(id) > 0;
+    public void deleteWithValidById(Long id) {
+        int rows = baseMapper.deleteById(id);
+        if (rows <= 0) {
+            throw new ServiceException("删除社会化关系失败，请联系管理员");
+        }
     }
 
     /**
