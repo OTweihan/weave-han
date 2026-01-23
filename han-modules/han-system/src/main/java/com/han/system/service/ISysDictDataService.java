@@ -59,17 +59,15 @@ public interface ISysDictDataService {
      * 新增保存字典数据信息
      *
      * @param bo 字典数据信息
-     * @return 结果
      */
-    List<SysDictDataVo> insertDictData(SysDictDataBo bo);
+    void insertDictData(SysDictDataBo bo);
 
     /**
      * 修改保存字典数据信息
      *
      * @param bo 字典数据信息
-     * @return 结果
      */
-    List<SysDictDataVo> updateDictData(SysDictDataBo bo);
+    void updateDictData(SysDictDataBo bo);
 
     /**
      * 校验字典键值是否唯一
@@ -78,5 +76,4 @@ public interface ISysDictDataService {
      * @return 结果
      */
     boolean checkDictDataUnique(SysDictDataBo dict);
-
 }

@@ -111,15 +111,21 @@ public class SysDictDataServiceImpl implements ISysDictDataService {
      * 新增保存字典数据信息
      *
      * @param bo 字典数据信息
-     * @return 结果
      */
     @CachePut(cacheNames = CacheNames.SYS_DICT, key = "#bo.dictType")
     @Override
-    public List<SysDictDataVo> insertDictData(SysDictDataBo bo) {
+    public void insertDictData(SysDictDataBo bo) {
         SysDictData data = MapstructUtils.convert(bo, SysDictData.class);
+        if (data == null) {
+            throw new ServiceException("操作失败，转换对象为空");
+        }
+        if (checkDictDataUnique(bo)) {
+            throw new ServiceException("新增字典数据'" + bo.getDictValue() + "'失败，字典键值已存在");
+        }
         int row = baseMapper.insert(data);
         if (row > 0) {
-            return baseMapper.selectDictDataByType(data.getDictType());
+            baseMapper.selectDictDataByType(data.getDictType());
+            return;
         }
         throw new ServiceException("操作失败");
     }
@@ -128,15 +134,21 @@ public class SysDictDataServiceImpl implements ISysDictDataService {
      * 修改保存字典数据信息
      *
      * @param bo 字典数据信息
-     * @return 结果
      */
     @CachePut(cacheNames = CacheNames.SYS_DICT, key = "#bo.dictType")
     @Override
-    public List<SysDictDataVo> updateDictData(SysDictDataBo bo) {
+    public void updateDictData(SysDictDataBo bo) {
         SysDictData data = MapstructUtils.convert(bo, SysDictData.class);
+        if (data == null) {
+            throw new ServiceException("操作失败，转换对象为空");
+        }
+        if (checkDictDataUnique(bo)) {
+            throw new ServiceException("修改字典数据'" + bo.getDictValue() + "'失败，字典键值已存在");
+        }
         int row = baseMapper.updateById(data);
         if (row > 0) {
-            return baseMapper.selectDictDataByType(data.getDictType());
+            baseMapper.selectDictDataByType(data.getDictType());
+            return;
         }
         throw new ServiceException("操作失败");
     }
@@ -149,10 +161,9 @@ public class SysDictDataServiceImpl implements ISysDictDataService {
      */
     @Override
     public boolean checkDictDataUnique(SysDictDataBo dict) {
-        boolean exist = baseMapper.exists(new LambdaQueryWrapper<SysDictData>()
+        return baseMapper.exists(new LambdaQueryWrapper<SysDictData>()
             .eq(SysDictData::getDictType, dict.getDictType())
             .eq(SysDictData::getDictValue, dict.getDictValue())
             .ne(ObjectUtil.isNotNull(dict.getDictCode()), SysDictData::getDictCode, dict.getDictCode()));
-        return !exist;
     }
 }
