@@ -79,17 +79,15 @@ public interface ISysDictTypeService {
      * 新增保存字典类型信息
      *
      * @param bo 字典类型信息
-     * @return 结果
      */
-    List<SysDictDataVo> insertDictType(SysDictTypeBo bo);
+    void insertDictType(SysDictTypeBo bo);
 
     /**
      * 修改保存字典类型信息
      *
      * @param bo 字典类型信息
-     * @return 结果
      */
-    List<SysDictDataVo> updateDictType(SysDictTypeBo bo);
+    void updateDictType(SysDictTypeBo bo);
 
     /**
      * 校验字典类型称是否唯一

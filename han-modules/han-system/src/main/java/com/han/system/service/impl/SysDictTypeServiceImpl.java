@@ -34,6 +34,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -166,16 +167,21 @@ public class SysDictTypeServiceImpl implements ISysDictTypeService, DictService 
      * 新增保存字典类型信息
      *
      * @param bo 字典类型信息
-     * @return 结果
      */
     @CachePut(cacheNames = CacheNames.SYS_DICT, key = "#bo.dictType")
     @Override
-    public List<SysDictDataVo> insertDictType(SysDictTypeBo bo) {
+    public void insertDictType(SysDictTypeBo bo) {
         SysDictType dict = MapstructUtils.convert(bo, SysDictType.class);
+        if (dict == null) {
+            throw new ServiceException("操作失败，转换对象为空");
+        }
+        if (checkDictTypeUnique(bo)) {
+            throw new ServiceException("新增字典'" + bo.getDictName() + "'失败，字典类型已存在");
+        }
         int row = baseMapper.insert(dict);
         if (row > 0) {
             // 新增 type 下无 data 数据 返回空防止缓存穿透
-            return new ArrayList<>();
+            return;
         }
         throw new ServiceException("操作失败");
     }
@@ -184,14 +190,22 @@ public class SysDictTypeServiceImpl implements ISysDictTypeService, DictService 
      * 修改保存字典类型信息
      *
      * @param bo 字典类型信息
-     * @return 结果
      */
     @CachePut(cacheNames = CacheNames.SYS_DICT, key = "#bo.dictType")
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public List<SysDictDataVo> updateDictType(SysDictTypeBo bo) {
+    public void updateDictType(SysDictTypeBo bo) {
         SysDictType dict = MapstructUtils.convert(bo, SysDictType.class);
+        if (dict == null) {
+            throw new ServiceException("操作失败，转换对象为空");
+        }
+        if (checkDictTypeUnique(bo)) {
+            throw new ServiceException("修改字典'" + bo.getDictName() + "'失败，字典类型已存在");
+        }
         SysDictType oldDict = baseMapper.selectById(dict.getDictId());
+        if (ObjectUtil.isNull(oldDict)) {
+            throw new ServiceException("当前字典类型不存在");
+        }
         dictDataMapper.update(null, new LambdaUpdateWrapper<SysDictData>()
             .set(SysDictData::getDictType, dict.getDictType())
             .eq(SysDictData::getDictType, oldDict.getDictType()));
@@ -199,7 +213,8 @@ public class SysDictTypeServiceImpl implements ISysDictTypeService, DictService 
         if (row > 0) {
             CacheUtils.evict(CacheNames.SYS_DICT, oldDict.getDictType());
             CacheUtils.evict(CacheNames.SYS_DICT_TYPE, oldDict.getDictType());
-            return dictDataMapper.selectDictDataByType(dict.getDictType());
+            dictDataMapper.selectDictDataByType(dict.getDictType());
+            return;
         }
         throw new ServiceException("操作失败");
     }
@@ -212,10 +227,9 @@ public class SysDictTypeServiceImpl implements ISysDictTypeService, DictService 
      */
     @Override
     public boolean checkDictTypeUnique(SysDictTypeBo dictType) {
-        boolean exist = baseMapper.exists(new LambdaQueryWrapper<SysDictType>()
+        return baseMapper.exists(new LambdaQueryWrapper<SysDictType>()
             .eq(SysDictType::getDictType, dictType.getDictType())
             .ne(ObjectUtil.isNotNull(dictType.getDictId()), SysDictType::getDictId, dictType.getDictId()));
-        return !exist;
     }
 
     /**
@@ -228,15 +242,7 @@ public class SysDictTypeServiceImpl implements ISysDictTypeService, DictService 
      */
     @Override
     public String getDictLabel(String dictType, String dictValue, String separator) {
-        List<SysDictDataVo> datas = SpringUtils.getAopProxy(this).selectDictDataByType(dictType);
-        Map<String, String> map = StreamUtils.toMap(datas, SysDictDataVo::getDictValue, SysDictDataVo::getDictLabel);
-        if (StringUtils.containsAny(dictValue, separator)) {
-            return Arrays.stream(dictValue.split(separator))
-                .map(v -> map.getOrDefault(v, StringUtils.EMPTY))
-                .collect(Collectors.joining(separator));
-        } else {
-            return map.getOrDefault(dictValue, StringUtils.EMPTY);
-        }
+        return getDictResult(dictType, dictValue, separator, SysDictDataVo::getDictValue, SysDictDataVo::getDictLabel);
     }
 
     /**
@@ -249,14 +255,18 @@ public class SysDictTypeServiceImpl implements ISysDictTypeService, DictService 
      */
     @Override
     public String getDictValue(String dictType, String dictLabel, String separator) {
-        List<SysDictDataVo> datas = SpringUtils.getAopProxy(this).selectDictDataByType(dictType);
-        Map<String, String> map = StreamUtils.toMap(datas, SysDictDataVo::getDictLabel, SysDictDataVo::getDictValue);
-        if (StringUtils.containsAny(dictLabel, separator)) {
-            return Arrays.stream(dictLabel.split(separator))
-                .map(l -> map.getOrDefault(l, StringUtils.EMPTY))
+        return getDictResult(dictType, dictLabel, separator, SysDictDataVo::getDictLabel, SysDictDataVo::getDictValue);
+    }
+
+    private String getDictResult(String dictType, String target, String separator, Function<SysDictDataVo, String> keyMapper, Function<SysDictDataVo, String> valueMapper) {
+        List<SysDictDataVo> data = SpringUtils.getAopProxy(this).selectDictDataByType(dictType);
+        Map<String, String> map = StreamUtils.toMap(data, keyMapper, valueMapper);
+        if (StringUtils.containsAny(target, separator)) {
+            return Arrays.stream(target.split(separator))
+                .map(v -> map.getOrDefault(v, StringUtils.EMPTY))
                 .collect(Collectors.joining(separator));
         } else {
-            return map.getOrDefault(dictLabel, StringUtils.EMPTY);
+            return map.getOrDefault(target, StringUtils.EMPTY);
         }
     }
 

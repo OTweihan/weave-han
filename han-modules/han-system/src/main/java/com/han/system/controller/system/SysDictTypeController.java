@@ -73,9 +73,6 @@ public class SysDictTypeController extends BaseController {
     @RepeatSubmit()
     @PostMapping
     public R<Void> add(@Validated @RequestBody SysDictTypeBo dict) {
-        if (!dictTypeService.checkDictTypeUnique(dict)) {
-            return R.fail("新增字典'" + dict.getDictName() + "'失败，字典类型已存在");
-        }
         dictTypeService.insertDictType(dict);
         return R.ok();
     }
@@ -88,9 +85,6 @@ public class SysDictTypeController extends BaseController {
     @RepeatSubmit()
     @PutMapping
     public R<Void> edit(@Validated @RequestBody SysDictTypeBo dict) {
-        if (!dictTypeService.checkDictTypeUnique(dict)) {
-            return R.fail("修改字典'" + dict.getDictName() + "'失败，字典类型已存在");
-        }
         dictTypeService.updateDictType(dict);
         return R.ok();
     }
