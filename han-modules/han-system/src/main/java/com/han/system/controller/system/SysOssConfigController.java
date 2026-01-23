@@ -64,7 +64,8 @@ public class SysOssConfigController extends BaseController {
     @RepeatSubmit()
     @PostMapping()
     public R<Void> add(@Validated(AddGroup.class) @RequestBody SysOssConfigBo bo) {
-        return toAjax(ossConfigService.insertByBo(bo));
+        ossConfigService.insertByBo(bo);
+        return R.ok();
     }
 
     /**
@@ -75,7 +76,8 @@ public class SysOssConfigController extends BaseController {
     @RepeatSubmit()
     @PutMapping()
     public R<Void> edit(@Validated(EditGroup.class) @RequestBody SysOssConfigBo bo) {
-        return toAjax(ossConfigService.updateByBo(bo));
+        ossConfigService.updateByBo(bo);
+        return R.ok();
     }
 
     /**
@@ -88,7 +90,8 @@ public class SysOssConfigController extends BaseController {
     @DeleteMapping("/{ossConfigIds}")
     public R<Void> remove(@NotEmpty(message = "主键不能为空")
                           @PathVariable Long[] ossConfigIds) {
-        return toAjax(ossConfigService.deleteWithValidByIds(List.of(ossConfigIds), true));
+        ossConfigService.deleteWithValidByIds(List.of(ossConfigIds), true);
+        return R.ok();
     }
 
     /**

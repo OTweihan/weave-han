@@ -81,21 +81,28 @@ public class SysOssConfigServiceImpl implements ISysOssConfigService {
     }
 
     @Override
-    public Boolean insertByBo(SysOssConfigBo bo) {
+    public void insertByBo(SysOssConfigBo bo) {
         SysOssConfig config = MapstructUtils.convert(bo, SysOssConfig.class);
+        if (config == null) {
+            throw new ServiceException("操作失败，转换对象为空");
+        }
         validEntityBeforeSave(config);
         boolean flag = baseMapper.insert(config) > 0;
         if (flag) {
             // 从数据库查询完整的数据做缓存
             config = baseMapper.selectById(config.getOssConfigId());
             CacheUtils.put(CacheNames.SYS_OSS_CONFIG, config.getConfigKey(), JsonUtils.toJsonString(config));
+            return;
         }
-        return flag;
+        throw new ServiceException("操作失败");
     }
 
     @Override
-    public Boolean updateByBo(SysOssConfigBo bo) {
+    public void updateByBo(SysOssConfigBo bo) {
         SysOssConfig config = MapstructUtils.convert(bo, SysOssConfig.class);
+        if (config == null) {
+            throw new ServiceException("操作失败，转换对象为空");
+        }
         validEntityBeforeSave(config);
         LambdaUpdateWrapper<SysOssConfig> luw = new LambdaUpdateWrapper<>();
         luw.set(ObjectUtil.isNull(config.getPrefix()), SysOssConfig::getPrefix, "");
@@ -108,8 +115,9 @@ public class SysOssConfigServiceImpl implements ISysOssConfigService {
             // 从数据库查询完整的数据做缓存
             config = baseMapper.selectById(config.getOssConfigId());
             CacheUtils.put(CacheNames.SYS_OSS_CONFIG, config.getConfigKey(), JsonUtils.toJsonString(config));
+            return;
         }
-        return flag;
+        throw new ServiceException("操作失败");
     }
 
     /**
@@ -123,7 +131,7 @@ public class SysOssConfigServiceImpl implements ISysOssConfigService {
     }
 
     @Override
-    public Boolean deleteWithValidByIds(Collection<Long> ids, Boolean isValid) {
+    public void deleteWithValidByIds(Collection<Long> ids, Boolean isValid) {
         if (isValid) {
             if (CollUtil.containsAny(ids, OssConstant.SYSTEM_DATA_IDS)) {
                 throw new ServiceException("系统内置, 不可删除!");
@@ -138,8 +146,9 @@ public class SysOssConfigServiceImpl implements ISysOssConfigService {
         if (flag) {
             list.forEach(sysOssConfig ->
                 CacheUtils.evict(CacheNames.SYS_OSS_CONFIG, sysOssConfig.getConfigKey()));
+            return;
         }
-        return flag;
+        throw new ServiceException("操作失败");
     }
 
     /**
@@ -150,10 +159,7 @@ public class SysOssConfigServiceImpl implements ISysOssConfigService {
         SysOssConfig info = baseMapper.selectOne(new LambdaQueryWrapper<SysOssConfig>()
             .select(SysOssConfig::getOssConfigId, SysOssConfig::getConfigKey)
             .eq(SysOssConfig::getConfigKey, sysOssConfig.getConfigKey()));
-        if (ObjectUtil.isNotNull(info) && info.getOssConfigId() != ossConfigId) {
-            return false;
-        }
-        return true;
+        return !ObjectUtil.isNotNull(info) || info.getOssConfigId() == ossConfigId;
     }
 
     /**
@@ -163,6 +169,9 @@ public class SysOssConfigServiceImpl implements ISysOssConfigService {
     @Transactional(rollbackFor = Exception.class)
     public int updateOssConfigStatus(SysOssConfigBo bo) {
         SysOssConfig sysOssConfig = MapstructUtils.convert(bo, SysOssConfig.class);
+        if (sysOssConfig == null) {
+            throw new ServiceException("操作失败，转换对象为空");
+        }
         int row = baseMapper.update(null, new LambdaUpdateWrapper<SysOssConfig>()
             .set(SysOssConfig::getStatus, "1"));
         row += baseMapper.updateById(sysOssConfig);
