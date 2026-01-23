@@ -1,33 +1,24 @@
 package com.han.system.controller.system;
 
 import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.core.io.FileUtil;
 import cn.hutool.crypto.digest.BCrypt;
-import lombok.RequiredArgsConstructor;
 import com.han.common.core.domain.R;
-import com.han.common.core.utils.StringUtils;
-import com.han.common.core.utils.file.MimeTypeUtils;
 import com.han.common.encrypt.annotation.ApiEncrypt;
 import com.han.common.idempotent.annotation.RepeatSubmit;
 import com.han.common.log.annotation.Log;
 import com.han.common.log.enums.BusinessType;
-import com.han.common.mybatis.helper.DataPermissionHelper;
 import com.han.common.satoken.utils.LoginHelper;
 import com.han.common.web.core.BaseController;
-import com.han.system.domain.bo.SysUserBo;
 import com.han.system.domain.bo.SysUserPasswordBo;
 import com.han.system.domain.bo.SysUserProfileBo;
 import com.han.system.domain.vo.ProfileUserVo;
-import com.han.system.domain.vo.SysOssVo;
 import com.han.system.domain.vo.SysUserVo;
-import com.han.system.service.ISysOssService;
 import com.han.system.service.ISysUserService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.util.Arrays;
 
 /**
  * @Author: Lion Li
@@ -41,7 +32,6 @@ import java.util.Arrays;
 public class SysProfileController extends BaseController {
 
     private final ISysUserService userService;
-    private final ISysOssService ossService;
 
     /**
      * 个人信息
@@ -63,20 +53,9 @@ public class SysProfileController extends BaseController {
     @Log(title = "个人信息", businessType = BusinessType.UPDATE)
     @PutMapping
     public R<Void> updateProfile(@Validated @RequestBody SysUserProfileBo profile) {
-        SysUserBo user = BeanUtil.toBean(profile, SysUserBo.class);
-        user.setUserId(LoginHelper.getUserId());
-        String username = LoginHelper.getUsername();
-        if (StringUtils.isNotEmpty(user.getPhonenumber()) && !userService.checkPhoneUnique(user)) {
-            return R.fail("修改用户'" + username + "'失败，手机号码已存在");
-        }
-        if (StringUtils.isNotEmpty(user.getEmail()) && !userService.checkEmailUnique(user)) {
-            return R.fail("修改用户'" + username + "'失败，邮箱账号已存在");
-        }
-        int rows = DataPermissionHelper.ignore(() -> userService.updateUserProfile(user));
-        if (rows > 0) {
-            return R.ok();
-        }
-        return R.fail("修改个人信息异常，请联系管理员");
+        profile.setUserId(LoginHelper.getUserId());
+        userService.updateUserProfile(profile);
+        return R.ok();
     }
 
     /**
@@ -97,11 +76,8 @@ public class SysProfileController extends BaseController {
         if (BCrypt.checkpw(bo.getNewPassword(), password)) {
             return R.fail("新密码不能与旧密码相同");
         }
-        int rows = DataPermissionHelper.ignore(() -> userService.resetUserPwd(user.getUserId(), BCrypt.hashpw(bo.getNewPassword())));
-        if (rows > 0) {
-            return R.ok();
-        }
-        return R.fail("修改密码异常，请联系管理员");
+        userService.resetUserPwd(LoginHelper.getUserId(), bo.getNewPassword());
+        return R.ok();
     }
 
     /**
@@ -113,19 +89,8 @@ public class SysProfileController extends BaseController {
     @Log(title = "用户头像", businessType = BusinessType.UPDATE)
     @PostMapping(value = "/avatar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public R<AvatarVo> avatar(@RequestPart("avatarfile") MultipartFile avatarfile) {
-        if (!avatarfile.isEmpty()) {
-            String extension = FileUtil.extName(avatarfile.getOriginalFilename());
-            if (!StringUtils.equalsAnyIgnoreCase(extension, MimeTypeUtils.IMAGE_EXTENSION)) {
-                return R.fail("文件格式不正确，请上传" + Arrays.toString(MimeTypeUtils.IMAGE_EXTENSION) + "格式");
-            }
-            SysOssVo oss = ossService.upload(avatarfile);
-            String avatar = oss.getUrl();
-            boolean updateSuccess = DataPermissionHelper.ignore(() -> userService.updateUserAvatar(LoginHelper.getUserId(), oss.getOssId()));
-            if (updateSuccess) {
-                return R.ok(new AvatarVo(avatar));
-            }
-        }
-        return R.fail("上传图片异常，请联系管理员");
+        String avatar = userService.updateUserAvatar(LoginHelper.getUserId(), avatarfile);
+        return R.ok(new AvatarVo(avatar));
     }
 
     /**

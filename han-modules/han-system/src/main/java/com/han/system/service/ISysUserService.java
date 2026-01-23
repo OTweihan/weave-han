@@ -6,6 +6,9 @@ import com.han.system.domain.bo.SysUserBo;
 import com.han.system.domain.vo.SysUserExportVo;
 import com.han.system.domain.vo.SysUserVo;
 
+import com.han.system.domain.bo.SysUserProfileBo;
+import org.springframework.web.multipart.MultipartFile;
+
 import java.util.List;
 
 /**
@@ -174,27 +177,25 @@ public interface ISysUserService {
      * 修改用户基本信息
      *
      * @param user 用户信息
-     * @return 结果
      */
-    int updateUserProfile(SysUserBo user);
+    void updateUserProfile(SysUserProfileBo user);
 
     /**
      * 修改用户头像
      *
-     * @param userId 用户ID
-     * @param avatar 头像地址
+     * @param userId     用户ID
+     * @param avatarfile 头像文件
      * @return 结果
      */
-    boolean updateUserAvatar(Long userId, Long avatar);
+    String updateUserAvatar(Long userId, MultipartFile avatarfile);
 
     /**
      * 重置用户密码
      *
      * @param userId   用户ID
      * @param password 密码
-     * @return 结果
      */
-    int resetUserPwd(Long userId, String password);
+    void resetUserPwd(Long userId, String password);
 
     /**
      * 通过用户ID删除用户

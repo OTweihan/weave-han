@@ -36,6 +36,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import cn.hutool.core.io.FileUtil;
+import cn.hutool.crypto.digest.BCrypt;
+import com.han.common.core.utils.file.MimeTypeUtils;
+import com.han.system.domain.bo.SysUserProfileBo;
+import com.han.system.domain.vo.SysOssVo;
+import com.han.system.service.ISysOssService;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * @Author Lion Li
@@ -50,6 +57,7 @@ public class SysUserServiceImpl implements ISysUserService, UserService {
     private final SysUserMapper baseMapper;
     private final SysRoleMapper roleMapper;
     private final SysUserRoleMapper userRoleMapper;
+    private final ISysOssService ossService;
 
     @Override
     public TableDataInfo<SysUserVo> selectPageUserList(SysUserBo user, PageQuery pageQuery) {
@@ -208,10 +216,9 @@ public class SysUserServiceImpl implements ISysUserService, UserService {
      */
     @Override
     public boolean checkUserNameUnique(SysUserBo user) {
-        boolean exist = baseMapper.exists(new LambdaQueryWrapper<SysUser>()
+        return baseMapper.exists(new LambdaQueryWrapper<SysUser>()
             .eq(SysUser::getUserName, user.getUserName())
             .ne(ObjectUtil.isNotNull(user.getUserId()), SysUser::getUserId, user.getUserId()));
-        return !exist;
     }
 
     /**
@@ -221,10 +228,9 @@ public class SysUserServiceImpl implements ISysUserService, UserService {
      */
     @Override
     public boolean checkPhoneUnique(SysUserBo user) {
-        boolean exist = baseMapper.exists(new LambdaQueryWrapper<SysUser>()
+        return baseMapper.exists(new LambdaQueryWrapper<SysUser>()
             .eq(SysUser::getPhonenumber, user.getPhonenumber())
             .ne(ObjectUtil.isNotNull(user.getUserId()), SysUser::getUserId, user.getUserId()));
-        return !exist;
     }
 
     /**
@@ -234,10 +240,9 @@ public class SysUserServiceImpl implements ISysUserService, UserService {
      */
     @Override
     public boolean checkEmailUnique(SysUserBo user) {
-        boolean exist = baseMapper.exists(new LambdaQueryWrapper<SysUser>()
+        return baseMapper.exists(new LambdaQueryWrapper<SysUser>()
             .eq(SysUser::getEmail, user.getEmail())
             .ne(ObjectUtil.isNotNull(user.getUserId()), SysUser::getUserId, user.getUserId()));
-        return !exist;
     }
 
     /**
@@ -280,6 +285,9 @@ public class SysUserServiceImpl implements ISysUserService, UserService {
     @Transactional(rollbackFor = Exception.class)
     public int insertUser(SysUserBo user) {
         SysUser sysUser = MapstructUtils.convert(user, SysUser.class);
+        if (ObjectUtil.isNull(sysUser)) {
+            throw new ServiceException("新增用户失败，请联系管理员");
+        }
         // 新增用户信息
         int rows = baseMapper.insert(sysUser);
         user.setUserId(sysUser.getUserId());
@@ -299,6 +307,9 @@ public class SysUserServiceImpl implements ISysUserService, UserService {
         user.setCreateBy(0L);
         user.setUpdateBy(0L);
         SysUser sysUser = MapstructUtils.convert(user, SysUser.class);
+        if (ObjectUtil.isNull(sysUser)) {
+            throw new ServiceException("注册用户失败，请联系管理员");
+        }
         return baseMapper.insert(sysUser) > 0;
     }
 
@@ -315,6 +326,9 @@ public class SysUserServiceImpl implements ISysUserService, UserService {
         // 新增用户与角色管理
         insertUserRole(user, true);
         SysUser sysUser = MapstructUtils.convert(user, SysUser.class);
+        if (ObjectUtil.isNull(sysUser)) {
+            throw new ServiceException("修改用户失败，请联系管理员");
+        }
         // 防止错误更新后导致的数据误删除
         int flag = baseMapper.updateById(sysUser);
         if (flag < 1) {
@@ -353,34 +367,58 @@ public class SysUserServiceImpl implements ISysUserService, UserService {
     /**
      * 修改用户基本信息
      *
-     * @param user 用户信息
-     * @return 结果
+     * @param profile 用户信息
      */
-    @CacheEvict(cacheNames = CacheNames.SYS_NICKNAME, key = "#user.userId")
+    @CacheEvict(cacheNames = CacheNames.SYS_NICKNAME, key = "#profile.userId")
     @Override
-    public int updateUserProfile(SysUserBo user) {
-        return baseMapper.update(null,
+    public void updateUserProfile(SysUserProfileBo profile) {
+        SysUserBo user = BeanUtil.toBean(profile, SysUserBo.class);
+        String username = LoginHelper.getUsername();
+        if (StringUtils.isNotEmpty(user.getPhonenumber()) && checkPhoneUnique(user)) {
+            throw new ServiceException("修改用户'" + username + "'失败，手机号码已存在");
+        }
+        if (StringUtils.isNotEmpty(user.getEmail()) && checkEmailUnique(user)) {
+            throw new ServiceException("修改用户'" + username + "'失败，邮箱账号已存在");
+        }
+        int rows = baseMapper.update(null,
             new LambdaUpdateWrapper<SysUser>()
                 .set(ObjectUtil.isNotNull(user.getNickName()), SysUser::getNickName, user.getNickName())
                 .set(SysUser::getPhonenumber, user.getPhonenumber())
                 .set(SysUser::getEmail, user.getEmail())
                 .set(SysUser::getSex, user.getSex())
                 .eq(SysUser::getUserId, user.getUserId()));
+        if (rows <= 0) {
+            throw new ServiceException("修改个人信息异常，请联系管理员");
+        }
     }
 
     /**
      * 修改用户头像
      *
-     * @param userId 用户ID
-     * @param avatar 头像地址
+     * @param userId     用户ID
+     * @param avatarfile 头像文件
      * @return 结果
      */
     @Override
-    public boolean updateUserAvatar(Long userId, Long avatar) {
-        return baseMapper.update(null,
-            new LambdaUpdateWrapper<SysUser>()
-                .set(SysUser::getAvatar, avatar)
-                .eq(SysUser::getUserId, userId)) > 0;
+    public String updateUserAvatar(Long userId, MultipartFile avatarfile) {
+        if (!avatarfile.isEmpty()) {
+            String extension = FileUtil.extName(avatarfile.getOriginalFilename());
+            if (!StringUtils.equalsAnyIgnoreCase(extension, MimeTypeUtils.IMAGE_EXTENSION)) {
+                throw new ServiceException("文件格式不正确，请上传" + Arrays.toString(MimeTypeUtils.IMAGE_EXTENSION) + "格式");
+            }
+            SysOssVo oss = ossService.upload(avatarfile);
+            if (ObjectUtil.isNull(oss)) {
+                throw new ServiceException("上传图片异常，请联系管理员");
+            }
+            String avatar = oss.getUrl();
+            if (baseMapper.update(null,
+                new LambdaUpdateWrapper<SysUser>()
+                    .set(SysUser::getAvatar, oss.getOssId())
+                    .eq(SysUser::getUserId, userId)) > 0) {
+                return avatar;
+            }
+        }
+        throw new ServiceException("上传图片异常，请联系管理员");
     }
 
     /**
@@ -388,14 +426,16 @@ public class SysUserServiceImpl implements ISysUserService, UserService {
      *
      * @param userId   用户ID
      * @param password 密码
-     * @return 结果
      */
     @Override
-    public int resetUserPwd(Long userId, String password) {
-        return baseMapper.update(null,
+    public void resetUserPwd(Long userId, String password) {
+        int rows = baseMapper.update(null,
             new LambdaUpdateWrapper<SysUser>()
-                .set(SysUser::getPassword, password)
+                .set(SysUser::getPassword, BCrypt.hashpw(password))
                 .eq(SysUser::getUserId, userId));
+        if (rows <= 0) {
+            throw new ServiceException("修改密码异常，请联系管理员");
+        }
     }
 
     /**

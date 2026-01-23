@@ -139,11 +139,11 @@ public class SysUserController extends BaseController {
     @RepeatSubmit()
     @PostMapping
     public R<Void> add(@Validated @RequestBody SysUserBo user) {
-        if (!userService.checkUserNameUnique(user)) {
+        if (userService.checkUserNameUnique(user)) {
             return R.fail("新增用户'" + user.getUserName() + "'失败，登录账号已存在");
-        } else if (StringUtils.isNotEmpty(user.getPhonenumber()) && !userService.checkPhoneUnique(user)) {
+        } else if (StringUtils.isNotEmpty(user.getPhonenumber()) && userService.checkPhoneUnique(user)) {
             return R.fail("新增用户'" + user.getUserName() + "'失败，手机号码已存在");
-        } else if (StringUtils.isNotEmpty(user.getEmail()) && !userService.checkEmailUnique(user)) {
+        } else if (StringUtils.isNotEmpty(user.getEmail()) && userService.checkEmailUnique(user)) {
             return R.fail("新增用户'" + user.getUserName() + "'失败，邮箱账号已存在");
         }
         user.setPassword(BCrypt.hashpw(user.getPassword()));
@@ -160,11 +160,11 @@ public class SysUserController extends BaseController {
     public R<Void> edit(@Validated @RequestBody SysUserBo user) {
         userService.checkUserAllowed(user.getUserId());
         userService.checkUserDataScope(user.getUserId());
-        if (!userService.checkUserNameUnique(user)) {
+        if (userService.checkUserNameUnique(user)) {
             return R.fail("修改用户'" + user.getUserName() + "'失败，登录账号已存在");
-        } else if (StringUtils.isNotEmpty(user.getPhonenumber()) && !userService.checkPhoneUnique(user)) {
+        } else if (StringUtils.isNotEmpty(user.getPhonenumber()) && userService.checkPhoneUnique(user)) {
             return R.fail("修改用户'" + user.getUserName() + "'失败，手机号码已存在");
-        } else if (StringUtils.isNotEmpty(user.getEmail()) && !userService.checkEmailUnique(user)) {
+        } else if (StringUtils.isNotEmpty(user.getEmail()) && userService.checkEmailUnique(user)) {
             return R.fail("修改用户'" + user.getUserName() + "'失败，邮箱账号已存在");
         }
         return toAjax(userService.updateUser(user));
@@ -207,8 +207,8 @@ public class SysUserController extends BaseController {
     public R<Void> resetPwd(@RequestBody SysUserBo user) {
         userService.checkUserAllowed(user.getUserId());
         userService.checkUserDataScope(user.getUserId());
-        user.setPassword(BCrypt.hashpw(user.getPassword()));
-        return toAjax(userService.resetUserPwd(user.getUserId(), user.getPassword()));
+        userService.resetUserPwd(user.getUserId(), user.getPassword());
+        return R.ok();
     }
 
     /**

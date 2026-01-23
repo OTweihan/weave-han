@@ -23,6 +23,11 @@ import com.han.common.sensitive.core.SensitiveStrategy;
 public class SysUserProfileBo extends BaseEntity {
 
     /**
+     * 用户ID
+     */
+    private Long userId;
+
+    /**
      * 用户昵称
      */
     @Xss(message = "用户昵称不能包含脚本字符")
