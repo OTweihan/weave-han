@@ -85,7 +85,7 @@ public class SysConfigServiceImpl implements ISysConfigService, ConfigService {
      */
     @Override
     public boolean selectRegisterEnabled() {
-        String configValue = this.selectConfigByKey("sys.account.registerUser");
+        String configValue = SpringUtils.getAopProxy(this).selectConfigByKey("sys.account.registerUser");
         return Convert.toBool(configValue);
     }
 
@@ -117,15 +117,14 @@ public class SysConfigServiceImpl implements ISysConfigService, ConfigService {
      * 新增参数配置
      *
      * @param bo 参数配置信息
-     * @return 结果
      */
     @CachePut(cacheNames = CacheNames.SYS_CONFIG, key = "#bo.configKey")
     @Override
-    public String insertConfig(SysConfigBo bo) {
+    public void insertConfig(SysConfigBo bo) {
         SysConfig config = MapstructUtils.convert(bo, SysConfig.class);
         int row = baseMapper.insert(config);
         if (row > 0) {
-            return config.getConfigValue();
+            return;
         }
         throw new ServiceException("操作失败");
     }
@@ -134,15 +133,23 @@ public class SysConfigServiceImpl implements ISysConfigService, ConfigService {
      * 修改参数配置
      *
      * @param bo 参数配置信息
-     * @return 结果
      */
     @CachePut(cacheNames = CacheNames.SYS_CONFIG, key = "#bo.configKey")
     @Override
-    public String updateConfig(SysConfigBo bo) {
-        int row = 0;
+    public void updateConfig(SysConfigBo bo) {
         SysConfig config = MapstructUtils.convert(bo, SysConfig.class);
+        if (config == null) {
+            throw new ServiceException("操作失败，转换对象为空");
+        }
+        int row = 0;
         if (config.getConfigId() != null) {
+            if (!checkConfigKeyUnique(bo)) {
+                throw new ServiceException("修改参数'" + bo.getConfigName() + "'失败，参数键名已存在");
+            }
             SysConfig temp = baseMapper.selectById(config.getConfigId());
+            if (ObjectUtil.isNull(temp)) {
+                throw new ServiceException("参数配置不存在");
+            }
             if (!StringUtils.equals(temp.getConfigKey(), config.getConfigKey())) {
                 CacheUtils.evict(CacheNames.SYS_CONFIG, temp.getConfigKey());
             }
@@ -153,7 +160,7 @@ public class SysConfigServiceImpl implements ISysConfigService, ConfigService {
                 .eq(SysConfig::getConfigKey, config.getConfigKey()));
         }
         if (row > 0) {
-            return config.getConfigValue();
+            return;
         }
         throw new ServiceException("操作失败");
     }

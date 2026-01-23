@@ -98,7 +98,7 @@ public class SysClientServiceImpl implements ISysClientService {
             return false;
         }
         add.setGrantType(StringUtils.joinComma(bo.getGrantTypeList()));
-        // 生成clientid
+        // 生成clientId
         String clientKey = bo.getClientKey();
         String clientSecret = bo.getClientSecret();
         add.setClientId(SecureUtil.md5(clientKey + clientSecret));

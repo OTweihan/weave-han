@@ -57,17 +57,15 @@ public interface ISysConfigService {
      * 新增参数配置
      *
      * @param bo 参数配置信息
-     * @return 结果
      */
-    String insertConfig(SysConfigBo bo);
+    void insertConfig(SysConfigBo bo);
 
     /**
      * 修改参数配置
      *
      * @param bo 参数配置信息
-     * @return 结果
      */
-    String updateConfig(SysConfigBo bo);
+    void updateConfig(SysConfigBo bo);
 
     /**
      * 批量删除参数信息
