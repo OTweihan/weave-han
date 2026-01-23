@@ -50,4 +50,11 @@ public interface ISysLogininforService {
      * 清空系统登录日志
      */
     void cleanLogininfor();
+
+    /**
+     * 解锁用户
+     *
+     * @param userName 用户名
+     */
+    void unlockUser(String userName);
 }

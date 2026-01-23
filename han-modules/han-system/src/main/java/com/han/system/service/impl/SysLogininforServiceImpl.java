@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import com.han.common.core.constant.Constants;
+import com.han.common.core.constant.CacheConstants;
 import com.han.common.core.utils.MapstructUtils;
 import com.han.common.core.utils.ServletUtils;
 import com.han.common.core.utils.StringUtils;
@@ -16,6 +17,7 @@ import com.han.common.core.utils.ip.AddressUtils;
 import com.han.common.log.event.LogininforEvent;
 import com.han.common.mybatis.core.page.PageQuery;
 import com.han.common.mybatis.core.page.TableDataInfo;
+import com.han.common.redis.utils.RedisUtils;
 import com.han.common.satoken.utils.LoginHelper;
 import com.han.system.domain.SysLogininfor;
 import com.han.system.domain.bo.SysLogininforBo;
@@ -65,14 +67,13 @@ public class SysLogininforServiceImpl implements ISysLogininforService {
         }
 
         String address = AddressUtils.getRealAddressByIP(ip);
-        StringBuilder s = new StringBuilder();
-        s.append(getBlock(ip));
-        s.append(address);
-        s.append(getBlock(logininforEvent.getUsername()));
-        s.append(getBlock(logininforEvent.getStatus()));
-        s.append(getBlock(logininforEvent.getMessage()));
+        String userStatus = getBlock(ip) +
+            address +
+            getBlock(logininforEvent.getUsername()) +
+            getBlock(logininforEvent.getStatus()) +
+            getBlock(logininforEvent.getMessage());
         // 打印信息到日志
-        log.info(s.toString(), logininforEvent.getArgs());
+        log.info(userStatus, logininforEvent.getArgs());
         // 获取客户端操作系统
         String os = userAgent.getOs().getName();
         // 获取客户端浏览器
@@ -103,7 +104,7 @@ public class SysLogininforServiceImpl implements ISysLogininforService {
         if (msg == null) {
             msg = "";
         }
-        return "[" + msg.toString() + "]";
+        return "[" + msg + "]";
     }
 
     /**
@@ -115,13 +116,7 @@ public class SysLogininforServiceImpl implements ISysLogininforService {
      */
     @Override
     public TableDataInfo<SysLogininforVo> selectPageLogininforList(SysLogininforBo logininfor, PageQuery pageQuery) {
-        Map<String, Object> params = logininfor.getParams();
-        LambdaQueryWrapper<SysLogininfor> lqw = new LambdaQueryWrapper<SysLogininfor>()
-            .like(StringUtils.isNotBlank(logininfor.getIpaddr()), SysLogininfor::getIpaddr, logininfor.getIpaddr())
-            .eq(StringUtils.isNotBlank(logininfor.getStatus()), SysLogininfor::getStatus, logininfor.getStatus())
-            .like(StringUtils.isNotBlank(logininfor.getUserName()), SysLogininfor::getUserName, logininfor.getUserName())
-            .between(params.get("beginTime") != null && params.get("endTime") != null,
-                SysLogininfor::getLoginTime, params.get("beginTime"), params.get("endTime"));
+        LambdaQueryWrapper<SysLogininfor> lqw = buildQueryWrapper(logininfor);
         if (StringUtils.isBlank(pageQuery.getOrderByColumn())) {
             lqw.orderByDesc(SysLogininfor::getInfoId);
         }
@@ -137,8 +132,10 @@ public class SysLogininforServiceImpl implements ISysLogininforService {
     @Override
     public void insertLogininfor(SysLogininforBo bo) {
         SysLogininfor logininfor = MapstructUtils.convert(bo, SysLogininfor.class);
-        logininfor.setLoginTime(new Date());
-        baseMapper.insert(logininfor);
+        if (logininfor != null) {
+            logininfor.setLoginTime(new Date());
+            baseMapper.insert(logininfor);
+        }
     }
 
     /**
@@ -149,14 +146,9 @@ public class SysLogininforServiceImpl implements ISysLogininforService {
      */
     @Override
     public List<SysLogininforVo> selectLogininforList(SysLogininforBo logininfor) {
-        Map<String, Object> params = logininfor.getParams();
-        return baseMapper.selectVoList(new LambdaQueryWrapper<SysLogininfor>()
-            .like(StringUtils.isNotBlank(logininfor.getIpaddr()), SysLogininfor::getIpaddr, logininfor.getIpaddr())
-            .eq(StringUtils.isNotBlank(logininfor.getStatus()), SysLogininfor::getStatus, logininfor.getStatus())
-            .like(StringUtils.isNotBlank(logininfor.getUserName()), SysLogininfor::getUserName, logininfor.getUserName())
-            .between(params.get("beginTime") != null && params.get("endTime") != null,
-                SysLogininfor::getLoginTime, params.get("beginTime"), params.get("endTime"))
-            .orderByDesc(SysLogininfor::getInfoId));
+        LambdaQueryWrapper<SysLogininfor> lqw = buildQueryWrapper(logininfor);
+        lqw.orderByDesc(SysLogininfor::getInfoId);
+        return baseMapper.selectVoList(lqw);
     }
 
     /**
@@ -176,5 +168,31 @@ public class SysLogininforServiceImpl implements ISysLogininforService {
     @Override
     public void cleanLogininfor() {
         baseMapper.delete(new LambdaQueryWrapper<>());
+    }
+
+    /**
+     * 解锁用户
+     *
+     * @param userName 用户名
+     */
+    @Override
+    public void unlockUser(String userName) {
+        String loginName = CacheConstants.PWD_ERR_CNT_KEY + userName;
+        if (RedisUtils.hasKey(loginName)) {
+            RedisUtils.deleteObject(loginName);
+        }
+    }
+
+    /**
+     * 构建查询条件
+     */
+    private LambdaQueryWrapper<SysLogininfor> buildQueryWrapper(SysLogininforBo logininfor) {
+        Map<String, Object> params = logininfor.getParams();
+        return new LambdaQueryWrapper<SysLogininfor>()
+            .like(StringUtils.isNotBlank(logininfor.getIpaddr()), SysLogininfor::getIpaddr, logininfor.getIpaddr())
+            .eq(StringUtils.isNotBlank(logininfor.getStatus()), SysLogininfor::getStatus, logininfor.getStatus())
+            .like(StringUtils.isNotBlank(logininfor.getUserName()), SysLogininfor::getUserName, logininfor.getUserName())
+            .between(params.get("beginTime") != null && params.get("endTime") != null,
+                SysLogininfor::getLoginTime, params.get("beginTime"), params.get("endTime"));
     }
 }

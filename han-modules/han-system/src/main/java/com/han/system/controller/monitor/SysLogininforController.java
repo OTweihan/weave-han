@@ -4,7 +4,6 @@ import cn.dev33.satoken.annotation.SaCheckPermission;
 import com.baomidou.lock.annotation.Lock4j;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import com.han.common.core.constant.CacheConstants;
 import com.han.common.core.domain.R;
 import com.han.common.excel.utils.ExcelUtil;
 import com.han.common.idempotent.annotation.RepeatSubmit;
@@ -12,7 +11,6 @@ import com.han.common.log.annotation.Log;
 import com.han.common.log.enums.BusinessType;
 import com.han.common.mybatis.core.page.PageQuery;
 import com.han.common.mybatis.core.page.TableDataInfo;
-import com.han.common.redis.utils.RedisUtils;
 import com.han.common.web.core.BaseController;
 import com.han.system.domain.bo.SysLogininforBo;
 import com.han.system.domain.vo.SysLogininforVo;
@@ -82,11 +80,8 @@ public class SysLogininforController extends BaseController {
     @Log(title = "账户解锁", businessType = BusinessType.OTHER)
     @RepeatSubmit()
     @GetMapping("/unlock/{userName}")
-    public R<Void> unlock(@PathVariable("userName") String userName) {
-        String loginName = CacheConstants.PWD_ERR_CNT_KEY + userName;
-        if (RedisUtils.hasKey(loginName)) {
-            RedisUtils.deleteObject(loginName);
-        }
+    public R<Void> unlock(@PathVariable String userName) {
+        logininforService.unlockUser(userName);
         return R.ok();
     }
 }
