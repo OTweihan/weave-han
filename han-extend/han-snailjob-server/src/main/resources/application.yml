@@ -5,7 +5,7 @@ server:
 
 spring:
   application:
-    name: ruoyi-snailjob-server
+    name: weave-han-snailjob-server
   profiles:
     active: @profiles.active@
   web:
@@ -36,4 +36,4 @@ management:
     health:
       show-details: ALWAYS
     logfile:
-      external-file: ./logs/ruoyi-snailjob-server/console.log
+      external-file: ./logs/weave-han-snailjob-server/sys-console.log

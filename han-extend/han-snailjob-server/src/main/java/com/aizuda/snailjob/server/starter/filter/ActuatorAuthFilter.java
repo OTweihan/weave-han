@@ -8,6 +8,11 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
+/**
+ * @Author: Lion Li
+ * @CreateTime: 2023-07-07
+ * @Description: Actuator 认证过滤器
+ */
 public class ActuatorAuthFilter implements Filter {
 
     private final String username;
@@ -37,7 +42,7 @@ public class ActuatorAuthFilter implements Filter {
         String base64Credentials = authHeader.substring("Basic ".length());
         byte[] credDecoded = Base64.getDecoder().decode(base64Credentials);
         String credentials = new String(credDecoded, StandardCharsets.UTF_8);
-        String[] split = credentials.split(":");
+        String[] split = credentials.split(":", 2);
         if (split.length != 2) {
             response.setHeader("WWW-Authenticate", "Basic realm=\"realm\"");
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
@@ -60,5 +65,4 @@ public class ActuatorAuthFilter implements Filter {
     @Override
     public void destroy() {
     }
-
 }

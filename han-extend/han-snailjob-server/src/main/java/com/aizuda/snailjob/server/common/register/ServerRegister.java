@@ -31,11 +31,9 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 /**
- * 服务端注册
- *
- * @author opensnail
- * @date 2023-06-07
- * @since 1.6.0
+ * @Author: opensnail
+ * @CreateTime: 2023-06-07
+ * @Description: 服务端注册
  */
 @Component(ServerRegister.BEAN_NAME)
 @RequiredArgsConstructor
@@ -90,7 +88,6 @@ public class ServerRegister extends AbstractRegister {
         return Boolean.TRUE;
     }
 
-
     @Override
     protected void afterProcessor(final ServerNode serverNode) {
         try {
@@ -142,5 +139,8 @@ public class ServerRegister extends AbstractRegister {
     @Override
     public void close() {
         SnailJobLog.LOCAL.info("ServerRegister close");
+        if (!serverRegisterNode.isShutdown()) {
+            serverRegisterNode.shutdown();
+        }
     }
 }
