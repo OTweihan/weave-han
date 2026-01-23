@@ -44,9 +44,11 @@ public class SysOperLogServiceImpl implements ISysOperLogService {
     @EventListener
     public void recordOper(OperLogEvent operLogEvent) {
         SysOperLogBo operLog = MapstructUtils.convert(operLogEvent, SysOperLogBo.class);
-        // 远程查询操作地点
-        operLog.setOperLocation(AddressUtils.getRealAddressByIP(operLog.getOperIp()));
-        insertOperlog(operLog);
+        if (operLog != null) {
+            // 远程查询操作地点
+            operLog.setOperLocation(AddressUtils.getRealAddressByIP(operLog.getOperIp()));
+            insertOperlog(operLog);
+        }
     }
 
     /**
@@ -93,8 +95,10 @@ public class SysOperLogServiceImpl implements ISysOperLogService {
     @Override
     public void insertOperlog(SysOperLogBo bo) {
         SysOperLog operLog = MapstructUtils.convert(bo, SysOperLog.class);
-        operLog.setOperTime(new Date());
-        baseMapper.insert(operLog);
+        if (operLog != null) {
+            operLog.setOperTime(new Date());
+            baseMapper.insert(operLog);
+        }
     }
 
     /**
