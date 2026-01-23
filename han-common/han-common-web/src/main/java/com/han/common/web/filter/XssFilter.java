@@ -2,11 +2,8 @@ package com.han.common.web.filter;
 
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import com.han.common.core.utils.SpringUtils;
-import com.han.common.core.utils.StringUtils;
 import com.han.common.web.config.properties.XssProperties;
-import org.springframework.http.HttpMethod;
 
 import org.springframework.util.AntPathMatcher;
 

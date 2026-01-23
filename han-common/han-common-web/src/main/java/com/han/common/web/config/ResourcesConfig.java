@@ -5,6 +5,7 @@ import cn.hutool.core.date.DateUtil;
 import com.han.common.core.utils.ObjectUtils;
 import com.han.common.web.handler.GlobalExceptionHandler;
 import com.han.common.web.interceptor.PlusWebInvokeTimeInterceptor;
+import lombok.NonNull;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.format.FormatterRegistry;
@@ -44,7 +45,7 @@ public class ResourcesConfig implements WebMvcConfigurer {
     }
 
     @Override
-    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+    public void addResourceHandlers(@NonNull ResourceHandlerRegistry registry) {
     }
 
     /**

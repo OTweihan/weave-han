@@ -107,7 +107,7 @@ public class XssHttpServletRequestWrapper extends HttpServletRequestWrapper {
             }
 
             @Override
-            public int available() throws IOException {
+            public int available() {
                 return jsonBytes.length;
             }
 
@@ -116,7 +116,7 @@ public class XssHttpServletRequestWrapper extends HttpServletRequestWrapper {
             }
 
             @Override
-            public int read() throws IOException {
+            public int read() {
                 return bis.read();
             }
         };

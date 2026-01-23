@@ -53,7 +53,7 @@ public class GlobalExceptionHandler {
      * 业务异常
      */
     @ExceptionHandler(ServiceException.class)
-    public R<Void> handleServiceException(ServiceException e, HttpServletRequest request) {
+    public R<Void> handleServiceException(ServiceException e) {
         log.error(e.getMessage());
         Integer code = e.getCode();
         return ObjectUtil.isNotNull(code) ? R.fail(code, e.getMessage()) : R.fail(e.getMessage());
@@ -84,7 +84,7 @@ public class GlobalExceptionHandler {
      * 业务异常
      */
     @ExceptionHandler(BaseException.class)
-    public R<Void> handleBaseException(BaseException e, HttpServletRequest request) {
+    public R<Void> handleBaseException(BaseException e) {
         log.error(e.getMessage());
         return R.fail(e.getMessage());
     }
@@ -105,8 +105,9 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public R<Void> handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException e, HttpServletRequest request) {
         String requestURI = request.getRequestURI();
+        String requiredType = e.getRequiredType() != null ? e.getRequiredType().getName() : "unknown";
         log.error("请求参数类型不匹配'{}',发生系统异常.", requestURI);
-        return R.fail(String.format("请求参数类型不匹配，参数[%s]要求类型为：'%s'，但输入值为：'%s'", e.getName(), e.getRequiredType().getName(), e.getValue()));
+        return R.fail(String.format("请求参数类型不匹配，参数[%s]要求类型为：'%s'，但输入值为：'%s'", e.getName(), requiredType, e.getValue()));
     }
 
     /**
@@ -137,7 +138,7 @@ public class GlobalExceptionHandler {
      * sse 连接超时异常 不需要处理
      */
     @ExceptionHandler(AsyncRequestTimeoutException.class)
-    public void handleRuntimeException(AsyncRequestTimeoutException e) {
+    public void handleRuntimeException() {
     }
 
     /**

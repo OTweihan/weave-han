@@ -2,6 +2,7 @@ package com.han.common.web.core;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.NonNull;
 import org.springframework.web.servlet.LocaleResolver;
 
 import java.util.Locale;
@@ -14,17 +15,21 @@ import java.util.Locale;
 public class I18nLocaleResolver implements LocaleResolver {
 
     @Override
-    public Locale resolveLocale(HttpServletRequest httpServletRequest) {
+    public @NonNull Locale resolveLocale(HttpServletRequest httpServletRequest) {
         String language = httpServletRequest.getHeader("content-language");
         Locale locale = Locale.getDefault();
-        if (language != null && language.length() > 0) {
+        if (language != null && !language.isEmpty()) {
             String[] split = language.split("_");
-            locale = new Locale(split[0], split[1]);
+            if (split.length > 1) {
+                locale = Locale.of(split[0], split[1]);
+            } else if (split.length == 1) {
+                locale = Locale.of(split[0]);
+            }
         }
         return locale;
     }
 
     @Override
-    public void setLocale(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Locale locale) {
+    public void setLocale(@NonNull HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Locale locale) {
     }
 }
