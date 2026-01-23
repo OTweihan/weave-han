@@ -137,76 +137,67 @@ public interface ISysRoleService {
      * 新增保存角色信息
      *
      * @param bo 角色信息
-     * @return 结果
      */
-    int insertRole(SysRoleBo bo);
+    void insertRole(SysRoleBo bo);
 
     /**
      * 修改保存角色信息
      *
      * @param bo 角色信息
-     * @return 结果
      */
-    int updateRole(SysRoleBo bo);
+    void updateRole(SysRoleBo bo);
 
     /**
      * 修改角色状态
      *
      * @param roleId 角色ID
      * @param status 角色状态
-     * @return 结果
      */
-    int updateRoleStatus(Long roleId, String status);
+    void updateRoleStatus(Long roleId, String status);
 
     /**
      * 修改数据权限信息
      *
      * @param bo 角色信息
-     * @return 结果
      */
-    int authDataScope(SysRoleBo bo);
+    void authDataScope(SysRoleBo bo);
 
     /**
      * 通过角色ID删除角色
      *
      * @param roleId 角色ID
-     * @return 结果
      */
-    int deleteRoleById(Long roleId);
+    void deleteRoleById(Long roleId);
 
     /**
      * 批量删除角色信息
      *
      * @param roleIds 需要删除的角色ID
-     * @return 结果
      */
-    int deleteRoleByIds(List<Long> roleIds);
+    void deleteRoleByIds(List<Long> roleIds);
 
     /**
      * 取消授权用户角色
      *
      * @param userRole 用户和角色关联信息
-     * @return 结果
      */
-    int deleteAuthUser(SysUserRole userRole);
+    void deleteAuthUser(SysUserRole userRole);
 
     /**
      * 批量取消授权用户角色
      *
      * @param roleId  角色ID
      * @param userIds 需要取消授权的用户数据ID
-     * @return 结果
      */
-    int deleteAuthUsers(Long roleId, Long[] userIds);
+    void deleteAuthUsers(Long roleId, Long[] userIds);
 
     /**
      * 批量选择授权用户角色
      *
      * @param roleId  角色ID
      * @param userIds 需要删除的用户数据ID
-     * @return 结果
      */
-    int insertAuthUsers(Long roleId, Long[] userIds);
+    void insertAuthUsers(Long roleId, Long[] userIds);
 
     /**
      * 根据角色ID清除该角色关联的所有在线用户的登录状态（踢出在线用户）
