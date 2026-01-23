@@ -172,6 +172,7 @@ public class SysOssServiceImpl implements ISysOssService, OssService {
      * @param response HttpServletResponse对象，用于设置响应头和向客户端发送文件内容
      */
     @Override
+    @SuppressWarnings("resource")
     public void download(Long ossId, HttpServletResponse response) throws IOException {
         SysOssVo sysOss = SpringUtils.getAopProxy(this).getById(ossId);
         if (ObjectUtil.isNull(sysOss)) {
@@ -191,8 +192,12 @@ public class SysOssServiceImpl implements ISysOssService, OssService {
      * @throws ServiceException 如果上传过程中发生异常，则抛出 ServiceException 异常
      */
     @Override
+    @SuppressWarnings("resource")
     public SysOssVo upload(MultipartFile file) {
         String originalfileName = file.getOriginalFilename();
+        if (StringUtils.isBlank(originalfileName)) {
+            throw new ServiceException("上传文件名不能为空");
+        }
         String suffix = StringUtils.substring(originalfileName, originalfileName.lastIndexOf("."), originalfileName.length());
         OssClient storage = OssFactory.instance();
         UploadResult uploadResult;
@@ -215,6 +220,7 @@ public class SysOssServiceImpl implements ISysOssService, OssService {
      * @return 上传成功后的 SysOssVo 对象，包含文件信息
      */
     @Override
+    @SuppressWarnings("resource")
     public SysOssVo upload(File file) {
         String originalfileName = file.getName();
         String suffix = StringUtils.substring(originalfileName, originalfileName.lastIndexOf("."), originalfileName.length());
@@ -237,6 +243,9 @@ public class SysOssServiceImpl implements ISysOssService, OssService {
         oss.setExt1(JsonUtils.toJsonString(ext1));
         baseMapper.insert(oss);
         SysOssVo sysOssVo = MapstructUtils.convert(oss, SysOssVo.class);
+        if (sysOssVo == null) {
+            throw new ServiceException("操作失败，转换对象为空");
+        }
         return this.matchingUrl(sysOssVo);
     }
 
@@ -245,10 +254,10 @@ public class SysOssServiceImpl implements ISysOssService, OssService {
      *
      * @param ids     OSS对象ID串
      * @param isValid 判断是否需要校验
-     * @return 结果
      */
     @Override
-    public Boolean deleteWithValidByIds(Collection<Long> ids, Boolean isValid) {
+    @SuppressWarnings("resource")
+    public void deleteWithValidByIds(Collection<Long> ids, Boolean isValid) {
         if (isValid) {
             // 做一些业务上的校验,判断是否需要校验
         }
@@ -257,7 +266,10 @@ public class SysOssServiceImpl implements ISysOssService, OssService {
             OssClient storage = OssFactory.instance(sysOss.getService());
             storage.delete(sysOss.getUrl());
         }
-        return baseMapper.deleteByIds(ids) > 0;
+        if (baseMapper.deleteByIds(ids) > 0) {
+            return;
+        }
+        throw new ServiceException("删除失败");
     }
 
     /**
@@ -266,6 +278,7 @@ public class SysOssServiceImpl implements ISysOssService, OssService {
      * @param oss OSS对象
      * @return oss 匹配Url的OSS对象
      */
+    @SuppressWarnings("resource")
     private SysOssVo matchingUrl(SysOssVo oss) {
         OssClient storage = OssFactory.instance(oss.getService());
         // 仅修改桶类型为 private 的URL，临时URL时长为120s

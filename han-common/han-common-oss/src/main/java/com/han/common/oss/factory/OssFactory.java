@@ -54,7 +54,11 @@ public class OssFactory {
             try {
                 client = CLIENT_CACHE.get(configKey);
                 if (client == null || client.checkPropertiesSame(properties)) {
-                    CLIENT_CACHE.put(configKey, new OssClient(configKey, properties));
+                    OssClient oldClient = CLIENT_CACHE.put(configKey, new OssClient(configKey, properties));
+                    if (oldClient != null) {
+                        // 关闭旧客户端
+                        oldClient.close();
+                    }
                     log.info("创建OSS实例 key => {}", configKey);
                     return CLIENT_CACHE.get(configKey);
                 }

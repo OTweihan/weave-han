@@ -102,6 +102,7 @@ public class SysOssController extends BaseController {
     @DeleteMapping("/{ossIds}")
     public R<Void> remove(@NotEmpty(message = "主键不能为空")
                           @PathVariable Long[] ossIds) {
-        return toAjax(ossService.deleteWithValidByIds(List.of(ossIds), true));
+        ossService.deleteWithValidByIds(List.of(ossIds), true);
+        return R.ok();
     }
 }

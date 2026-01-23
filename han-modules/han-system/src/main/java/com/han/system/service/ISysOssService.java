@@ -73,8 +73,6 @@ public interface ISysOssService {
      *
      * @param ids     OSS对象ID串
      * @param isValid 判断是否需要校验
-     * @return 结果
      */
-    Boolean deleteWithValidByIds(Collection<Long> ids, Boolean isValid);
-
+    void deleteWithValidByIds(Collection<Long> ids, Boolean isValid);
 }
