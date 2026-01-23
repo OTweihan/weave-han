@@ -3,13 +3,11 @@ package com.han.system.controller.system;
 import cn.dev33.satoken.annotation.SaCheckPermission;
 import lombok.RequiredArgsConstructor;
 import com.han.common.core.domain.R;
-import com.han.common.core.service.DictService;
 import com.han.common.idempotent.annotation.RepeatSubmit;
 import com.han.common.log.annotation.Log;
 import com.han.common.log.enums.BusinessType;
 import com.han.common.mybatis.core.page.PageQuery;
 import com.han.common.mybatis.core.page.TableDataInfo;
-import com.han.common.sse.utils.SseMessageUtils;
 import com.han.common.web.core.BaseController;
 import com.han.system.domain.bo.SysNoticeBo;
 import com.han.system.domain.vo.SysNoticeVo;
@@ -29,7 +27,6 @@ import org.springframework.web.bind.annotation.*;
 public class SysNoticeController extends BaseController {
 
     private final ISysNoticeService noticeService;
-    private final DictService dictService;
 
     /**
      * 获取通知公告列表
@@ -59,13 +56,7 @@ public class SysNoticeController extends BaseController {
     @RepeatSubmit()
     @PostMapping
     public R<Void> add(@Validated @RequestBody SysNoticeBo notice) {
-        int rows = noticeService.insertNotice(notice);
-        if (rows <= 0) {
-            return R.fail();
-        }
-        String type = dictService.getDictLabel("sys_notice_type", notice.getNoticeType());
-        SseMessageUtils.publishAll("[" + type + "] " + notice.getNoticeTitle());
-        return R.ok();
+        return toAjax(noticeService.insertNotice(notice));
     }
 
     /**

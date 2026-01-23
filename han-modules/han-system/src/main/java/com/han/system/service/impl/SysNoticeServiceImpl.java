@@ -4,9 +4,12 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.RequiredArgsConstructor;
+import com.han.common.core.exception.ServiceException;
+import com.han.common.core.service.DictService;
 import com.han.common.core.utils.MapstructUtils;
 import com.han.common.core.utils.ObjectUtils;
 import com.han.common.core.utils.StringUtils;
+import com.han.common.sse.utils.SseMessageUtils;
 import com.han.common.mybatis.core.page.PageQuery;
 import com.han.common.mybatis.core.page.TableDataInfo;
 import com.han.system.domain.SysNotice;
@@ -33,6 +36,7 @@ public class SysNoticeServiceImpl implements ISysNoticeService {
 
     private final SysNoticeMapper baseMapper;
     private final SysUserMapper userMapper;
+    private final DictService dictService;
 
     /**
      * 分页查询通知公告列表
@@ -92,7 +96,15 @@ public class SysNoticeServiceImpl implements ISysNoticeService {
     @Override
     public int insertNotice(SysNoticeBo bo) {
         SysNotice notice = MapstructUtils.convert(bo, SysNotice.class);
-        return baseMapper.insert(notice);
+        if (notice == null) {
+            throw new ServiceException("操作失败，转换对象为空");
+        }
+        int rows = baseMapper.insert(notice);
+        if (rows > 0) {
+            String type = dictService.getDictLabel("sys_notice_type", notice.getNoticeType());
+            SseMessageUtils.publishAll("[" + type + "] " + notice.getNoticeTitle());
+        }
+        return rows;
     }
 
     /**
@@ -104,6 +116,9 @@ public class SysNoticeServiceImpl implements ISysNoticeService {
     @Override
     public int updateNotice(SysNoticeBo bo) {
         SysNotice notice = MapstructUtils.convert(bo, SysNotice.class);
+        if (notice == null) {
+            throw new ServiceException("操作失败，转换对象为空");
+        }
         return baseMapper.updateById(notice);
     }
 
