@@ -33,11 +33,8 @@ import java.util.List;
 public class SysUserImportListener extends AnalysisEventListener<SysUserImportVo> implements ExcelListener<SysUserImportVo> {
 
     private final ISysUserService userService;
-
     private final String password;
-
     private final Boolean isUpdateSupport;
-
     private final Long operUserId;
 
     private int successNum = 0;
@@ -95,7 +92,6 @@ public class SysUserImportListener extends AnalysisEventListener<SysUserImportVo
 
     @Override
     public void doAfterAllAnalysed(AnalysisContext context) {
-
     }
 
     @Override

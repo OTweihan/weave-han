@@ -386,7 +386,6 @@ public class SysLoginService {
     public void checkLogin(LoginType loginType, String username, Supplier<Boolean> supplier) {
         String errorKey = CacheConstants.PWD_ERR_CNT_KEY + username;
         String loginFail = Constants.LOGIN_FAIL;
-
         Integer errorNumber = RedisUtils.getCacheObject(errorKey);
         errorNumber = ObjectUtil.defaultIfNull(errorNumber, 0);
 
