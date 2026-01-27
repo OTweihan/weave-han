@@ -52,7 +52,7 @@ public class SysUserOnlineServiceImpl implements ISysUserOnlineService {
         if (StringUtils.isNotEmpty(ipaddr) && StringUtils.isNotEmpty(userName)) {
             userOnlineDTOList = StreamUtils.filter(userOnlineDTOList, userOnline ->
                 StringUtils.equals(ipaddr, userOnline.getIpaddr()) &&
-                    StringUtils.equals(userName, userOnline.getUserName())
+                    StringUtils.equals(userName, userOnline.getUserAccount())
             );
         } else if (StringUtils.isNotEmpty(ipaddr)) {
             userOnlineDTOList = StreamUtils.filter(userOnlineDTOList, userOnline ->
@@ -60,7 +60,7 @@ public class SysUserOnlineServiceImpl implements ISysUserOnlineService {
             );
         } else if (StringUtils.isNotEmpty(userName)) {
             userOnlineDTOList = StreamUtils.filter(userOnlineDTOList, userOnline ->
-                StringUtils.equals(userName, userOnline.getUserName())
+                StringUtils.equals(userName, userOnline.getUserAccount())
             );
         }
         Collections.reverse(userOnlineDTOList);

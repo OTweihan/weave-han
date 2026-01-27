@@ -179,7 +179,7 @@ public class SysLoginService {
     /**
      * 根据指定字段加载用户并校验状态
      *
-     * @param field 查询字段（如 SysUser::getUserName）
+     * @param field 查询字段（如 SysUser::getUserAccount）
      * @param value 字段值
      * @return 用户信息
      */
@@ -307,7 +307,7 @@ public class SysLoginService {
             if (ObjectUtil.isNull(loginUser)) {
                 return;
             }
-            recordLogininfor(loginUser.getUsername(), Constants.LOGOUT,
+            recordLogininfor(loginUser.getUserAccount(), Constants.LOGOUT,
                 MessageUtils.message("user.logout.success"));
         } catch (NotLoginException ignored) {
             // 未登录状态直接忽略
@@ -346,7 +346,7 @@ public class SysLoginService {
         Long userId = user.getUserId();
 
         loginUser.setUserId(userId);
-        loginUser.setUsername(user.getUserName());
+        loginUser.setUserAccount(user.getUserAccount());
         loginUser.setNickname(user.getNickName());
         loginUser.setUserType(user.getUserType());
 

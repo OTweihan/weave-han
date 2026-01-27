@@ -60,7 +60,7 @@ public class SmsAuthStrategy implements IAuthStrategy {
         SysUserVo user = loginService.loadUserByField(SysUser::getPhonenumber, phonenumber);
 
         // 校验短信验证码是否正确，同时执行登录风控检查
-        loginService.checkLogin(LoginType.SMS, user.getUserName(),
+        loginService.checkLogin(LoginType.SMS, user.getUserAccount(),
             () -> !validateSmsCode(phonenumber, smsCode));
 
         return loginService.processLogin(user, client);

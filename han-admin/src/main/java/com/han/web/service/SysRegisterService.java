@@ -67,7 +67,7 @@ public class SysRegisterService {
 
         // 构建用户注册数据（密码使用 BCrypt 加密存储）
         SysUserBo sysUser = new SysUserBo();
-        sysUser.setUserName(username);
+        sysUser.setUserAccount(username);
         // 默认昵称与用户名一致
         sysUser.setNickName(username);
         sysUser.setPassword(BCrypt.hashpw(password));
@@ -76,7 +76,7 @@ public class SysRegisterService {
         // 检查用户名是否已存在（防止重复注册）
         boolean exist = userMapper.exists(
             new LambdaQueryWrapper<SysUser>()
-                .eq(SysUser::getUserName, sysUser.getUserName())
+                .eq(SysUser::getUserAccount, sysUser.getUserAccount())
         );
         if (exist) {
             log.warn("注册用户：{} 已存在", username);

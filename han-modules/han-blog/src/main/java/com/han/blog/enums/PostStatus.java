@@ -4,10 +4,9 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 /**
- * 博客文章状态枚举
- *
- * @author WeiHan
- * @date 2026-01-19
+ * @Author: WeiHan
+ * @CreateTime: 2026-01-19
+ * @Description: 博客文章状态枚举
  */
 @Getter
 @AllArgsConstructor
@@ -33,6 +32,13 @@ public enum PostStatus {
      */
     RECYCLE(3, "回收站");
 
+    /**
+     * 状态码
+     */
     private final Integer code;
+
+    /**
+     * 状态信息
+     */
     private final String info;
 }

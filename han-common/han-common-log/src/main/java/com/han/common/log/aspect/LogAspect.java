@@ -95,7 +95,7 @@ public class LogAspect {
             }
             LoginUser loginUser = LoginHelper.getLoginUser();
             if (ObjectUtil.isNotNull(loginUser)) {
-                operLog.setOperName(loginUser.getUsername());
+                operLog.setOperName(loginUser.getUserAccount());
             }
 
             if (e != null) {

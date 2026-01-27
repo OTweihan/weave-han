@@ -18,7 +18,7 @@ public class SysUserOnline {
     /**
      * 用户名称
      */
-    private String userName;
+    private String userAccount;
 
     /**
      * 客户端

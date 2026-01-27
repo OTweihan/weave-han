@@ -59,7 +59,7 @@ public class EmailAuthStrategy implements IAuthStrategy {
         SysUserVo user = loginService.loadUserByField(SysUser::getEmail, email);
 
         // 校验登录失败次数、账号状态，并验证邮箱验证码是否正确
-        loginService.checkLogin(LoginType.EMAIL, user.getUserName(), () -> !validateEmailCode(email, emailCode));
+        loginService.checkLogin(LoginType.EMAIL, user.getUserAccount(), () -> !validateEmailCode(email, emailCode));
 
         return loginService.processLogin(user, client);
     }

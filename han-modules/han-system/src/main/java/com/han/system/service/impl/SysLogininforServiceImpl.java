@@ -80,7 +80,7 @@ public class SysLogininforServiceImpl implements ISysLogininforService {
         String browser = userAgent.getBrowser().getName();
         // 封装对象
         SysLogininforBo logininfor = new SysLogininforBo();
-        logininfor.setUserName(logininforEvent.getUsername());
+        logininfor.setUserAccount(logininforEvent.getUsername());
         if (ObjectUtil.isNotNull(client)) {
             logininfor.setClientKey(client.getClientKey());
             logininfor.setDeviceType(client.getDeviceType());
@@ -191,7 +191,7 @@ public class SysLogininforServiceImpl implements ISysLogininforService {
         return new LambdaQueryWrapper<SysLogininfor>()
             .like(StringUtils.isNotBlank(logininfor.getIpaddr()), SysLogininfor::getIpaddr, logininfor.getIpaddr())
             .eq(StringUtils.isNotBlank(logininfor.getStatus()), SysLogininfor::getStatus, logininfor.getStatus())
-            .like(StringUtils.isNotBlank(logininfor.getUserName()), SysLogininfor::getUserName, logininfor.getUserName())
+            .like(StringUtils.isNotBlank(logininfor.getUserAccount()), SysLogininfor::getUserAccount, logininfor.getUserAccount())
             .between(params.get("beginTime") != null && params.get("endTime") != null,
                 SysLogininfor::getLoginTime, params.get("beginTime"), params.get("endTime"));
     }

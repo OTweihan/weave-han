@@ -92,7 +92,7 @@ public class AppletAuthStrategy implements IAuthStrategy {
         // 小程序专用登录用户对象（继承或扩展 LoginUser，根据业务需要添加字段）
         AppletLoginUser loginUser = new AppletLoginUser();
         loginUser.setUserId(user.getUserId());
-        loginUser.setUsername(user.getUserName());
+        loginUser.setUserAccount(user.getUserAccount());
         loginUser.setNickname(user.getNickName());
         loginUser.setUserType(user.getUserType());
         loginUser.setClientKey(client.getClientKey());

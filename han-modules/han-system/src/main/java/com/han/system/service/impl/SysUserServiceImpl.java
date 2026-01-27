@@ -76,7 +76,7 @@ public class SysUserServiceImpl implements ISysUserService, UserService {
         Map<String, Object> params = user.getParams();
         QueryWrapper<SysUser> wrapper = Wrappers.query();
         wrapper.eq("u.del_flag", SystemConstants.NORMAL)
-            .like(StringUtils.isNotBlank(user.getUserName()), "u.user_name", user.getUserName())
+            .like(StringUtils.isNotBlank(user.getUserAccount()), "u.user_name", user.getUserAccount())
             .like(StringUtils.isNotBlank(user.getNickName()), "u.nick_name", user.getNickName())
             .eq(StringUtils.isNotBlank(user.getStatus()), "u.status", user.getStatus())
             .like(StringUtils.isNotBlank(user.getPhonenumber()), "u.phonenumber", user.getPhonenumber())
@@ -92,7 +92,7 @@ public class SysUserServiceImpl implements ISysUserService, UserService {
         wrapper.eq(SysUser::getDelFlag, SystemConstants.NORMAL)
             .eq(ObjectUtil.isNotNull(user.getUserId()), SysUser::getUserId, user.getUserId())
             .in(StringUtils.isNotBlank(user.getUserIds()), SysUser::getUserId, StringUtils.splitTo(user.getUserIds(), Convert::toLong))
-            .like(StringUtils.isNotBlank(user.getUserName()), SysUser::getUserName, user.getUserName())
+            .like(StringUtils.isNotBlank(user.getUserAccount()), SysUser::getUserAccount, user.getUserAccount())
             .like(StringUtils.isNotBlank(user.getNickName()), SysUser::getNickName, user.getNickName())
             .eq(StringUtils.isNotBlank(user.getStatus()), SysUser::getStatus, user.getStatus())
             .like(StringUtils.isNotBlank(user.getPhonenumber()), SysUser::getPhonenumber, user.getPhonenumber())
@@ -113,7 +113,7 @@ public class SysUserServiceImpl implements ISysUserService, UserService {
         QueryWrapper<SysUser> wrapper = Wrappers.query();
         wrapper.eq("u.del_flag", SystemConstants.NORMAL)
             .eq(ObjectUtil.isNotNull(user.getRoleId()), "r.role_id", user.getRoleId())
-            .like(StringUtils.isNotBlank(user.getUserName()), "u.user_name", user.getUserName())
+            .like(StringUtils.isNotBlank(user.getUserAccount()), "u.user_name", user.getUserAccount())
             .eq(StringUtils.isNotBlank(user.getStatus()), "u.status", user.getStatus())
             .like(StringUtils.isNotBlank(user.getPhonenumber()), "u.phonenumber", user.getPhonenumber())
             .orderByAsc("u.user_id");
@@ -134,7 +134,7 @@ public class SysUserServiceImpl implements ISysUserService, UserService {
         wrapper.eq("u.del_flag", SystemConstants.NORMAL)
             .and(w -> w.ne("r.role_id", user.getRoleId()).or().isNull("r.role_id"))
             .notIn(CollUtil.isNotEmpty(userIds), "u.user_id", userIds)
-            .like(StringUtils.isNotBlank(user.getUserName()), "u.user_name", user.getUserName())
+            .like(StringUtils.isNotBlank(user.getUserAccount()), "u.user_name", user.getUserAccount())
             .like(StringUtils.isNotBlank(user.getPhonenumber()), "u.phonenumber", user.getPhonenumber())
             .orderByAsc("u.user_id");
         Page<SysUserVo> page = baseMapper.selectUnallocatedList(pageQuery.build(), wrapper);
@@ -144,12 +144,12 @@ public class SysUserServiceImpl implements ISysUserService, UserService {
     /**
      * 通过用户名查询用户
      *
-     * @param userName 用户名
+     * @param userAccount 用户账号
      * @return 用户对象信息
      */
     @Override
-    public SysUserVo selectUserByUserName(String userName) {
-        return baseMapper.selectVoOne(new LambdaQueryWrapper<SysUser>().eq(SysUser::getUserName, userName));
+    public SysUserVo selectUserByUserName(String userAccount) {
+        return baseMapper.selectVoOne(new LambdaQueryWrapper<SysUser>().eq(SysUser::getUserAccount, userAccount));
     }
 
     /**
@@ -188,7 +188,7 @@ public class SysUserServiceImpl implements ISysUserService, UserService {
     @Override
     public List<SysUserVo> selectUserByIds(List<Long> userIds) {
         return baseMapper.selectUserList(new LambdaQueryWrapper<SysUser>()
-            .select(SysUser::getUserId, SysUser::getUserName, SysUser::getNickName)
+            .select(SysUser::getUserId, SysUser::getUserAccount, SysUser::getNickName)
             .eq(SysUser::getStatus, SystemConstants.NORMAL)
             .in(CollUtil.isNotEmpty(userIds), SysUser::getUserId, userIds));
     }
@@ -217,7 +217,7 @@ public class SysUserServiceImpl implements ISysUserService, UserService {
     @Override
     public boolean checkUserNameUnique(SysUserBo user) {
         return baseMapper.exists(new LambdaQueryWrapper<SysUser>()
-            .eq(SysUser::getUserName, user.getUserName())
+            .eq(SysUser::getUserAccount, user.getUserAccount())
             .ne(ObjectUtil.isNotNull(user.getUserId()), SysUser::getUserId, user.getUserId()));
     }
 
@@ -285,11 +285,11 @@ public class SysUserServiceImpl implements ISysUserService, UserService {
     public void insertUser(SysUserBo user) {
         // 校验唯一性
         if (checkUserNameUnique(user)) {
-            throw new ServiceException("新增用户'" + user.getUserName() + "'失败，登录账号已存在");
+            throw new ServiceException("新增用户'" + user.getUserAccount() + "'失败，登录账号已存在");
         } else if (StringUtils.isNotEmpty(user.getPhonenumber()) && checkPhoneUnique(user)) {
-            throw new ServiceException("新增用户'" + user.getUserName() + "'失败，手机号码已存在");
+            throw new ServiceException("新增用户'" + user.getUserAccount() + "'失败，手机号码已存在");
         } else if (StringUtils.isNotEmpty(user.getEmail()) && checkEmailUnique(user)) {
-            throw new ServiceException("新增用户'" + user.getUserName() + "'失败，邮箱账号已存在");
+            throw new ServiceException("新增用户'" + user.getUserAccount() + "'失败，邮箱账号已存在");
         }
         // 密码加密
         user.setPassword(BCrypt.hashpw(user.getPassword()));
@@ -338,11 +338,11 @@ public class SysUserServiceImpl implements ISysUserService, UserService {
         checkUserAllowed(user.getUserId());
         checkUserDataScope(user.getUserId());
         if (checkUserNameUnique(user)) {
-            throw new ServiceException("修改用户'" + user.getUserName() + "'失败，登录账号已存在");
+            throw new ServiceException("修改用户'" + user.getUserAccount() + "'失败，登录账号已存在");
         } else if (StringUtils.isNotEmpty(user.getPhonenumber()) && checkPhoneUnique(user)) {
-            throw new ServiceException("修改用户'" + user.getUserName() + "'失败，手机号码已存在");
+            throw new ServiceException("修改用户'" + user.getUserAccount() + "'失败，手机号码已存在");
         } else if (StringUtils.isNotEmpty(user.getEmail()) && checkEmailUnique(user)) {
-            throw new ServiceException("修改用户'" + user.getUserName() + "'失败，邮箱账号已存在");
+            throw new ServiceException("修改用户'" + user.getUserAccount() + "'失败，邮箱账号已存在");
         }
 
         // 新增用户与角色管理
@@ -354,7 +354,7 @@ public class SysUserServiceImpl implements ISysUserService, UserService {
         // 防止错误更新后导致的数据误删除
         int flag = baseMapper.updateById(sysUser);
         if (flag < 1) {
-            throw new ServiceException("修改用户{}信息失败", user.getUserName());
+            throw new ServiceException("修改用户{}信息失败", user.getUserAccount());
         }
     }
 
@@ -568,8 +568,8 @@ public class SysUserServiceImpl implements ISysUserService, UserService {
     @Override
     public String selectUserNameById(Long userId) {
         SysUser sysUser = baseMapper.selectOne(new LambdaQueryWrapper<SysUser>()
-            .select(SysUser::getUserName).eq(SysUser::getUserId, userId));
-        return ObjectUtils.notNullGetter(sysUser, SysUser::getUserName);
+            .select(SysUser::getUserAccount).eq(SysUser::getUserId, userId));
+        return ObjectUtils.notNullGetter(sysUser, SysUser::getUserAccount);
     }
 
     /**
@@ -642,7 +642,7 @@ public class SysUserServiceImpl implements ISysUserService, UserService {
             return List.of();
         }
         List<SysUserVo> list = baseMapper.selectVoList(new LambdaQueryWrapper<SysUser>()
-            .select(SysUser::getUserId, SysUser::getUserName,
+            .select(SysUser::getUserId, SysUser::getUserAccount,
                 SysUser::getNickName, SysUser::getUserType, SysUser::getEmail,
                 SysUser::getPhonenumber, SysUser::getSex, SysUser::getStatus,
                 SysUser::getCreateTime)

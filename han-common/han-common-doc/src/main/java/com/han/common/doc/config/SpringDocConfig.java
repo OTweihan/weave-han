@@ -112,8 +112,6 @@ public class SpringDocConfig {
 
     /**
      * 单独使用一个类便于判断 解决springdoc路径拼接重复问题
-     *
-     * @author Lion Li
      */
     static class PlusPaths extends Paths {
 

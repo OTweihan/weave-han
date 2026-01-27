@@ -52,7 +52,7 @@ public class SysUserImportListener extends AnalysisEventListener<SysUserImportVo
 
     @Override
     public void invoke(SysUserImportVo userVo, AnalysisContext context) {
-        SysUserVo sysUser = this.userService.selectUserByUserName(userVo.getUserName());
+        SysUserVo sysUser = this.userService.selectUserByUserName(userVo.getUserAccount());
         try {
             // 验证是否存在这个用户
             if (ObjectUtil.isNull(sysUser)) {
@@ -62,7 +62,7 @@ public class SysUserImportListener extends AnalysisEventListener<SysUserImportVo
                 user.setCreateBy(operUserId);
                 userService.insertUser(user);
                 successNum++;
-                successMsg.append("<br/>").append(successNum).append("、账号 ").append(user.getUserName()).append(" 导入成功");
+                successMsg.append("<br/>").append(successNum).append("、账号 ").append(user.getUserAccount()).append(" 导入成功");
             } else if (isUpdateSupport) {
                 Long userId = sysUser.getUserId();
                 SysUserBo user = BeanUtil.toBean(userVo, SysUserBo.class);
@@ -73,14 +73,14 @@ public class SysUserImportListener extends AnalysisEventListener<SysUserImportVo
                 user.setUpdateBy(operUserId);
                 userService.updateUser(user);
                 successNum++;
-                successMsg.append("<br/>").append(successNum).append("、账号 ").append(user.getUserName()).append(" 更新成功");
+                successMsg.append("<br/>").append(successNum).append("、账号 ").append(user.getUserAccount()).append(" 更新成功");
             } else {
                 failureNum++;
-                failureMsg.append("<br/>").append(failureNum).append("、账号 ").append(sysUser.getUserName()).append(" 已存在");
+                failureMsg.append("<br/>").append(failureNum).append("、账号 ").append(sysUser.getUserAccount()).append(" 已存在");
             }
         } catch (Exception e) {
             failureNum++;
-            String msg = "<br/>" + failureNum + "、账号 " + HtmlUtil.cleanHtmlTag(userVo.getUserName()) + " 导入失败：";
+            String msg = "<br/>" + failureNum + "、账号 " + HtmlUtil.cleanHtmlTag(userVo.getUserAccount()) + " 导入失败：";
             String message = e.getMessage();
             if (e instanceof ConstraintViolationException cvException) {
                 message = StreamUtils.join(cvException.getConstraintViolations(), ConstraintViolation::getMessage, ", ");

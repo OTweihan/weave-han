@@ -35,7 +35,7 @@ public class LoginHelper {
         model = ObjectUtil.defaultIfNull(model, new SaLoginParameter());
         StpUtil.login(loginUser.getLoginId(),
             model.setExtra(USER_KEY, loginUser.getUserId())
-                .setExtra(USER_NAME_KEY, loginUser.getUsername())
+                .setExtra(USER_NAME_KEY, loginUser.getUserAccount())
         );
         StpUtil.getTokenSession().set(LOGIN_USER_KEY, loginUser);
     }

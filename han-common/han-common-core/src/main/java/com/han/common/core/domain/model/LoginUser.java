@@ -77,9 +77,9 @@ public class LoginUser implements Serializable {
     private Set<String> rolePermission;
 
     /**
-     * 用户名
+     * 用户账号
      */
-    private String username;
+    private String userAccount;
 
     /**
      * 用户昵称

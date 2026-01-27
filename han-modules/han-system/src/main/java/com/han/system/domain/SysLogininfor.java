@@ -29,7 +29,7 @@ public class SysLogininfor implements Serializable {
     /**
      * 用户账号
      */
-    private String userName;
+    private String userAccount;
 
     /**
      * 客户端

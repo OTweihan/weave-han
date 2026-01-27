@@ -52,7 +52,7 @@ public class PasswordAuthStrategy implements IAuthStrategy {
         }
         ValidatorUtils.validate(loginBody);
 
-        String username = loginBody.getUsername();
+        String userAccount = loginBody.getUserAccount();
         String password = loginBody.getPassword();
         String code = loginBody.getCode();
         String uuid = loginBody.getUuid();
@@ -60,14 +60,14 @@ public class PasswordAuthStrategy implements IAuthStrategy {
         // 判断是否开启图形验证码校验
         boolean captchaEnabled = captchaProperties.getEnable();
         if (captchaEnabled) {
-            validateCaptcha(username, code, uuid);
+            validateCaptcha(userAccount, code, uuid);
         }
 
         // 根据用户名加载用户信息并进行状态检查
-        SysUserVo user = loginService.loadUserByField(SysUser::getUserName, username);
+        SysUserVo user = loginService.loadUserByField(SysUser::getUserAccount, userAccount);
 
         // 校验密码是否正确，同时记录登录失败次数等风控逻辑
-        loginService.checkLogin(LoginType.PASSWORD, username,
+        loginService.checkLogin(LoginType.PASSWORD, userAccount,
             () -> !BCrypt.checkpw(password, user.getPassword()));
 
         return loginService.processLogin(user, client);
@@ -76,13 +76,13 @@ public class PasswordAuthStrategy implements IAuthStrategy {
     /**
      * 校验图形验证码是否正确
      *
-     * @param username 用户名（用于登录失败日志记录）
+     * @param userAccount 用户名（用于登录失败日志记录）
      * @param code     用户输入的验证码
      * @param uuid     验证码对应的唯一标识（通常为前端生成的随机串）
      * @throws CaptchaExpireException 验证码已过期或不存在
      * @throws CaptchaException       验证码不正确
      */
-    private void validateCaptcha(String username, String code, String uuid) {
+    private void validateCaptcha(String userAccount, String code, String uuid) {
         // 构建验证码在 Redis 中的 key
         String verifyKey = GlobalConstants.CAPTCHA_CODE_KEY + StringUtils.blankToDefault(uuid, "");
 
@@ -92,13 +92,13 @@ public class PasswordAuthStrategy implements IAuthStrategy {
         RedisUtils.deleteObject(verifyKey);
 
         if (captcha == null) {
-            loginService.recordLogininfor(username, Constants.LOGIN_FAIL,
+            loginService.recordLogininfor(userAccount, Constants.LOGIN_FAIL,
                 MessageUtils.message("user.jcaptcha.expire"));
             throw new CaptchaExpireException();
         }
 
         if (!StringUtils.equalsIgnoreCase(code, captcha)) {
-            loginService.recordLogininfor(username, Constants.LOGIN_FAIL,
+            loginService.recordLogininfor(userAccount, Constants.LOGIN_FAIL,
                 MessageUtils.message("user.jcaptcha.error"));
             throw new CaptchaException();
         }

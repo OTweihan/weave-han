@@ -54,7 +54,7 @@ public class UserActionListener implements SaTokenListener {
         
         // 从登录参数中获取额外信息
         String username = (String) loginParameter.getExtra(LoginHelper.USER_NAME_KEY);
-        dto.setUserName(username);
+        dto.setUserAccount(username);
         dto.setClientKey((String) loginParameter.getExtra(LoginHelper.CLIENT_KEY));
         dto.setDeviceType(loginParameter.getDeviceType());
         
