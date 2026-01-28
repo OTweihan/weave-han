@@ -223,4 +223,11 @@ public interface ISysRoleService {
      * @param userIds 需要清除的用户ID列表
      */
     void cleanOnlineUser(List<Long> userIds);
+
+    /**
+     * 批量更新角色排序
+     *
+     * @param roleIds 角色ID列表，按新顺序排列
+     */
+    void updateRoleSort(List<Long> roleIds);
 }

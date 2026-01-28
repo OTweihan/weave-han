@@ -36,6 +36,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @Author Lion Li
@@ -621,5 +622,58 @@ public class SysRoleServiceImpl implements ISysRoleService, RoleService {
                 .in(SysRole::getRoleId, roleIds)
         );
         return StreamUtils.toMap(list, SysRole::getRoleId, SysRole::getRoleName);
+    }
+
+    /**
+     * 批量更新角色排序
+     *
+     * @param roleIds 角色ID列表，按新顺序排列
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void updateRoleSort(List<Long> roleIds) {
+        if (CollUtil.isEmpty(roleIds)) {
+            return;
+        }
+
+        // 检查数据权限
+        this.checkRoleDataScope(roleIds);
+
+        // 1. 查询这些角色原本的信息（主要是为了获取原本的 sort 值）
+        List<SysRole> roles = baseMapper.selectList(
+            new LambdaQueryWrapper<SysRole>()
+                .select(SysRole::getRoleId, SysRole::getRoleSort)
+                .in(SysRole::getRoleId, roleIds)
+        );
+
+        if (roles.size() != roleIds.size()) {
+            throw new ServiceException("部分角色不存在或无权限访问!");
+        }
+
+        // 2. 提取现有的排序值池，并从小到大排序
+        // 比如原本是 [10, 15, 12]，排序后变成 [10, 12, 15]
+        List<Integer> availableSorts = roles.stream()
+            .map(SysRole::getRoleSort)
+            .sorted()
+            .toList();
+
+        // 3. 按照前端传入的 ID 顺序（新的顺序），依次分配这些排序值
+        // 比如前端传入的顺序是 [C, A, B]，那么 C=10, A=12, B=15
+        List<SysRole> updates = new ArrayList<>();
+        for (int i = 0; i < roleIds.size(); i++) {
+            Long roleId = roleIds.get(i);
+            Integer newSort = availableSorts.get(i);
+
+            SysRole updateRole = new SysRole();
+            updateRole.setRoleId(roleId);
+            updateRole.setRoleSort(newSort);
+            updates.add(updateRole);
+        }
+
+        // 4. 批量更新（如果框架支持 updateBatchById 更好，不支持则循环更新）
+        // updateBatchById(updates);
+        for (SysRole role : updates) {
+            baseMapper.updateById(role);
+        }
     }
 }

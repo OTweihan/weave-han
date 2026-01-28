@@ -200,4 +200,18 @@ public class SysRoleController extends BaseController {
         roleService.insertAuthUsers(roleId, userIds);
         return R.ok();
     }
+
+    /**
+     * 角色排序修改
+     *
+     * @param roleIds 角色ID列表，按新顺序排列
+     */
+    @SaCheckPermission("system:role:edit")
+    @Log(title = "角色管理", businessType = BusinessType.UPDATE)
+    @RepeatSubmit()
+    @PutMapping("/changeSort")
+    public R<Void> changeSort(@RequestBody List<Long> roleIds) {
+        roleService.updateRoleSort(roleIds);
+        return R.ok();
+    }
 }
