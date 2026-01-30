@@ -72,6 +72,11 @@ public class SysOssConfigVo implements Serializable {
     private String region;
 
     /**
+     * 存储类型(S3, Local, FTP, SFTP, DB)
+     */
+    private String storageType;
+
+    /**
      * 是否默认（0=是,1=否）
      */
     private String status;

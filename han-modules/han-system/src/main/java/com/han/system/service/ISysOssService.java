@@ -69,6 +69,11 @@ public interface ISysOssService {
     void download(Long ossId, HttpServletResponse response) throws IOException;
 
     /**
+     * 根据配置Key和路径下载文件
+     */
+    void downloadByConfigKey(String configKey, String path, HttpServletResponse response) throws IOException;
+
+    /**
      * 删除OSS对象存储
      *
      * @param ids     OSS对象ID串

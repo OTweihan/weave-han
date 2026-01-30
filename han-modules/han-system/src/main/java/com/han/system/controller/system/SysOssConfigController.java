@@ -104,4 +104,18 @@ public class SysOssConfigController extends BaseController {
     public R<Void> changeStatus(@RequestBody SysOssConfigBo bo) {
         return toAjax(ossConfigService.updateOssConfigStatus(bo));
     }
+
+    /**
+     * 测试对象存储配置
+     *
+     * @param ossConfigId OSS配置ID
+     */
+    @SaCheckPermission("system:ossConfig:edit")
+    @Log(title = "测试对象存储配置", businessType = BusinessType.UPDATE)
+    @GetMapping("/test/{ossConfigId}")
+    public R<Void> test(@NotNull(message = "主键不能为空")
+                        @PathVariable Long ossConfigId) {
+        ossConfigService.testConfig(ossConfigId);
+        return R.ok();
+    }
 }

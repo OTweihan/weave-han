@@ -5,7 +5,7 @@ import com.han.common.core.constant.CacheNames;
 import com.han.common.core.utils.StringUtils;
 import com.han.common.json.utils.JsonUtils;
 import com.han.common.oss.constant.OssConstant;
-import com.han.common.oss.core.OssClient;
+import com.han.common.oss.core.*;
 import com.han.common.oss.exception.OssException;
 import com.han.common.oss.properties.OssProperties;
 import com.han.common.redis.utils.CacheUtils;
@@ -49,23 +49,39 @@ public class OssFactory {
         OssProperties properties = JsonUtils.parseObject(json, OssProperties.class);
         OssClient client = CLIENT_CACHE.get(configKey);
         // 客户端不存在或配置不相同则重新构建
-        if (client == null || client.checkPropertiesSame(properties)) {
+        if (client == null || !client.checkPropertiesSame(properties)) {
             LOCK.lock();
             try {
                 client = CLIENT_CACHE.get(configKey);
-                if (client == null || client.checkPropertiesSame(properties)) {
-                    OssClient oldClient = CLIENT_CACHE.put(configKey, new OssClient(configKey, properties));
+                if (client == null || !client.checkPropertiesSame(properties)) {
+                    OssClient newClient = createOssClient(configKey, properties);
+                    OssClient oldClient = CLIENT_CACHE.put(configKey, newClient);
                     if (oldClient != null) {
                         // 关闭旧客户端
                         oldClient.close();
                     }
                     log.info("创建OSS实例 key => {}", configKey);
-                    return CLIENT_CACHE.get(configKey);
+                    return newClient;
                 }
             } finally {
                 LOCK.unlock();
             }
         }
         return client;
+    }
+
+    private static OssClient createOssClient(String configKey, OssProperties properties) {
+        String storageType = properties.getStorageType();
+        if (StringUtils.isBlank(storageType)) {
+            // 默认 S3
+            return new S3OssClient(configKey, properties);
+        }
+        return switch (storageType.toUpperCase()) {
+            case "LOCAL" -> new LocalOssClient(configKey, properties);
+            case "FTP" -> new FtpOssClient(configKey, properties);
+            case "SFTP" -> new SftpOssClient(configKey, properties);
+            case "DB" -> new DbOssClient(configKey, properties);
+            default -> new S3OssClient(configKey, properties);
+        };
     }
 }

@@ -3,6 +3,8 @@ package com.han.system.controller.system;
 
 import cn.dev33.satoken.annotation.SaCheckPermission;
 import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.StrUtil;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.RequiredArgsConstructor;
@@ -90,6 +92,18 @@ public class SysOssController extends BaseController {
     @GetMapping("/download/{ossId}")
     public void download(@PathVariable Long ossId, HttpServletResponse response) throws IOException {
         ossService.download(ossId, response);
+    }
+
+    /**
+     * 根据配置Key和路径下载OSS对象
+     *
+     * @param configKey 配置Key
+     */
+    @SaCheckPermission("system:oss:download")
+    @GetMapping("/downloadByConfig/{configKey}/**")
+    public void downloadByConfig(@PathVariable String configKey, HttpServletResponse response, HttpServletRequest request) throws IOException {
+        String path = StrUtil.subAfter(request.getRequestURI(), "/downloadByConfig/" + configKey + "/", false);
+        ossService.downloadByConfigKey(configKey, path, response);
     }
 
     /**

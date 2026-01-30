@@ -88,6 +88,11 @@ public class SysOssConfigBo extends BaseEntity {
     private String region;
 
     /**
+     * 存储类型(S3, Local, FTP, SFTP, DB)
+     */
+    private String storageType;
+
+    /**
      * 扩展字段
      */
     private String ext1;

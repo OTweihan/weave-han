@@ -46,6 +46,11 @@ public class OssProperties {
     private String region;
 
     /**
+     * 存储类型(S3, Local, FTP, SFTP, DB)
+     */
+    private String storageType;
+
+    /**
      * 是否https（Y=是,N=否）
      */
     private String isHttps;

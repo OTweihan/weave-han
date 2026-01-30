@@ -43,6 +43,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.han.common.oss.core.DbOssClient;
+import com.han.common.oss.domain.SysOssContent;
+import com.han.common.oss.mapper.SysOssContentMapper;
 
 /**
  * @Author Lion Li
@@ -54,6 +58,7 @@ import java.util.Map;
 public class SysOssServiceImpl implements ISysOssService, OssService {
 
     private final SysOssMapper baseMapper;
+    private final SysOssContentMapper ossContentMapper;
 
     /**
      * 查询OSS对象存储列表
@@ -184,6 +189,16 @@ public class SysOssServiceImpl implements ISysOssService, OssService {
         storage.download(sysOss.getFileName(), response.getOutputStream(), response::setContentLengthLong);
     }
 
+    @Override
+    public void downloadByConfigKey(String configKey, String path, HttpServletResponse response) throws IOException {
+        OssClient storage = OssFactory.instance(configKey);
+        if (ObjectUtil.isNull(storage)) {
+            throw new ServiceException("存储配置不存在!");
+        }
+        response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE + "; charset=UTF-8");
+        storage.download(path, response.getOutputStream(), response::setContentLengthLong);
+    }
+
     /**
      * 上传 MultipartFile 到对象存储服务，并保存文件信息到数据库
      *
@@ -210,7 +225,12 @@ public class SysOssServiceImpl implements ISysOssService, OssService {
         ext1.setFileSize(file.getSize());
         ext1.setContentType(file.getContentType());
         // 保存文件信息
-        return buildResultEntity(originalfileName, suffix, storage.getConfigKey(), uploadResult, ext1);
+        try {
+            return buildResultEntity(originalfileName, suffix, storage.getConfigKey(), uploadResult, ext1);
+        } catch (Exception e) {
+            storage.delete(uploadResult.getFilename());
+            throw new ServiceException(e.getMessage());
+        }
     }
 
     /**
@@ -229,7 +249,12 @@ public class SysOssServiceImpl implements ISysOssService, OssService {
         SysOssExt ext1 = new SysOssExt();
         ext1.setFileSize(file.length());
         // 保存文件信息
-        return buildResultEntity(originalfileName, suffix, storage.getConfigKey(), uploadResult, ext1);
+        try {
+            return buildResultEntity(originalfileName, suffix, storage.getConfigKey(), uploadResult, ext1);
+        } catch (Exception e) {
+            storage.delete(uploadResult.getFilename());
+            throw new ServiceException(e.getMessage());
+        }
     }
 
     @NotNull
@@ -245,6 +270,14 @@ public class SysOssServiceImpl implements ISysOssService, OssService {
         SysOssVo sysOssVo = MapstructUtils.convert(oss, SysOssVo.class);
         if (sysOssVo == null) {
             throw new ServiceException("操作失败，转换对象为空");
+        }
+        // 补全 DB 存储的 ossId
+        OssClient client = OssFactory.instance(configKey);
+        if (client instanceof DbOssClient) {
+            LambdaUpdateWrapper<SysOssContent> luw = Wrappers.lambdaUpdate();
+            luw.set(SysOssContent::getOssId, oss.getOssId())
+                .eq(SysOssContent::getPath, oss.getFileName());
+            ossContentMapper.update(null, luw);
         }
         return this.matchingUrl(sysOssVo);
     }

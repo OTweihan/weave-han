@@ -55,4 +55,9 @@ public interface ISysOssConfigService {
      * 启用停用状态
      */
     int updateOssConfigStatus(SysOssConfigBo bo);
+
+    /**
+     * 测试配置
+     */
+    void testConfig(Long ossConfigId);
 }

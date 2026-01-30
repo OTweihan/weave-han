@@ -180,4 +180,19 @@ public class SysOssConfigServiceImpl implements ISysOssConfigService {
         }
         return row;
     }
+
+    @Override
+    public void testConfig(Long ossConfigId) {
+        SysOssConfig config = baseMapper.selectById(ossConfigId);
+        if (ObjectUtil.isNull(config)) {
+            throw new ServiceException("配置不存在");
+        }
+        com.han.common.oss.core.OssClient storage = com.han.common.oss.factory.OssFactory.instance(config.getConfigKey());
+        try {
+            storage.uploadSuffix(new byte[] {1}, ".test", "text/plain");
+        } catch (Exception e) {
+            log.error("测试OSS配置失败", e);
+            throw new ServiceException("测试OSS配置失败：" + e.getMessage());
+        }
+    }
 }
