@@ -118,14 +118,14 @@ public class SysLoginService {
         // 通过策略模式执行具体登录逻辑
         LoginVo loginVo = IAuthStrategy.login(body, client, grantType);
 
-        // 异步发送欢迎消息（延迟5秒）
+        // 异步发送欢迎消息（延迟3秒）
         Long userId = LoginHelper.getUserId();
         scheduledExecutorService.schedule(() -> {
             SseMessageDto dto = new SseMessageDto();
             dto.setMessage("欢迎登录Weave-Han后台管理系统");
             dto.setUserIds(List.of(userId));
             SseMessageUtils.publishMessage(dto);
-        }, 5, TimeUnit.SECONDS);
+        }, 3, TimeUnit.SECONDS);
 
         return loginVo;
     }

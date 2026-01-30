@@ -101,6 +101,8 @@
         <aws.sdk.version>2.28.22</aws.sdk.version>
         <!-- 短信服务SMS4J版本 -->
         <sms4j.version>3.3.5</sms4j.version>
+        <!-- JSch远程连接版本 -->
+        <jsch.version>0.1.55</jsch.version>
 
         <!-- ==================== Maven插件版本 ==================== -->
         <!-- Maven JAR插件版本 -->
@@ -424,6 +426,12 @@
                 <groupId>com.alibaba</groupId>
                 <artifactId>fastjson</artifactId>
                 <version>${fastjson.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.jcraft</groupId>
+                <artifactId>jsch</artifactId>
+                <version>${jsch.version}</version>
             </dependency>
 
             <!-- ==================== 项目模块依赖 ==================== -->

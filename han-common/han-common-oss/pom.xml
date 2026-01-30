@@ -35,26 +35,17 @@
             <artifactId>han-common-redis</artifactId>
         </dependency>
 
+        <!-- MyBatis持久化模块 - 提供文件元数据的数据库存储 -->
+        <dependency>
+            <groupId>com.han</groupId>
+            <artifactId>han-common-mybatis</artifactId>
+        </dependency>
+
         <!-- ==================== AWS SDK依赖 ==================== -->
         <!-- AWS S3 SDK核心模块 - 提供S3协议的对象存储接口 -->
         <dependency>
             <groupId>software.amazon.awssdk</groupId>
             <artifactId>s3</artifactId>
-            <exclusions>
-                <!-- 排除不必要的客户端，使用Netty客户端 -->
-                <exclusion>
-                    <groupId>software.amazon.awssdk</groupId>
-                    <artifactId>aws-crt-client</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>software.amazon.awssdk</groupId>
-                    <artifactId>apache-client</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>software.amazon.awssdk</groupId>
-                    <artifactId>url-connection-client</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
 
         <!-- AWS Netty NIO客户端 - 提供高性能异步HTTP客户端 -->
@@ -67,6 +58,13 @@
         <dependency>
             <groupId>software.amazon.awssdk</groupId>
             <artifactId>s3-transfer-manager</artifactId>
+        </dependency>
+
+        <!-- ==================== 其他第三方依赖 ==================== -->
+        <!-- Apache Commons IO - 提供文件和流的工具类 -->
+        <dependency>
+            <groupId>com.jcraft</groupId>
+            <artifactId>jsch</artifactId>
         </dependency>
     </dependencies>
 </project>
