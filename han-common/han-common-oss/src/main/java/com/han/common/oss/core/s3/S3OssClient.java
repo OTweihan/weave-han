@@ -1,5 +1,6 @@
-package com.han.common.oss.core;
+package com.han.common.oss.core.s3;
 
+import com.han.common.oss.core.AbstractOssClient;
 import lombok.extern.slf4j.Slf4j;
 import com.han.common.core.constant.Constants;
 import com.han.common.core.utils.StringUtils;

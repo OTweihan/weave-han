@@ -63,8 +63,8 @@ public class SysOssConfigController extends BaseController {
     @Log(title = "对象存储配置", businessType = BusinessType.INSERT)
     @RepeatSubmit()
     @PostMapping()
-    public R<Void> add(@Validated(AddGroup.class) @RequestBody SysOssConfigBo bo) {
-        ossConfigService.insertByBo(bo);
+    public R<Void> add(@Validated(AddGroup.class) @RequestBody SysOssConfigBo ossConfigBo) {
+        ossConfigService.insertOssConfig(ossConfigBo);
         return R.ok();
     }
 
@@ -75,8 +75,8 @@ public class SysOssConfigController extends BaseController {
     @Log(title = "对象存储配置", businessType = BusinessType.UPDATE)
     @RepeatSubmit()
     @PutMapping()
-    public R<Void> edit(@Validated(EditGroup.class) @RequestBody SysOssConfigBo bo) {
-        ossConfigService.updateByBo(bo);
+    public R<Void> edit(@Validated(EditGroup.class) @RequestBody SysOssConfigBo ossConfigBo) {
+        ossConfigService.updateOssConfig(ossConfigBo);
         return R.ok();
     }
 
@@ -95,14 +95,14 @@ public class SysOssConfigController extends BaseController {
     }
 
     /**
-     * 状态修改
+     * 修改对象存储状态
      */
     @SaCheckPermission("system:ossConfig:edit")
     @Log(title = "对象存储状态修改", businessType = BusinessType.UPDATE)
     @RepeatSubmit()
-    @PutMapping("/changeStatus")
-    public R<Void> changeStatus(@RequestBody SysOssConfigBo bo) {
-        return toAjax(ossConfigService.updateOssConfigStatus(bo));
+    @PutMapping("/updateMaster")
+    public R<Void> updateMaster(@RequestBody SysOssConfigBo ossConfigBo) {
+        return toAjax(ossConfigService.updateOssConfigMaster(ossConfigBo));
     }
 
     /**

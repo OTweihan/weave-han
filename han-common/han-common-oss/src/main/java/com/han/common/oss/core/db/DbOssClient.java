@@ -1,4 +1,4 @@
-package com.han.common.oss.core;
+package com.han.common.oss.core.db;
 
 import cn.hutool.core.io.IoUtil;
 import cn.hutool.core.util.IdUtil;
@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.han.common.core.utils.SpringUtils;
 import com.han.common.core.utils.StringUtils;
+import com.han.common.oss.core.AbstractOssClient;
 import com.han.common.oss.domain.SysOssContent;
 import com.han.common.oss.entity.UploadResult;
 import com.han.common.oss.enums.AccessPolicyType;
@@ -112,9 +113,19 @@ public class DbOssClient extends AbstractOssClient {
 
     private String getUrl() {
         String domain = properties.getDomain();
+        String contextPath = "/resource/oss/downloadByConfig/" + configKey;
+
         if (StringUtils.isNotEmpty(domain)) {
-            return domain;
+            // 如果 domain 已经包含了上下文路径，直接返回
+            if (domain.contains("/resource/oss/downloadByConfig")) {
+                return domain;
+            }
+            // 确保 domain 和 contextPath 之间有且仅有一个斜杠
+            if (domain.endsWith(StringUtils.SLASH)) {
+                return domain + contextPath.substring(1);
+            }
+            return domain + contextPath;
         }
-        return "/resource/oss/downloadByConfig/" + configKey;
+        return contextPath;
     }
 }

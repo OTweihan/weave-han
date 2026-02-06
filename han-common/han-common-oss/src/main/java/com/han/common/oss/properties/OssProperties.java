@@ -1,5 +1,6 @@
 package com.han.common.oss.properties;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 
 /**
@@ -8,6 +9,7 @@ import lombok.Data;
  * @Description: OSS对象存储 配置属性
  */
 @Data
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class OssProperties {
 
     /**
@@ -59,4 +61,9 @@ public class OssProperties {
      * 桶权限类型(0private 1public 2custom)
      */
     private String accessPolicy;
+
+    /**
+     * 扩展字段
+     */
+    private String ext1;
 }

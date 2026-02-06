@@ -6,19 +6,22 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.han.common.oss.core.OssClientConfig;
+import com.han.common.oss.enums.OssStorageTypeEnum;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import com.han.common.core.constant.CacheNames;
 import com.han.common.core.exception.ServiceException;
 import com.han.common.core.utils.MapstructUtils;
-import com.han.common.core.utils.ObjectUtils;
 import com.han.common.core.utils.StringUtils;
+import com.han.common.core.utils.ValidatorUtils;
 import com.han.common.json.utils.JsonUtils;
 import com.han.common.mybatis.core.page.PageQuery;
 import com.han.common.mybatis.core.page.TableDataInfo;
 import com.han.common.oss.constant.OssConstant;
 import com.han.common.redis.utils.CacheUtils;
 import com.han.common.redis.utils.RedisUtils;
+
 import com.han.system.domain.SysOssConfig;
 import com.han.system.domain.bo.SysOssConfigBo;
 import com.han.system.domain.vo.SysOssConfigVo;
@@ -29,6 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @Author Lion Li, 孤舟烟雨
@@ -51,10 +55,10 @@ public class SysOssConfigServiceImpl implements ISysOssConfigService {
         // 加载OSS初始化配置
         for (SysOssConfig config : list) {
             String configKey = config.getConfigKey();
-            if ("0".equals(config.getStatus())) {
+            if (config.isMaster()) {
                 RedisUtils.setCacheObject(OssConstant.DEFAULT_CONFIG_KEY, configKey);
             }
-            CacheUtils.put(CacheNames.SYS_OSS_CONFIG, config.getConfigKey(), JsonUtils.toJsonString(config));
+            CacheUtils.put(CacheNames.SYS_OSS_CONFIG, config.getConfigKey(), JsonUtils.toJsonString(config.getConfigData()));
         }
     }
 
@@ -70,64 +74,68 @@ public class SysOssConfigServiceImpl implements ISysOssConfigService {
         return TableDataInfo.build(result);
     }
 
-
-    private LambdaQueryWrapper<SysOssConfig> buildQueryWrapper(SysOssConfigBo bo) {
-        LambdaQueryWrapper<SysOssConfig> lqw = Wrappers.lambdaQuery();
-        lqw.eq(StringUtils.isNotBlank(bo.getConfigKey()), SysOssConfig::getConfigKey, bo.getConfigKey());
-        lqw.like(StringUtils.isNotBlank(bo.getBucketName()), SysOssConfig::getBucketName, bo.getBucketName());
-        lqw.eq(StringUtils.isNotBlank(bo.getStatus()), SysOssConfig::getStatus, bo.getStatus());
-        lqw.orderByAsc(SysOssConfig::getOssConfigId);
-        return lqw;
-    }
-
     @Override
-    public void insertByBo(SysOssConfigBo bo) {
-        SysOssConfig config = MapstructUtils.convert(bo, SysOssConfig.class);
-        if (config == null) {
+    public void insertOssConfig(SysOssConfigBo ossConfigBo) {
+        // 校验配置数据
+        OssClientConfig clientConfig = parseClientConfig(ossConfigBo.getStorageType(), ossConfigBo.getConfigData());
+        SysOssConfig ossConfig = MapstructUtils.convert(ossConfigBo, SysOssConfig.class);
+        if (ossConfig == null) {
             throw new ServiceException("操作失败，转换对象为空");
         }
-        validEntityBeforeSave(config);
-        boolean flag = baseMapper.insert(config) > 0;
+        // 使用解析后的强类型配置对象
+        ossConfig.setConfigData(clientConfig);
+        ossConfig.setMaster(false);
+
+        boolean flag = baseMapper.insert(ossConfig) > 0;
         if (flag) {
-            // 从数据库查询完整的数据做缓存
-            config = baseMapper.selectById(config.getOssConfigId());
-            CacheUtils.put(CacheNames.SYS_OSS_CONFIG, config.getConfigKey(), JsonUtils.toJsonString(config));
+            refreshCache(ossConfig.getOssConfigId());
             return;
         }
         throw new ServiceException("操作失败");
     }
 
     @Override
-    public void updateByBo(SysOssConfigBo bo) {
-        SysOssConfig config = MapstructUtils.convert(bo, SysOssConfig.class);
+    public void updateOssConfig(SysOssConfigBo ossConfigBo) {
+        // 校验配置是否存在
+        SysOssConfig oldConfig = validateFileConfigExists(ossConfigBo.getOssConfigId());
+
+        // 校验配置数据
+        OssClientConfig clientConfig = parseClientConfig(ossConfigBo.getStorageType(), ossConfigBo.getConfigData());
+        SysOssConfig config = MapstructUtils.convert(ossConfigBo, SysOssConfig.class);
         if (config == null) {
             throw new ServiceException("操作失败，转换对象为空");
         }
-        validEntityBeforeSave(config);
-        LambdaUpdateWrapper<SysOssConfig> luw = new LambdaUpdateWrapper<>();
-        luw.set(ObjectUtil.isNull(config.getPrefix()), SysOssConfig::getPrefix, "");
-        luw.set(ObjectUtil.isNull(config.getRegion()), SysOssConfig::getRegion, "");
-        luw.set(ObjectUtil.isNull(config.getExt1()), SysOssConfig::getExt1, "");
-        luw.set(ObjectUtil.isNull(config.getRemark()), SysOssConfig::getRemark, "");
-        luw.eq(SysOssConfig::getOssConfigId, config.getOssConfigId());
-        boolean flag = baseMapper.update(config, luw) > 0;
+        // 使用解析后的强类型配置对象
+        config.setConfigData(clientConfig);
+        // 保持原有的master状态，防止被重置
+        config.setMaster(oldConfig.isMaster());
+
+        boolean flag = baseMapper.updateById(config) > 0;
         if (flag) {
-            // 从数据库查询完整的数据做缓存
-            config = baseMapper.selectById(config.getOssConfigId());
-            CacheUtils.put(CacheNames.SYS_OSS_CONFIG, config.getConfigKey(), JsonUtils.toJsonString(config));
+            refreshCache(config.getOssConfigId());
             return;
         }
         throw new ServiceException("操作失败");
     }
 
     /**
-     * 保存前的数据校验
+     * 设置主配置
      */
-    private void validEntityBeforeSave(SysOssConfig entity) {
-        if (StringUtils.isNotEmpty(entity.getConfigKey())
-            && !checkConfigKeyUnique(entity)) {
-            throw new ServiceException("操作配置'{}'失败, 配置key已存在!", entity.getConfigKey());
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public int updateOssConfigMaster(SysOssConfigBo ossConfigBo) {
+        SysOssConfig config = validateFileConfigExists(ossConfigBo.getOssConfigId());
+        // 先全部设置为非主配置
+        baseMapper.update(null, new LambdaUpdateWrapper<SysOssConfig>()
+            .set(SysOssConfig::isMaster, false));
+        // 设置当前为主配置
+        int row = baseMapper.update(null, new LambdaUpdateWrapper<SysOssConfig>()
+            .set(SysOssConfig::isMaster, true)
+            .eq(SysOssConfig::getOssConfigId, config.getOssConfigId()));
+        if (row > 0) {
+            RedisUtils.setCacheObject(OssConstant.DEFAULT_CONFIG_KEY, config.getConfigKey());
         }
+        return row;
     }
 
     @Override
@@ -151,36 +159,6 @@ public class SysOssConfigServiceImpl implements ISysOssConfigService {
         throw new ServiceException("操作失败");
     }
 
-    /**
-     * 判断configKey是否唯一
-     */
-    private boolean checkConfigKeyUnique(SysOssConfig sysOssConfig) {
-        long ossConfigId = ObjectUtils.notNull(sysOssConfig.getOssConfigId(), -1L);
-        SysOssConfig info = baseMapper.selectOne(new LambdaQueryWrapper<SysOssConfig>()
-            .select(SysOssConfig::getOssConfigId, SysOssConfig::getConfigKey)
-            .eq(SysOssConfig::getConfigKey, sysOssConfig.getConfigKey()));
-        return !ObjectUtil.isNotNull(info) || info.getOssConfigId() == ossConfigId;
-    }
-
-    /**
-     * 启用禁用状态
-     */
-    @Override
-    @Transactional(rollbackFor = Exception.class)
-    public int updateOssConfigStatus(SysOssConfigBo bo) {
-        SysOssConfig sysOssConfig = MapstructUtils.convert(bo, SysOssConfig.class);
-        if (sysOssConfig == null) {
-            throw new ServiceException("操作失败，转换对象为空");
-        }
-        int row = baseMapper.update(null, new LambdaUpdateWrapper<SysOssConfig>()
-            .set(SysOssConfig::getStatus, "1"));
-        row += baseMapper.updateById(sysOssConfig);
-        if (row > 0) {
-            RedisUtils.setCacheObject(OssConstant.DEFAULT_CONFIG_KEY, sysOssConfig.getConfigKey());
-        }
-        return row;
-    }
-
     @Override
     public void testConfig(Long ossConfigId) {
         SysOssConfig config = baseMapper.selectById(ossConfigId);
@@ -189,10 +167,45 @@ public class SysOssConfigServiceImpl implements ISysOssConfigService {
         }
         com.han.common.oss.core.OssClient storage = com.han.common.oss.factory.OssFactory.instance(config.getConfigKey());
         try {
-            storage.uploadSuffix(new byte[] {1}, ".test", "text/plain");
+            storage.uploadSuffix(new byte[]{1}, ".test", "text/plain");
         } catch (Exception e) {
             log.error("测试OSS配置失败", e);
             throw new ServiceException("测试OSS配置失败：" + e.getMessage());
         }
+    }
+
+    private OssClientConfig parseClientConfig(Integer storageType, Map<String, Object> configData) {
+        // 获取配置类
+        Class<? extends OssClientConfig> configClass = OssStorageTypeEnum.getByStorageType(storageType)
+            .getConfigClass();
+        OssClientConfig clientConfig = JsonUtils.parseObject2(JsonUtils.toJsonString(configData), configClass);
+        // 参数校验
+        ValidatorUtils.validate(clientConfig);
+        // 设置参数
+        return clientConfig;
+    }
+
+    private SysOssConfig validateFileConfigExists(Long id) {
+        SysOssConfig config = baseMapper.selectById(id);
+        if (config == null) {
+            throw new ServiceException("文件配置不存在");
+        }
+        return config;
+    }
+
+    /**
+     * 刷新缓存
+     */
+    private void refreshCache(Long id) {
+        SysOssConfig config = baseMapper.selectById(id);
+        CacheUtils.put(CacheNames.SYS_OSS_CONFIG, config.getConfigKey(), JsonUtils.toJsonString(config.getConfigData()));
+    }
+
+    private LambdaQueryWrapper<SysOssConfig> buildQueryWrapper(SysOssConfigBo bo) {
+        LambdaQueryWrapper<SysOssConfig> lqw = Wrappers.lambdaQuery();
+        lqw.eq(StringUtils.isNotBlank(bo.getConfigKey()), SysOssConfig::getConfigKey, bo.getConfigKey());
+        lqw.eq(ObjectUtil.isNotNull(bo.getMaster()), SysOssConfig::isMaster, bo.getMaster());
+        lqw.orderByAsc(SysOssConfig::getOssConfigId);
+        return lqw;
     }
 }

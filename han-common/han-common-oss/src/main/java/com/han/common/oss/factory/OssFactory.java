@@ -1,5 +1,10 @@
 package com.han.common.oss.factory;
 
+import com.han.common.oss.core.db.DbOssClient;
+import com.han.common.oss.core.ftp.FtpOssClient;
+import com.han.common.oss.core.local.LocalOssClient;
+import com.han.common.oss.core.s3.S3OssClient;
+import com.han.common.oss.core.sftp.SftpOssClient;
 import lombok.extern.slf4j.Slf4j;
 import com.han.common.core.constant.CacheNames;
 import com.han.common.core.utils.StringUtils;
@@ -77,10 +82,10 @@ public class OssFactory {
             return new S3OssClient(configKey, properties);
         }
         return switch (storageType.toUpperCase()) {
-            case "LOCAL" -> new LocalOssClient(configKey, properties);
-            case "FTP" -> new FtpOssClient(configKey, properties);
-            case "SFTP" -> new SftpOssClient(configKey, properties);
-            case "DB" -> new DbOssClient(configKey, properties);
+            case "LOCAL", "2" -> new LocalOssClient(configKey, properties);
+            case "FTP", "3" -> new FtpOssClient(configKey, properties);
+            case "SFTP", "4" -> new SftpOssClient(configKey, properties);
+            case "DB", "1" -> new DbOssClient(configKey, properties);
             default -> new S3OssClient(configKey, properties);
         };
     }

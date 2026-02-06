@@ -32,16 +32,16 @@ public interface ISysOssConfigService {
     /**
      * 根据新增业务对象插入对象存储配置
      *
-     * @param bo 对象存储配置新增业务对象
+     * @param ossConfigBo 对象存储配置新增业务对象
      */
-    void insertByBo(SysOssConfigBo bo);
+    void insertOssConfig(SysOssConfigBo ossConfigBo);
 
     /**
      * 根据编辑业务对象修改对象存储配置
      *
      * @param bo 对象存储配置编辑业务对象
      */
-    void updateByBo(SysOssConfigBo bo);
+    void updateOssConfig(SysOssConfigBo bo);
 
     /**
      * 校验并删除数据
@@ -52,9 +52,9 @@ public interface ISysOssConfigService {
     void deleteWithValidByIds(Collection<Long> ids, Boolean isValid);
 
     /**
-     * 启用停用状态
+     * 设置主配置
      */
-    int updateOssConfigStatus(SysOssConfigBo bo);
+    int updateOssConfigMaster(SysOssConfigBo ossConfigBo);
 
     /**
      * 测试配置

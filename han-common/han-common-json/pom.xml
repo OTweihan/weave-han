@@ -41,5 +41,11 @@
             <groupId>com.fasterxml.jackson.datatype</groupId>
             <artifactId>jackson-datatype-jsr310</artifactId>
         </dependency>
+
+        <!-- Hutool JSON - 提供JSON解析工具 -->
+        <dependency>
+            <groupId>cn.hutool</groupId>
+            <artifactId>hutool-json</artifactId>
+        </dependency>
     </dependencies>
 </project>

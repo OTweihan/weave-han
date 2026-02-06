@@ -44,7 +44,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
-import com.han.common.oss.core.DbOssClient;
+import com.han.common.oss.core.db.DbOssClient;
 import com.han.common.oss.domain.SysOssContent;
 import com.han.common.oss.mapper.SysOssContentMapper;
 

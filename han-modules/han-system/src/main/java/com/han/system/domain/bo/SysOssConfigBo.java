@@ -1,6 +1,10 @@
 package com.han.system.domain.bo;
 
+import java.util.Map;
+
+import com.han.common.oss.enums.OssStorageTypeEnum;
 import io.github.linpeilie.annotations.AutoMapper;
+import io.github.linpeilie.annotations.AutoMapping;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -12,7 +16,7 @@ import com.han.common.mybatis.core.domain.BaseEntity;
 import com.han.system.domain.SysOssConfig;
 
 /**
- * @Author Lion Li, 孤舟烟雨
+ * @Author WeiHan
  * @CreateTime: 2021-08-13
  * @Description: 通知公告业务对象 sys_notice
  */
@@ -24,7 +28,6 @@ public class SysOssConfigBo extends BaseEntity {
     /**
      * 主键
      */
-    @NotNull(message = "主键不能为空", groups = {EditGroup.class})
     private Long ossConfigId;
 
     /**
@@ -35,76 +38,26 @@ public class SysOssConfigBo extends BaseEntity {
     private String configKey;
 
     /**
-     * accessKey
+     * 存储类型
+     * @see OssStorageTypeEnum
      */
-    @NotBlank(message = "accessKey不能为空", groups = {AddGroup.class, EditGroup.class})
-    @Size(min = 2, max = 100, message = "accessKey长度必须介于{min}和{max} 之间")
-    private String accessKey;
+    @NotNull(message = "存储类型不能为空")
+    private Integer storageType;
 
     /**
-     * 秘钥
+     * 动态配置数据
      */
-    @NotBlank(message = "secretKey不能为空", groups = {AddGroup.class, EditGroup.class})
-    @Size(min = 2, max = 100, message = "secretKey长度必须介于{min}和{max} 之间")
-    private String secretKey;
+    @NotNull(message = "存储配置不能为空")
+    @AutoMapping(ignore = true)
+    private Map<String, Object> configData;
 
     /**
-     * 桶名称
+     * 是否主配置
      */
-    @NotBlank(message = "桶名称不能为空", groups = {AddGroup.class, EditGroup.class})
-    @Size(min = 2, max = 100, message = "bucketName长度必须介于{min}和{max}之间")
-    private String bucketName;
-
-    /**
-     * 前缀
-     */
-    private String prefix;
-
-    /**
-     * 访问站点
-     */
-    @NotBlank(message = "访问站点不能为空", groups = {AddGroup.class, EditGroup.class})
-    @Size(min = 2, max = 100, message = "endpoint长度必须介于{min}和{max}之间")
-    private String endpoint;
-
-    /**
-     * 自定义域名
-     */
-    private String domain;
-
-    /**
-     * 是否https（Y=是,N=否）
-     */
-    private String isHttps;
-
-    /**
-     * 是否默认（0=是,1=否）
-     */
-    private String status;
-
-    /**
-     * 域
-     */
-    private String region;
-
-    /**
-     * 存储类型(S3, Local, FTP, SFTP, DB)
-     */
-    private String storageType;
-
-    /**
-     * 扩展字段
-     */
-    private String ext1;
+    private Boolean master;
 
     /**
      * 备注
      */
     private String remark;
-
-    /**
-     * 桶权限类型(0private 1public 2custom)
-     */
-    @NotBlank(message = "桶权限类型不能为空", groups = {AddGroup.class, EditGroup.class})
-    private String accessPolicy;
 }

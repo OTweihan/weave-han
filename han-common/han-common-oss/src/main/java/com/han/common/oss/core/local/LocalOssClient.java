@@ -1,8 +1,9 @@
-package com.han.common.oss.core;
+package com.han.common.oss.core.local;
 
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.IoUtil;
 import com.han.common.core.utils.StringUtils;
+import com.han.common.oss.core.AbstractOssClient;
 import com.han.common.oss.entity.UploadResult;
 import com.han.common.oss.enums.AccessPolicyType;
 import com.han.common.oss.exception.OssException;
