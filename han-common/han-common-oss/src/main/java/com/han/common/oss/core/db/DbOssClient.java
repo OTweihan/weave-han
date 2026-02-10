@@ -29,7 +29,7 @@ public class DbOssClient extends AbstractOssClient<DbOssClientConfig> {
 
     @Override
     public String upload(byte[] content, String path, String type) {
-        SysOssContent contentDO = new SysOssContent().setOssId(getOssConfigId())
+        SysOssContent contentDO = new SysOssContent().setOssConfigId(getOssConfigId())
             .setPath(path).setContent(content);
         ossContentMapper.insert(contentDO);
         // 拼接返回路径

@@ -48,6 +48,9 @@ import cn.hutool.core.io.IoUtil;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.transaction.annotation.Transactional;
+
 import static cn.hutool.core.date.DatePattern.PURE_DATE_PATTERN;
 
 /**
@@ -55,6 +58,7 @@ import static cn.hutool.core.date.DatePattern.PURE_DATE_PATTERN;
  * @CreateTime: 2026-01-23
  * @Description: 文件上传 服务层实现
  */
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class SysOssServiceImpl implements ISysOssService, OssService {
@@ -78,6 +82,7 @@ public class SysOssServiceImpl implements ISysOssService, OssService {
 
     @Override
     @SneakyThrows
+    @Transactional(rollbackFor = Exception.class)
     public SysOssVo createFile(byte[] content, String name, String directory, String type) {
         if (StrUtil.isEmpty(type)) {
             type = FileTypeUtils.getMineType(content, name);
@@ -97,7 +102,16 @@ public class SysOssServiceImpl implements ISysOssService, OssService {
         String url = client.upload(content, path, type);
         SysOss oss = new SysOss().setConfigId(client.getOssConfigId())
             .setFileName(name).setUrl(url).setType(type).setSize((long) content.length);
-        ossMapper.insert(oss);
+        try {
+            ossMapper.insert(oss);
+        } catch (Exception e) {
+            try {
+                client.delete(path);
+            } catch (Exception ex) {
+                log.error("上传失败清理文件失败，文件路径: {}", path, ex);
+            }
+            throw new ServiceException("文件上传失败");
+        }
         return MapstructUtils.convert(oss, SysOssVo.class);
     }
 
@@ -175,6 +189,7 @@ public class SysOssServiceImpl implements ISysOssService, OssService {
 
     @Override
     @SneakyThrows
+    @Transactional(rollbackFor = Exception.class)
     public void deleteFile(List<Long> ids) {
         // 删除文件
         List<SysOss> files = ossMapper.selectByIds(ids);

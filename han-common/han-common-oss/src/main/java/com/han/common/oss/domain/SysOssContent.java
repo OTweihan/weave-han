@@ -24,7 +24,7 @@ public class SysOssContent {
     /**
      * OSS配置编号
      */
-    private Long ossId;
+    private Long ossConfigId;
 
     /**
      * 文件路径(UUID)即文件名

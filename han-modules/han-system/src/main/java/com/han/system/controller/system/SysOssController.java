@@ -115,7 +115,7 @@ public class SysOssController extends BaseController {
         // 读取内容
         byte[] content = ossService.getFileContent(ossConfigId, path);
         if (content == null) {
-            log.warn("配置编号：{}，路径：{}，文件不存在]", ossConfigId, path);
+            log.warn("配置编号：{}，路径：{}，文件不存在", ossConfigId, path);
             response.setStatus(HttpStatus.NOT_FOUND.value());
             return;
         }

@@ -68,6 +68,6 @@ public abstract class AbstractOssClient<ConfigData extends OssClientConfig> impl
      * @return URL 访问地址
      */
     protected String formatFileUrl(String domain, String path) {
-        return StrUtil.format("{}/admin-api/infra/file/{}/get/{}", domain, getOssConfigId(), path);
+        return StrUtil.format("/resource/oss/{}/get/{}", getOssConfigId(), path);
     }
 }
