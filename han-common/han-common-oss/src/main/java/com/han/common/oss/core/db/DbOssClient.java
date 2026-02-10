@@ -1,131 +1,54 @@
 package com.han.common.oss.core.db;
 
-import cn.hutool.core.io.IoUtil;
-import cn.hutool.core.util.IdUtil;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.han.common.core.utils.SpringUtils;
-import com.han.common.core.utils.StringUtils;
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.extra.spring.SpringUtil;
 import com.han.common.oss.core.AbstractOssClient;
 import com.han.common.oss.domain.SysOssContent;
-import com.han.common.oss.entity.UploadResult;
-import com.han.common.oss.enums.AccessPolicyType;
-import com.han.common.oss.exception.OssException;
 import com.han.common.oss.mapper.SysOssContentMapper;
-import com.han.common.oss.properties.OssProperties;
 
-import java.io.File;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.time.Duration;
-import java.util.function.Consumer;
+import java.util.Comparator;
+import java.util.List;
 
 /**
  * @Author: WeiHan
  * @CreateTime: 2026-01-30
  * @Description: DB 存储客户端
  */
-public class DbOssClient extends AbstractOssClient {
+public class DbOssClient extends AbstractOssClient<DbOssClientConfig> {
 
-    private final SysOssContentMapper ossContentMapper;
+    private SysOssContentMapper ossContentMapper;
 
-    public DbOssClient(String configKey, OssProperties ossProperties) {
-        this.configKey = configKey;
-        this.properties = ossProperties;
-        this.ossContentMapper = SpringUtils.getBean(SysOssContentMapper.class);
+    public DbOssClient(Long id, DbOssClientConfig config) {
+        super(id, config);
     }
 
     @Override
-    public UploadResult uploadSuffix(byte[] data, String suffix, String contentType) {
-        return upload(IoUtil.toStream(data), getPath(properties.getPrefix(), suffix));
+    protected void doInit() {
+        ossContentMapper = SpringUtil.getBean(SysOssContentMapper.class);
     }
 
     @Override
-    public UploadResult uploadSuffix(InputStream inputStream, String suffix, Long length, String contentType) {
-        return upload(inputStream, getPath(properties.getPrefix(), suffix));
-    }
-
-    @Override
-    public UploadResult uploadSuffix(File file, String suffix) {
-        return upload(IoUtil.toStream(file), getPath(properties.getPrefix(), suffix));
-    }
-
-    private UploadResult upload(InputStream inputStream, String path) {
-        try {
-            byte[] data = IoUtil.readBytes(inputStream);
-            SysOssContent ossContent = new SysOssContent();
-            ossContent.setContentId(IdUtil.getSnowflakeNextId());
-            ossContent.setPath(path);
-            ossContent.setContent(data);
-            // 初始为0，关联关系由业务层处理
-            ossContent.setOssId(0L);
-            ossContentMapper.insert(ossContent);
-
-            return UploadResult.builder()
-                .url(getUrl() + StringUtils.SLASH + path)
-                .filename(path)
-                .build();
-        } catch (Exception e) {
-            throw new OssException("上传文件到DB失败: " + e.getMessage());
-        }
-    }
-
-    @Override
-    public void download(String key, OutputStream out, Consumer<Long> consumer) {
-        try {
-            LambdaQueryWrapper<SysOssContent> lqw = Wrappers.lambdaQuery();
-            lqw.select(SysOssContent::getContent).eq(SysOssContent::getPath, key);
-            SysOssContent ossContent = ossContentMapper.selectOne(lqw);
-            if (ossContent != null && ossContent.getContent() != null) {
-                IoUtil.write(out, true, ossContent.getContent());
-            }
-        } catch (Exception e) {
-            throw new OssException("文件下载失败: " + e.getMessage());
-        }
+    public String upload(byte[] content, String path, String type) {
+        SysOssContent contentDO = new SysOssContent().setOssId(getOssConfigId())
+            .setPath(path).setContent(content);
+        ossContentMapper.insert(contentDO);
+        // 拼接返回路径
+        return super.formatFileUrl(configData.getDomain(), path);
     }
 
     @Override
     public void delete(String path) {
-        try {
-            String key = path.replace(getUrl() + StringUtils.SLASH, "");
-            LambdaQueryWrapper<SysOssContent> lqw = Wrappers.lambdaQuery();
-            lqw.eq(SysOssContent::getPath, key);
-            ossContentMapper.delete(lqw);
-        } catch (Exception e) {
-            throw new OssException("删除文件失败: " + e.getMessage());
+        ossContentMapper.deleteByConfigIdAndPath(getOssConfigId(), path);
+    }
+
+    @Override
+    public byte[] getContent(String path) {
+        List<SysOssContent> list = ossContentMapper.selectListByConfigIdAndPath(getOssConfigId(), path);
+        if (CollUtil.isEmpty(list)) {
+            return null;
         }
-    }
-
-    @Override
-    public String getPrivateUrl(String objectKey, Duration expiredTime) {
-        return getUrl() + StringUtils.SLASH + objectKey;
-    }
-
-    @Override
-    public AccessPolicyType getAccessPolicy() {
-        return AccessPolicyType.getByType(properties.getAccessPolicy());
-    }
-
-    @Override
-    public void close() {
-        // DB连接由Spring管理，无需手动关闭
-    }
-
-    private String getUrl() {
-        String domain = properties.getDomain();
-        String contextPath = "/resource/oss/downloadByConfig/" + configKey;
-
-        if (StringUtils.isNotEmpty(domain)) {
-            // 如果 domain 已经包含了上下文路径，直接返回
-            if (domain.contains("/resource/oss/downloadByConfig")) {
-                return domain;
-            }
-            // 确保 domain 和 contextPath 之间有且仅有一个斜杠
-            if (domain.endsWith(StringUtils.SLASH)) {
-                return domain + contextPath.substring(1);
-            }
-            return domain + contextPath;
-        }
-        return contextPath;
+        // 排序后，拿 id 最大的，即最后上传的
+        list.sort(Comparator.comparing(SysOssContent::getContentId));
+        return CollUtil.getLast(list).getContent();
     }
 }

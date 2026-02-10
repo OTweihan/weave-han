@@ -2,6 +2,7 @@ package com.han.system.service;
 
 import com.han.common.mybatis.core.page.PageQuery;
 import com.han.common.mybatis.core.page.TableDataInfo;
+import com.han.common.oss.core.OssClient;
 import com.han.system.domain.bo.SysOssConfigBo;
 import com.han.system.domain.vo.SysOssConfigVo;
 
@@ -57,7 +58,17 @@ public interface ISysOssConfigService {
     int updateOssConfigMaster(SysOssConfigBo ossConfigBo);
 
     /**
-     * 测试配置
+     * 获得 Master 文件客户端
+     *
+     * @return 文件客户端
      */
-    void testConfig(Long ossConfigId);
+    OssClient getMasterOssClient();
+
+    /**
+     * 获得指定编号的文件客户端
+     *
+     * @param id 配置编号
+     * @return 文件客户端
+     */
+    OssClient getOssClient(Long id);
 }

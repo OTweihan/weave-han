@@ -3,6 +3,7 @@ package com.han.common.oss.domain;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
+import lombok.experimental.Accessors;
 
 /**
  * @Author: WeiHan
@@ -10,6 +11,7 @@ import lombok.Data;
  * @Description: OSS内容存储对象 sys_oss_content
  */
 @Data
+@Accessors(chain = true)
 @TableName("sys_oss_content")
 public class SysOssContent {
 
@@ -20,7 +22,12 @@ public class SysOssContent {
     private Long contentId;
 
     /**
-     * 文件路径(UUID)
+     * OSS配置编号
+     */
+    private Long ossId;
+
+    /**
+     * 文件路径(UUID)即文件名
      */
     private String path;
 
@@ -28,9 +35,4 @@ public class SysOssContent {
      * 文件内容
      */
     private byte[] content;
-
-    /**
-     * OSS主键(参考)
-     */
-    private Long ossId;
 }

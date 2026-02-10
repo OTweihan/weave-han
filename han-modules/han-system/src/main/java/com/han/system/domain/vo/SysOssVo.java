@@ -28,19 +28,14 @@ public class SysOssVo implements Serializable {
     private Long ossId;
 
     /**
+     * 配置编号
+     */
+    private Long ossConfigId;
+
+    /**
      * 文件名
      */
     private String fileName;
-
-    /**
-     * 原名
-     */
-    private String originalName;
-
-    /**
-     * 文件后缀名
-     */
-    private String fileSuffix;
 
     /**
      * URL地址
@@ -48,28 +43,17 @@ public class SysOssVo implements Serializable {
     private String url;
 
     /**
-     * 扩展字段
+     * 文件类型
      */
-    private String ext1;
+    private String type;
+
+    /**
+     * 文件大小
+     */
+    private Long size;
 
     /**
      * 创建时间
      */
     private Date createTime;
-
-    /**
-     * 上传人
-     */
-    private Long createBy;
-
-    /**
-     * 上传人名称
-     */
-    @Translation(type = TransConstant.USER_ID_TO_NAME, mapper = "createBy")
-    private String createByName;
-
-    /**
-     * 服务商
-     */
-    private String service;
 }

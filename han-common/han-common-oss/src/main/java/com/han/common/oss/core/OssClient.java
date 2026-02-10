@@ -1,20 +1,5 @@
 package com.han.common.oss.core;
 
-import com.han.common.oss.entity.UploadResult;
-import com.han.common.oss.enums.AccessPolicyType;
-import com.han.common.oss.properties.OssProperties;
-
-import java.io.File;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.time.Duration;
-import java.util.function.Consumer;
-
-/**
- * OSS对象存储客户端接口
- *
- * @Author: AprilWind
- */
 /**
  * @Author: WeiHan
  * @CreateTime: 2026-01-30
@@ -23,52 +8,58 @@ import java.util.function.Consumer;
 public interface OssClient {
 
     /**
-     * 上传 byte[] 数据
+     * 获得配置编号
+     *
+     * @return 配置编号
      */
-    UploadResult uploadSuffix(byte[] data, String suffix, String contentType);
+    Long getOssConfigId();
 
     /**
-     * 上传 InputStream
+     * 上传文件
+     *
+     * @param content 文件流
+     * @param path    相对路径
+     * @return 完整路径，即 HTTP 访问地址
+     * @throws Exception 上传文件时，抛出 Exception 异常
      */
-    UploadResult uploadSuffix(InputStream inputStream, String suffix, Long length, String contentType);
-
-    /**
-     * 上传 File
-     */
-    UploadResult uploadSuffix(File file, String suffix);
-
-    /**
-     * 下载文件到输出流
-     */
-    void download(String key, OutputStream out, Consumer<Long> consumer);
+    String upload(byte[] content, String path, String type) throws Exception;
 
     /**
      * 删除文件
+     *
+     * @param path 相对路径
+     * @throws Exception 删除文件时，抛出 Exception 异常
      */
-    void delete(String path);
+    void delete(String path) throws Exception;
 
     /**
-     * 获取私有URL链接
+     * 获得文件的内容
+     *
+     * @param path 相对路径
+     * @return 文件的内容
      */
-    String getPrivateUrl(String objectKey, Duration expiredTime);
+    byte[] getContent(String path) throws Exception;
+
+    // ========== 文件签名，目前仅 S3 支持 ==========
 
     /**
-     * 获取配置Key
+     * 获得文件预签名地址，用于上传
+     *
+     * @param path 相对路径
+     * @return 文件预签名地址
      */
-    String getConfigKey();
+    default String presignPutUrl(String path) {
+        throw new UnsupportedOperationException("不支持的操作");
+    }
 
     /**
-     * 获取桶权限类型
+     * 生成文件预签名地址，用于读取
+     *
+     * @param url               完整的文件访问地址
+     * @param expirationSeconds 访问有效期，单位秒
+     * @return 文件预签名地址
      */
-    AccessPolicyType getAccessPolicy();
-
-    /**
-     * 检查配置是否相同
-     */
-    boolean checkPropertiesSame(OssProperties properties);
-
-    /**
-     * 关闭客户端
-     */
-    void close();
+    default String presignGetUrl(String url, Integer expirationSeconds) {
+        throw new UnsupportedOperationException("不支持的操作");
+    }
 }

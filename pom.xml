@@ -103,6 +103,8 @@
         <sms4j.version>3.3.5</sms4j.version>
         <!-- JSch远程连接版本 -->
         <jsch.version>0.1.55</jsch.version>
+        <!-- Apache Tika核心库版本 -->
+        <tika-core.version>3.2.3</tika-core.version>
 
         <!-- ==================== Maven插件版本 ==================== -->
         <!-- Maven JAR插件版本 -->
@@ -338,21 +340,6 @@
                 <version>${snailjob.version}</version>
             </dependency>
 
-            <!-- ==================== 工作流引擎 ==================== -->
-            <!-- Warm-Flow国产工作流引擎，在线文档：http://warm-flow.cn/ -->
-            <dependency>
-                <groupId>org.dromara.warm</groupId>
-                <artifactId>warm-flow-mybatis-plus-sb3-starter</artifactId>
-                <version>${warm-flow.version}</version>
-            </dependency>
-
-            <!-- Warm-Flow UI界面 -->
-            <dependency>
-                <groupId>org.dromara.warm</groupId>
-                <artifactId>warm-flow-plugin-ui-sb-web</artifactId>
-                <version>${warm-flow.version}</version>
-            </dependency>
-
             <!-- ==================== 监控与管理 ==================== -->
             <!-- Spring Boot Admin服务端 -->
             <dependency>
@@ -432,6 +419,13 @@
                 <groupId>com.jcraft</groupId>
                 <artifactId>jsch</artifactId>
                 <version>${jsch.version}</version>
+            </dependency>
+
+            <!-- Apache Tika核心库 -->
+            <dependency>
+                <groupId>org.apache.tika</groupId>
+                <artifactId>tika-core</artifactId>
+                <version>${tika-core.version}</version>
             </dependency>
 
             <!-- ==================== 项目模块依赖 ==================== -->

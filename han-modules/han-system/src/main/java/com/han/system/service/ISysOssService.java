@@ -1,15 +1,16 @@
 package com.han.system.service;
 
-import jakarta.servlet.http.HttpServletResponse;
 import com.han.common.mybatis.core.page.PageQuery;
 import com.han.common.mybatis.core.page.TableDataInfo;
+import com.han.system.domain.SysOss;
 import com.han.system.domain.bo.SysOssBo;
+import com.han.system.domain.bo.SysOssCreateBo;
+import com.han.system.domain.bo.SysOssPresignedUrlBo;
 import com.han.system.domain.vo.SysOssVo;
+import jakarta.validation.constraints.NotEmpty;
+
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Collection;
 import java.util.List;
 
 /**
@@ -20,64 +21,71 @@ import java.util.List;
 public interface ISysOssService {
 
     /**
-     * 查询OSS对象存储列表
+     * 上传文件
      *
-     * @param sysOss    OSS对象存储分页查询对象
-     * @param pageQuery 分页查询实体类
-     * @return 结果
-     */
-    TableDataInfo<SysOssVo> queryPageList(SysOssBo sysOss, PageQuery pageQuery);
-
-    /**
-     * 根据一组 ossIds 获取对应的 SysOssVo 列表
-     *
-     * @param ossIds 一组文件在数据库中的唯一标识集合
-     * @return 包含 SysOssVo 对象的列表
-     */
-    List<SysOssVo> listByIds(Collection<Long> ossIds);
-
-    /**
-     * 根据 ossId 从缓存或数据库中获取 SysOssVo 对象
-     *
-     * @param ossId 文件在数据库中的唯一标识
-     * @return SysOssVo 对象，包含文件信息
-     */
-    SysOssVo getById(Long ossId);
-
-    /**
-     * 上传 MultipartFile 到对象存储服务，并保存文件信息到数据库
-     *
-     * @param file 要上传的 MultipartFile 对象
-     * @return 上传成功后的 SysOssVo 对象，包含文件信息
+     * @param file 文件
+     * @return 文件对象
      */
     SysOssVo upload(MultipartFile file);
 
     /**
-     * 上传文件到对象存储服务，并保存文件信息到数据库
+     * 保存文件，并返回文件的访问路径
      *
-     * @param file 要上传的文件对象
-     * @return 上传成功后的 SysOssVo 对象，包含文件信息
+     * @param content   文件内容
+     * @param name      文件名称，允许空
+     * @param directory 目录，允许空
+     * @param type      文件的 MIME 类型，允许空
+     * @return 文件对象
      */
-    SysOssVo upload(File file);
+    SysOssVo createFile(@NotEmpty(message = "文件内容不能为空") byte[] content, String name, String directory, String type);
 
     /**
-     * 文件下载方法，支持一次性下载完整文件
+     * 生成文件预签名地址信息，用于上传
      *
-     * @param ossId    OSS对象ID
-     * @param response HttpServletResponse对象，用于设置响应头和向客户端发送文件内容
+     * @param name      文件名
+     * @param directory 目录
+     * @return 预签名地址信息
      */
-    void download(Long ossId, HttpServletResponse response) throws IOException;
+    SysOssPresignedUrlBo presignPutUrl(@NotEmpty(message = "文件名不能为空") String name, String directory);
 
     /**
-     * 根据配置Key和路径下载文件
+     * 创建文件
+     *
+     * @param createVo 创建信息
+     * @return 编号
      */
-    void downloadByConfigKey(String configKey, String path, HttpServletResponse response) throws IOException;
+    Long createFile(SysOssCreateBo createVo);
 
     /**
-     * 删除OSS对象存储
+     * 查询文件
      *
-     * @param ids     OSS对象ID串
-     * @param isValid 判断是否需要校验
+     * @param id 文件ID
+     * @return 文件对象
      */
-    void deleteWithValidByIds(Collection<Long> ids, Boolean isValid);
+    SysOss getOssFile(Long id);
+
+    /**
+     * 删除文件
+     *
+     * @param ids 编号列表
+     */
+    void deleteFile(List<Long> ids) throws Exception;
+
+    /**
+     * 获得文件内容
+     *
+     * @param configId 配置编号
+     * @param path     文件路径
+     * @return 文件内容
+     */
+    byte[] getFileContent(Long configId, String path) throws Exception;
+
+    /**
+     * 查询文件列表
+     *
+     * @param ossBo 文件信息
+     * @param pageQuery 分页查询
+     * @return 文件列表
+     */
+    TableDataInfo<SysOssVo> selectPageOssList(SysOssBo ossBo, PageQuery pageQuery);
 }

@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import com.han.common.mybatis.core.domain.BaseEntity;
+import lombok.experimental.Accessors;
 
 /**
  * @Author Lion Li
@@ -12,6 +13,7 @@ import com.han.common.mybatis.core.domain.BaseEntity;
  * @Description: OSS对象存储对象
  */
 @Data
+@Accessors(chain = true)
 @EqualsAndHashCode(callSuper = true)
 @TableName("sys_oss")
 public class SysOss extends BaseEntity {
@@ -23,19 +25,20 @@ public class SysOss extends BaseEntity {
     private Long ossId;
 
     /**
+     * 配置编号
+     * 关联 {@link SysOssConfig#getOssConfigId()}
+     */
+    private Long configId;
+
+    /**
      * 文件名
      */
     private String fileName;
 
     /**
-     * 原名
+     * 文件路径
      */
-    private String originalName;
-
-    /**
-     * 文件后缀名
-     */
-    private String fileSuffix;
+    private String filePath;
 
     /**
      * URL地址
@@ -43,12 +46,12 @@ public class SysOss extends BaseEntity {
     private String url;
 
     /**
-     * 扩展字段
+     * 文件的 MIME 类型
      */
-    private String ext1;
+    private String type;
 
     /**
-     * 服务商
+     * 文件大小
      */
-    private String service;
+    private Long size;
 }

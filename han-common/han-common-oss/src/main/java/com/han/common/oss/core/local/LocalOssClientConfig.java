@@ -2,6 +2,7 @@ package com.han.common.oss.core.local;
 
 import com.han.common.oss.core.OssClientConfig;
 import jakarta.validation.constraints.NotEmpty;
+import lombok.Data;
 import org.hibernate.validator.constraints.URL;
 
 /**
@@ -9,6 +10,7 @@ import org.hibernate.validator.constraints.URL;
  * @CreateTime: 2026-02-04
  * @Description: Local 存储的文件客户端配置类
  */
+@Data
 public class LocalOssClientConfig implements OssClientConfig {
 
     /**

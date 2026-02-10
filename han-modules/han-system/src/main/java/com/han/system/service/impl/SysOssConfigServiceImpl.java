@@ -6,6 +6,10 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.han.common.oss.factory.OssClientFactory;
+import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.benmanes.caffeine.cache.LoadingCache;
+import com.han.common.oss.core.OssClient;
 import com.han.common.oss.core.OssClientConfig;
 import com.han.common.oss.enums.OssStorageTypeEnum;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +34,9 @@ import com.han.system.service.ISysOssConfigService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import jakarta.annotation.PostConstruct;
+
+import java.time.Duration;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -45,12 +52,39 @@ import java.util.Map;
 public class SysOssConfigServiceImpl implements ISysOssConfigService {
 
     private final SysOssConfigMapper baseMapper;
+    private final OssClientFactory ossClientFactory;
+
+    /**
+     * Master 配置 ID
+     */
+    private static final Long CACHE_MASTER_ID = 0L;
+
+    private LoadingCache<Long, OssClient> clientCache;
 
     /**
      * 项目启动时，初始化参数到缓存，加载配置类
      */
     @Override
+    @PostConstruct
     public void init() {
+        clientCache = Caffeine.newBuilder()
+            .expireAfterWrite(Duration.ofSeconds(10))
+            .maximumSize(100)
+            .build(key -> {
+                SysOssConfig config;
+                if (CACHE_MASTER_ID.equals(key)) {
+                    config = baseMapper.selectOne(new LambdaQueryWrapper<SysOssConfig>()
+                        .eq(SysOssConfig::isMaster, true));
+                } else {
+                    config = baseMapper.selectById(key);
+                }
+                if (config != null) {
+                    ossClientFactory.createOrUpdateFileClient(config.getOssConfigId(), config.getStorageType(), config.getConfigData());
+                    return ossClientFactory.getFileClient(config.getOssConfigId());
+                }
+                return null;
+            });
+
         List<SysOssConfig> list = baseMapper.selectList();
         // 加载OSS初始化配置
         for (SysOssConfig config : list) {
@@ -113,6 +147,35 @@ public class SysOssConfigServiceImpl implements ISysOssConfigService {
         boolean flag = baseMapper.updateById(config) > 0;
         if (flag) {
             refreshCache(config.getOssConfigId());
+            // 清空缓存
+            clearClientCache(config.getOssConfigId(), config.isMaster());
+            return;
+        }
+        throw new ServiceException("操作失败");
+    }
+
+    /**
+     * 校验并删除数据
+     */
+    @Override
+    public void deleteWithValidByIds(Collection<Long> ids, Boolean isValid) {
+        if (isValid) {
+            if (CollUtil.containsAny(ids, OssConstant.SYSTEM_DATA_IDS)) {
+                throw new ServiceException("系统内置, 不可删除!");
+            }
+        }
+        List<SysOssConfig> list = CollUtil.newArrayList();
+        for (Long configId : ids) {
+            SysOssConfig config = baseMapper.selectById(configId);
+            list.add(config);
+        }
+        boolean flag = baseMapper.deleteByIds(ids) > 0;
+        if (flag) {
+            list.forEach(sysOssConfig -> {
+                CacheUtils.evict(CacheNames.SYS_OSS_CONFIG, sysOssConfig.getConfigKey());
+                // 清空缓存
+                clearClientCache(sysOssConfig.getOssConfigId(), sysOssConfig.isMaster());
+            });
             return;
         }
         throw new ServiceException("操作失败");
@@ -134,44 +197,29 @@ public class SysOssConfigServiceImpl implements ISysOssConfigService {
             .eq(SysOssConfig::getOssConfigId, config.getOssConfigId()));
         if (row > 0) {
             RedisUtils.setCacheObject(OssConstant.DEFAULT_CONFIG_KEY, config.getConfigKey());
+            // 清空缓存
+            clearClientCache(null, true);
         }
         return row;
     }
 
     @Override
-    public void deleteWithValidByIds(Collection<Long> ids, Boolean isValid) {
-        if (isValid) {
-            if (CollUtil.containsAny(ids, OssConstant.SYSTEM_DATA_IDS)) {
-                throw new ServiceException("系统内置, 不可删除!");
-            }
+    public OssClient getMasterOssClient() {
+        return clientCache.get(CACHE_MASTER_ID);
+    }
+
+    private void clearClientCache(Long id, Boolean master) {
+        if (id != null) {
+            clientCache.invalidate(id);
         }
-        List<SysOssConfig> list = CollUtil.newArrayList();
-        for (Long configId : ids) {
-            SysOssConfig config = baseMapper.selectById(configId);
-            list.add(config);
+        if (Boolean.TRUE.equals(master)) {
+            clientCache.invalidate(CACHE_MASTER_ID);
         }
-        boolean flag = baseMapper.deleteByIds(ids) > 0;
-        if (flag) {
-            list.forEach(sysOssConfig ->
-                CacheUtils.evict(CacheNames.SYS_OSS_CONFIG, sysOssConfig.getConfigKey()));
-            return;
-        }
-        throw new ServiceException("操作失败");
     }
 
     @Override
-    public void testConfig(Long ossConfigId) {
-        SysOssConfig config = baseMapper.selectById(ossConfigId);
-        if (ObjectUtil.isNull(config)) {
-            throw new ServiceException("配置不存在");
-        }
-        com.han.common.oss.core.OssClient storage = com.han.common.oss.factory.OssFactory.instance(config.getConfigKey());
-        try {
-            storage.uploadSuffix(new byte[]{1}, ".test", "text/plain");
-        } catch (Exception e) {
-            log.error("测试OSS配置失败", e);
-            throw new ServiceException("测试OSS配置失败：" + e.getMessage());
-        }
+    public OssClient getOssClient(Long id) {
+        return clientCache.get(id);
     }
 
     private OssClientConfig parseClientConfig(Integer storageType, Map<String, Object> configData) {
