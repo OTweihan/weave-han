@@ -84,7 +84,6 @@ public class SmsAuthStrategy implements IAuthStrategy {
                 MessageUtils.message("user.jcaptcha.expire"));
             throw new CaptchaExpireException();
         }
-
-        return code.equals(smsCode);
+        return smsCode.equals(code);
     }
 }

@@ -121,7 +121,10 @@ public class ExcelDownHandler implements SheetWriteHandler {
                 } else if (StringUtils.isNotBlank(converterExp)) {
                     // 如果指定了确切的值，则直接解析确切的值
                     List<String> strList = StringUtils.splitList(converterExp, format.separator());
-                    options = StreamUtils.toList(strList, s -> StringUtils.split(s, "=")[1]);
+                    options = StreamUtils.toList(strList, s -> {
+                        String[] arr = StringUtils.split(s, "=");
+                        return arr.length > 1 ? arr[1] : s;
+                    });
                 }
             } else if (field.isAnnotationPresent(ExcelEnumFormat.class)) {
                 // 否则如果指定了@ExcelEnumFormat，则使用枚举的逻辑

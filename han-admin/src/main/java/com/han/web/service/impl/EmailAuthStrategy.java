@@ -83,6 +83,6 @@ public class EmailAuthStrategy implements IAuthStrategy {
             throw new CaptchaExpireException();
         }
 
-        return code.equals(emailCode);
+        return emailCode.equals(code);
     }
 }

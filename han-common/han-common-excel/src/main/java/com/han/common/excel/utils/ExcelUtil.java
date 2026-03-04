@@ -404,6 +404,9 @@ public class ExcelUtil {
         String[] convertSource = converterExp.split(StringUtils.SEPARATOR);
         for (String item : convertSource) {
             String[] itemArray = item.split("=");
+            if (itemArray.length < 2) {
+                continue;
+            }
             if (StringUtils.containsAny(propertyValue, separator)) {
                 for (String value : propertyValue.split(separator)) {
                     if (itemArray[0].equals(value)) {
@@ -433,6 +436,9 @@ public class ExcelUtil {
         String[] convertSource = converterExp.split(StringUtils.SEPARATOR);
         for (String item : convertSource) {
             String[] itemArray = item.split("=");
+            if (itemArray.length < 2) {
+                continue;
+            }
             if (StringUtils.containsAny(propertyValue, separator)) {
                 for (String value : propertyValue.split(separator)) {
                     if (itemArray[1].equals(value)) {

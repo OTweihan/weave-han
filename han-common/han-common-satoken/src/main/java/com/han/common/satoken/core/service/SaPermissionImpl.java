@@ -31,7 +31,10 @@ public class SaPermissionImpl implements StpInterface {
             PermissionService permissionService = getPermissionService();
             if (ObjectUtil.isNotNull(permissionService)) {
                 List<String> list = StringUtils.splitList(loginId.toString(), ":");
-                return new ArrayList<>(permissionService.getMenuPermission(Long.parseLong(list.get(1))));
+                if (list.size() > 1) {
+                    return new ArrayList<>(permissionService.getMenuPermission(Long.parseLong(list.get(1))));
+                }
+                return new ArrayList<>();
             } else {
                 throw new ServiceException("PermissionService 实现类不存在");
             }
@@ -58,7 +61,10 @@ public class SaPermissionImpl implements StpInterface {
             PermissionService permissionService = getPermissionService();
             if (ObjectUtil.isNotNull(permissionService)) {
                 List<String> list = StringUtils.splitList(loginId.toString(), ":");
-                return new ArrayList<>(permissionService.getRolePermission(Long.parseLong(list.get(1))));
+                if (list.size() > 1) {
+                    return new ArrayList<>(permissionService.getRolePermission(Long.parseLong(list.get(1))));
+                }
+                return new ArrayList<>();
             } else {
                 throw new ServiceException("PermissionService 实现类不存在");
             }
