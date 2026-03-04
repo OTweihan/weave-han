@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.util.LinkedCaseInsensitiveMap;
 import org.springframework.web.context.request.RequestAttributes;
@@ -29,6 +30,7 @@ import java.util.Map;
  * @CreateTime: 2026-01-21
  * @Description: 客户端工具类
  */
+@Slf4j
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ServletUtils extends JakartaServletUtil {
 
@@ -158,7 +160,8 @@ public class ServletUtils extends JakartaServletUtil {
      * @return 当前请求的 HttpSession 对象
      */
     public static HttpSession getSession() {
-        return getRequest().getSession();
+        HttpServletRequest request = getRequest();
+        return request != null ? request.getSession() : null;
     }
 
     /**
@@ -222,7 +225,7 @@ public class ServletUtils extends JakartaServletUtil {
             response.setCharacterEncoding(StandardCharsets.UTF_8.toString());
             response.getWriter().print(string);
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("渲染字符串失败", e);
         }
     }
 

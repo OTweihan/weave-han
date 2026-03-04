@@ -9,6 +9,8 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.*;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -21,6 +23,13 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
         "yyyy-MM-dd", "yyyy-MM-dd HH:mm:ss", "yyyy-MM-dd HH:mm", "yyyy-MM",
         "yyyy/MM/dd", "yyyy/MM/dd HH:mm:ss", "yyyy/MM/dd HH:mm", "yyyy/MM",
         "yyyy.MM.dd", "yyyy.MM.dd HH:mm:ss", "yyyy.MM.dd HH:mm", "yyyy.MM"};
+
+    private static final ThreadLocal<Map<String, SimpleDateFormat>> DATE_FORMAT_CACHE = ThreadLocal.withInitial(HashMap::new);
+
+    private static SimpleDateFormat getDateFormat(String pattern) {
+        Map<String, SimpleDateFormat> formatMap = DATE_FORMAT_CACHE.get();
+        return formatMap.computeIfAbsent(pattern, SimpleDateFormat::new);
+    }
 
     @Deprecated
     private DateUtils() {
@@ -128,7 +137,7 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
      * @return 格式化后的日期时间字符串
      */
     public static String parseDateToStr(final FormatsType format, final Date date) {
-        return new SimpleDateFormat(format.getTimeFormat()).format(date);
+        return getDateFormat(format.getTimeFormat()).format(date);
     }
 
     /**
@@ -141,7 +150,7 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
      */
     public static Date parseDateTime(final FormatsType format, final String ts) {
         try {
-            return new SimpleDateFormat(format.getTimeFormat()).parse(ts);
+            return getDateFormat(format.getTimeFormat()).parse(ts);
         } catch (ParseException e) {
             throw new RuntimeException(e);
         }
