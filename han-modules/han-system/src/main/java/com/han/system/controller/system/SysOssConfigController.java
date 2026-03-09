@@ -94,7 +94,7 @@ public class SysOssConfigController extends BaseController {
         return R.ok();
     }
 
-    /**
+/**
      * 修改对象存储状态
      */
     @SaCheckPermission("system:ossConfig:edit")
@@ -106,4 +106,14 @@ public class SysOssConfigController extends BaseController {
         return R.ok();
     }
 
+    /**
+     * 测试OSS配置是否正确
+     *
+     * @param ossConfigId OSS配置ID
+     */
+    @SaCheckPermission("system:ossConfig:list")
+    @GetMapping("/test")
+    public R<String> test(@RequestParam("ossConfigId") Long ossConfigId) throws Exception {
+        return R.ok(ossConfigService.testOssConfig(ossConfigId));
+    }
 }

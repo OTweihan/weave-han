@@ -1,6 +1,8 @@
 package com.han.system.service.impl;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.io.resource.ResourceUtil;
+import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.ObjectUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
@@ -88,11 +90,11 @@ public class SysOssConfigServiceImpl implements ISysOssConfigService {
         List<SysOssConfig> list = baseMapper.selectList();
         // 加载OSS初始化配置
         for (SysOssConfig config : list) {
-            String configKey = config.getConfigKey();
+            String configName = config.getConfigName();
             if (config.isMaster()) {
-                RedisUtils.setCacheObject(OssConstant.DEFAULT_CONFIG_KEY, configKey);
+                RedisUtils.setCacheObject(OssConstant.DEFAULT_CONFIG_KEY, configName);
             }
-            CacheUtils.put(CacheNames.SYS_OSS_CONFIG, config.getConfigKey(), JsonUtils.toJsonString(config.getConfigData()));
+            CacheUtils.put(CacheNames.SYS_OSS_CONFIG, config.getConfigName(), JsonUtils.toJsonString(config.getConfigData()));
         }
     }
 
@@ -172,7 +174,7 @@ public class SysOssConfigServiceImpl implements ISysOssConfigService {
         boolean flag = baseMapper.deleteByIds(ids) > 0;
         if (flag) {
             list.forEach(sysOssConfig -> {
-                CacheUtils.evict(CacheNames.SYS_OSS_CONFIG, sysOssConfig.getConfigKey());
+                CacheUtils.evict(CacheNames.SYS_OSS_CONFIG, sysOssConfig.getConfigName());
                 // 清空缓存
                 clearClientCache(sysOssConfig.getOssConfigId(), sysOssConfig.isMaster());
             });
@@ -196,7 +198,7 @@ public class SysOssConfigServiceImpl implements ISysOssConfigService {
             .set(SysOssConfig::isMaster, true)
             .eq(SysOssConfig::getOssConfigId, config.getOssConfigId()));
         if (row > 0) {
-            RedisUtils.setCacheObject(OssConstant.DEFAULT_CONFIG_KEY, config.getConfigKey());
+            RedisUtils.setCacheObject(OssConstant.DEFAULT_CONFIG_KEY, config.getConfigName());
             // 清空缓存
             clearClientCache(null, true);
         }
@@ -215,11 +217,18 @@ public class SysOssConfigServiceImpl implements ISysOssConfigService {
         if (Boolean.TRUE.equals(master)) {
             clientCache.invalidate(CACHE_MASTER_ID);
         }
-    }
+}
 
     @Override
     public OssClient getOssClient(Long id) {
         return clientCache.get(id);
+    }
+
+    @Override
+    public String testOssConfig(Long id) throws Exception {
+        validateFileConfigExists(id);
+        byte[] content = ResourceUtil.readBytes("file/test.jpg");
+        return getOssClient(id).upload(content, IdUtil.fastSimpleUUID() + ".jpg", "image/jpeg");
     }
 
     private OssClientConfig parseClientConfig(Integer storageType, Map<String, Object> configData) {
@@ -246,12 +255,13 @@ public class SysOssConfigServiceImpl implements ISysOssConfigService {
      */
     private void refreshCache(Long id) {
         SysOssConfig config = baseMapper.selectById(id);
-        CacheUtils.put(CacheNames.SYS_OSS_CONFIG, config.getConfigKey(), JsonUtils.toJsonString(config.getConfigData()));
+        CacheUtils.put(CacheNames.SYS_OSS_CONFIG, config.getConfigName(), JsonUtils.toJsonString(config.getConfigData()));
     }
 
     private LambdaQueryWrapper<SysOssConfig> buildQueryWrapper(SysOssConfigBo bo) {
         LambdaQueryWrapper<SysOssConfig> lqw = Wrappers.lambdaQuery();
-        lqw.eq(StringUtils.isNotBlank(bo.getConfigKey()), SysOssConfig::getConfigKey, bo.getConfigKey());
+        lqw.eq(StringUtils.isNotBlank(bo.getConfigName()), SysOssConfig::getConfigName, bo.getConfigName());
+        lqw.eq(ObjectUtil.isNotNull(bo.getStorageType()), SysOssConfig::getStorageType, bo.getStorageType());
         lqw.eq(ObjectUtil.isNotNull(bo.getMaster()), SysOssConfig::isMaster, bo.getMaster());
         lqw.orderByAsc(SysOssConfig::getOssConfigId);
         return lqw;

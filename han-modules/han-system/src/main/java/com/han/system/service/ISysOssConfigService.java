@@ -64,11 +64,19 @@ public interface ISysOssConfigService {
      */
     OssClient getMasterOssClient();
 
-    /**
+/**
      * 获得指定编号的文件客户端
      *
      * @param id 配置编号
      * @return 文件客户端
      */
     OssClient getOssClient(Long id);
+
+    /**
+     * 测试OSS配置是否正确
+     *
+     * @param id 配置编号
+     * @return 上传文件的访问URL
+     */
+    String testOssConfig(Long id) throws Exception;
 }

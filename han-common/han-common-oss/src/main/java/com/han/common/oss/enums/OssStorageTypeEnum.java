@@ -16,9 +16,9 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 /**
- * 文件存储器枚举
- *
- * @author Qoder
+ * @Author WeiHan
+ * @CreateTime: 2026-02-10
+ * @Description: 文件存储器枚举
  */
 @AllArgsConstructor
 @Getter

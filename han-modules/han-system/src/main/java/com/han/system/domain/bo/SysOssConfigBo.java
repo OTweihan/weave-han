@@ -33,9 +33,9 @@ public class SysOssConfigBo extends BaseEntity {
     /**
      * 配置key
      */
-    @NotBlank(message = "配置key不能为空", groups = {AddGroup.class, EditGroup.class})
-    @Size(min = 2, max = 100, message = "configKey长度必须介于{min}和{max} 之间")
-    private String configKey;
+    @NotBlank(message = "配置名不能为空", groups = {AddGroup.class, EditGroup.class})
+    @Size(min = 2, max = 30, message = "configName长度必须介于{min}和{max} 之间")
+    private String configName;
 
     /**
      * 存储类型

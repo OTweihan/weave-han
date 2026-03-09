@@ -27,9 +27,9 @@ public class SysOssConfig extends BaseEntity {
     private Long ossConfigId;
 
     /**
-     * 配置key
+     * 配置名
      */
-    private String configKey;
+    private String configName;
 
     /**
      * 存储类型

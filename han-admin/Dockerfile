@@ -17,7 +17,7 @@ EXPOSE ${SERVER_PORT}
 # 暴露 snail job 客户端端口 用于定时任务调度中心通信
 EXPOSE ${SNAIL_PORT}
 
-ADD ./target/ruoyi-admin.jar ./app.jar
+ADD ./target/han-admin.jar ./app.jar
 
 SHELL ["/bin/bash", "-c"]
 

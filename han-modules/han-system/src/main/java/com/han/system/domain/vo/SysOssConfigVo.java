@@ -9,6 +9,7 @@ import lombok.Data;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.Date;
 
 /**
  * @Author Lion Li, 孤舟烟雨
@@ -29,9 +30,9 @@ public class SysOssConfigVo implements Serializable {
     private Long ossConfigId;
 
     /**
-     * 配置key
+     * 配置名
      */
-    private String configKey;
+    private String configName;
 
     /**
      * 存储类型
@@ -53,4 +54,9 @@ public class SysOssConfigVo implements Serializable {
      * 备注
      */
     private String remark;
+
+    /**
+     * 创建时间
+     */
+    private Date createTime;
 }

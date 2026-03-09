@@ -2,8 +2,6 @@ package com.han.system.domain.vo;
 
 import io.github.linpeilie.annotations.AutoMapper;
 import lombok.Data;
-import com.han.common.translation.annotation.Translation;
-import com.han.common.translation.constant.TransConstant;
 import com.han.system.domain.SysOss;
 
 import java.io.Serial;
