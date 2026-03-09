@@ -271,10 +271,13 @@ public class SysOssConfigServiceImpl implements ISysOssConfigService {
     }
 
     private LambdaQueryWrapper<SysOssConfig> buildQueryWrapper(SysOssConfigBo bo) {
+        Map<String, Object> params = bo.getParams();
         LambdaQueryWrapper<SysOssConfig> lqw = Wrappers.lambdaQuery();
         lqw.eq(StringUtils.isNotBlank(bo.getConfigName()), SysOssConfig::getConfigName, bo.getConfigName());
         lqw.eq(ObjectUtil.isNotNull(bo.getStorageType()), SysOssConfig::getStorageType, bo.getStorageType());
         lqw.eq(ObjectUtil.isNotNull(bo.getMaster()), SysOssConfig::isMaster, bo.getMaster());
+        lqw.between(params.get("beginTime") != null && params.get("endTime") != null,
+            SysOssConfig::getCreateTime, params.get("beginTime"), params.get("endTime"));
         lqw.orderByDesc(SysOssConfig::isMaster);
         lqw.orderByDesc(SysOssConfig::getCreateTime);
         return lqw;
