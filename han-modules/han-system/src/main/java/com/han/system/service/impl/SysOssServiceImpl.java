@@ -25,7 +25,10 @@ import com.han.common.core.utils.file.FileTypeUtils;
 import com.han.common.mybatis.core.page.PageQuery;
 import com.han.common.mybatis.core.page.TableDataInfo;
 import com.han.common.oss.core.OssClient;
+import com.han.common.oss.core.db.DbOssClient;
+import com.han.common.oss.enums.OssStorageTypeEnum;
 import com.han.system.domain.SysOss;
+import com.han.system.domain.SysOssConfig;
 import com.han.system.domain.SysUser;
 import com.han.system.domain.bo.SysOssBo;
 import com.han.system.domain.bo.SysOssCreateBo;
@@ -99,14 +102,29 @@ public class SysOssServiceImpl implements ISysOssService, OssService {
         String path = generateUploadPath(name, directory);
         OssClient client = ossConfigService.getMasterOssClient();
         Assert.notNull(client, "客户端主配置不能为空");
-        String url = client.upload(content, path, type);
+        String storageType = resolveStorageType(client.getOssConfigId(), client);
         SysOss oss = new SysOss().setConfigId(client.getOssConfigId())
-            .setFileName(name).setUrl(url).setType(type).setSize((long) content.length);
+            .setStorageType(storageType)
+            .setFileName(name)
+            .setFilePath(path)
+            .setType(type)
+            .setSize((long) content.length);
         try {
-            ossMapper.insert(oss);
+            if (client instanceof DbOssClient) {
+                ossMapper.insert(oss);
+                String url = client.upload(content, path, type, oss.getOssId());
+                oss.setUrl(url);
+                ossMapper.updateById(oss);
+            } else {
+                String url = client.upload(content, path, type);
+                oss.setUrl(url);
+                ossMapper.insert(oss);
+            }
         } catch (Exception e) {
             try {
-                client.delete(path);
+                if (StrUtil.isNotEmpty(oss.getFilePath())) {
+                    client.delete(oss.getFilePath());
+                }
             } catch (Exception ex) {
                 log.error("上传失败清理文件失败，文件路径: {}", path, ex);
             }
@@ -170,6 +188,18 @@ public class SysOssServiceImpl implements ISysOssService, OssService {
         ossCreateBo.setUrl(StrUtil.subBefore(ossCreateBo.getUrl(), "?", false));
         SysOss sysOss = MapstructUtils.convert(ossCreateBo, SysOss.class);
         Assert.notNull(sysOss, "文件创建失败");
+        if (StrUtil.isEmpty(sysOss.getFilePath())) {
+            sysOss.setFilePath(ossCreateBo.getPath());
+        }
+        if (StrUtil.isEmpty(sysOss.getStorageType())) {
+            SysOssConfig config = ossConfigMapper.selectById(ossCreateBo.getConfigId());
+            if (config != null) {
+                OssStorageTypeEnum storageTypeEnum = OssStorageTypeEnum.getByStorageType(config.getStorageType());
+                if (storageTypeEnum != null) {
+                    sysOss.setStorageType(storageTypeEnum.name());
+                }
+            }
+        }
         ossMapper.insert(sysOss);
         return sysOss.getOssId();
     }
@@ -271,5 +301,16 @@ public class SysOssServiceImpl implements ISysOssService, OssService {
             dto.setFileName(sysOss.getFileName());
             return dto;
         }).collect(Collectors.toList());
+    }
+
+    private String resolveStorageType(Long configId, OssClient client) {
+        SysOssConfig config = ossConfigMapper.selectById(configId);
+        if (config != null) {
+            OssStorageTypeEnum storageTypeEnum = OssStorageTypeEnum.getByStorageType(config.getStorageType());
+            if (storageTypeEnum != null) {
+                return storageTypeEnum.name();
+            }
+        }
+        return client.getClass().getSimpleName();
     }
 }

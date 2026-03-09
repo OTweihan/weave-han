@@ -17,13 +17,13 @@ import com.han.common.mybatis.core.domain.BaseEntity;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-@TableName(value = "sys_oss_config", autoResultMap = true)
+@TableName(value = "sys_storage_config", autoResultMap = true)
 public class SysOssConfig extends BaseEntity {
 
     /**
      * 主键
      */
-    @TableId(value = "oss_config_id")
+    @TableId(value = "id")
     private Long ossConfigId;
 
     /**
@@ -46,6 +46,7 @@ public class SysOssConfig extends BaseEntity {
     /**
      * 是否主配置
      */
+    @TableField("is_master")
     private boolean master;
 
     /**

@@ -55,7 +55,7 @@ public interface ISysOssConfigService {
     /**
      * 设置主配置
      */
-    int updateOssConfigMaster(SysOssConfigBo ossConfigBo);
+    void updateOssConfigMaster(SysOssConfigBo ossConfigBo);
 
     /**
      * 获得 Master 文件客户端

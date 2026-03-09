@@ -25,6 +25,20 @@ public interface OssClient {
     String upload(byte[] content, String path, String type) throws Exception;
 
     /**
+     * 上传文件（携带文件编号）
+     *
+     * @param content 文件流
+     * @param path    相对路径
+     * @param type    文件类型
+     * @param fileId  文件编号
+     * @return 完整路径，即 HTTP 访问地址
+     * @throws Exception 上传文件时，抛出 Exception 异常
+     */
+    default String upload(byte[] content, String path, String type, Long fileId) throws Exception {
+        return upload(content, path, type);
+    }
+
+    /**
      * 删除文件
      *
      * @param path 相对路径

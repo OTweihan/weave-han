@@ -5,8 +5,6 @@ import com.han.common.mybatis.core.mapper.BaseMapperPlus;
 import com.han.common.oss.domain.SysOssContent;
 import org.apache.ibatis.annotations.Mapper;
 
-import java.util.List;
-
 /**
  * @Author: WeiHan
  * @CreateTime: 2026-01-30
@@ -15,15 +13,14 @@ import java.util.List;
 @Mapper
 public interface SysOssContentMapper extends BaseMapperPlus<SysOssContent, SysOssContent> {
 
-    default void deleteByConfigIdAndPath(Long ossId, String path) {
+    default void deleteByFileId(Long fileId) {
         this.delete(new LambdaQueryWrapper<SysOssContent>()
-            .eq(SysOssContent::getOssConfigId, ossId)
-            .eq(SysOssContent::getPath, path));
+            .eq(SysOssContent::getFileId, fileId));
     }
 
-    default List<SysOssContent> selectListByConfigIdAndPath(Long ossId, String path) {
-        return selectList(new LambdaQueryWrapper<SysOssContent>()
-            .eq(SysOssContent::getOssConfigId, ossId)
-            .eq(SysOssContent::getPath, path));
+    default SysOssContent selectOneByFileId(Long fileId) {
+        return selectOne(new LambdaQueryWrapper<SysOssContent>()
+            .eq(SysOssContent::getFileId, fileId)
+            .last("limit 1"));
     }
 }

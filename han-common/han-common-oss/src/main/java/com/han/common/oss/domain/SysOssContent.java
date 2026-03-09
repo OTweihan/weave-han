@@ -8,28 +8,23 @@ import lombok.experimental.Accessors;
 /**
  * @Author: WeiHan
  * @CreateTime: 2026-01-30
- * @Description: OSS内容存储对象 sys_oss_content
+ * @Description: OSS内容存储对象 sys_file_content
  */
 @Data
 @Accessors(chain = true)
-@TableName("sys_oss_content")
+@TableName("sys_file_content")
 public class SysOssContent {
 
     /**
      * 主键
      */
-    @TableId
+    @TableId("id")
     private Long contentId;
 
     /**
-     * OSS配置编号
+     * 文件ID
      */
-    private Long ossConfigId;
-
-    /**
-     * 文件路径(UUID)即文件名
-     */
-    private String path;
+    private Long fileId;
 
     /**
      * 文件内容

@@ -12,6 +12,7 @@ import com.han.common.oss.factory.OssClientFactory;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.LoadingCache;
 import com.han.common.oss.core.OssClient;
+import com.han.common.oss.core.db.DbOssClient;
 import com.han.common.oss.core.OssClientConfig;
 import com.han.common.oss.enums.OssStorageTypeEnum;
 import lombok.RequiredArgsConstructor;
@@ -29,9 +30,11 @@ import com.han.common.redis.utils.CacheUtils;
 import com.han.common.redis.utils.RedisUtils;
 
 import com.han.system.domain.SysOssConfig;
+import com.han.system.domain.SysOss;
 import com.han.system.domain.bo.SysOssConfigBo;
 import com.han.system.domain.vo.SysOssConfigVo;
 import com.han.system.mapper.SysOssConfigMapper;
+import com.han.system.mapper.SysOssMapper;
 import com.han.system.service.ISysOssConfigService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -54,6 +57,7 @@ import java.util.Map;
 public class SysOssConfigServiceImpl implements ISysOssConfigService {
 
     private final SysOssConfigMapper baseMapper;
+    private final SysOssMapper ossMapper;
     private final OssClientFactory ossClientFactory;
 
     /**
@@ -191,7 +195,7 @@ public class SysOssConfigServiceImpl implements ISysOssConfigService {
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public int updateOssConfigMaster(SysOssConfigBo ossConfigBo) {
+    public void updateOssConfigMaster(SysOssConfigBo ossConfigBo) {
         SysOssConfig config = validateFileConfigExists(ossConfigBo.getOssConfigId());
         // 先全部设置为非主配置
         baseMapper.update(null, new LambdaUpdateWrapper<SysOssConfig>()
@@ -205,7 +209,6 @@ public class SysOssConfigServiceImpl implements ISysOssConfigService {
             // 清空缓存
             clearClientCache(null, true);
         }
-        return row;
     }
 
     @Override
@@ -229,9 +232,30 @@ public class SysOssConfigServiceImpl implements ISysOssConfigService {
 
     @Override
     public String testOssConfig(Long id) throws Exception {
-        validateFileConfigExists(id);
+        SysOssConfig config = validateFileConfigExists(id);
         byte[] content = ResourceUtil.readBytes("file/test.jpg");
-        return getOssClient(id).upload(content, IdUtil.fastSimpleUUID() + ".jpg", "image/jpeg");
+        String path = IdUtil.fastSimpleUUID() + ".jpg";
+        OssClient ossClient = getOssClient(id);
+        if (ossClient instanceof DbOssClient) {
+            SysOss sysOss = new SysOss()
+                .setConfigId(id)
+                .setStorageType(resolveStorageType(config.getStorageType()))
+                .setFileName(path)
+                .setFilePath(path)
+                .setType("image/jpeg")
+                .setSize((long) content.length);
+            ossMapper.insert(sysOss);
+            String url = ossClient.upload(content, path, "image/jpeg", sysOss.getOssId());
+            sysOss.setUrl(url);
+            ossMapper.updateById(sysOss);
+            return url;
+        }
+        return ossClient.upload(content, path, "image/jpeg");
+    }
+
+    private String resolveStorageType(Integer storageType) {
+        OssStorageTypeEnum storageTypeEnum = OssStorageTypeEnum.getByStorageType(storageType);
+        return storageTypeEnum != null ? storageTypeEnum.name() : String.valueOf(storageType);
     }
 
     private OssClientConfig parseClientConfig(Integer storageType, Map<String, Object> configData) {
