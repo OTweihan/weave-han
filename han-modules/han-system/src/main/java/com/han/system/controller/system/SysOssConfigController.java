@@ -94,7 +94,7 @@ public class SysOssConfigController extends BaseController {
         return R.ok();
     }
 
-/**
+    /**
      * 修改对象存储状态
      */
     @SaCheckPermission("system:ossConfig:edit")

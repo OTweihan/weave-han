@@ -112,6 +112,7 @@ public class SysOssConfigServiceImpl implements ISysOssConfigService {
 
     @Override
     public void insertOssConfig(SysOssConfigBo ossConfigBo) {
+        checkConfigNameUnique(ossConfigBo);
         // 校验配置数据
         OssClientConfig clientConfig = parseClientConfig(ossConfigBo.getStorageType(), ossConfigBo.getConfigData());
         SysOssConfig ossConfig = MapstructUtils.convert(ossConfigBo, SysOssConfig.class);
@@ -134,6 +135,8 @@ public class SysOssConfigServiceImpl implements ISysOssConfigService {
     public void updateOssConfig(SysOssConfigBo ossConfigBo) {
         // 校验配置是否存在
         SysOssConfig oldConfig = validateFileConfigExists(ossConfigBo.getOssConfigId());
+        // 校验配置名是否唯一
+        checkConfigNameUnique(ossConfigBo);
 
         // 校验配置数据
         OssClientConfig clientConfig = parseClientConfig(ossConfigBo.getStorageType(), ossConfigBo.getConfigData());
@@ -258,12 +261,22 @@ public class SysOssConfigServiceImpl implements ISysOssConfigService {
         CacheUtils.put(CacheNames.SYS_OSS_CONFIG, config.getConfigName(), JsonUtils.toJsonString(config.getConfigData()));
     }
 
+    private void checkConfigNameUnique(SysOssConfigBo bo) {
+        long count = baseMapper.selectCount(new LambdaQueryWrapper<SysOssConfig>()
+            .eq(SysOssConfig::getConfigName, bo.getConfigName())
+            .ne(bo.getOssConfigId() != null, SysOssConfig::getOssConfigId, bo.getOssConfigId()));
+        if (count > 0) {
+            throw new ServiceException("新增配置'" + bo.getConfigName() + "'失败，配置名称已存在");
+        }
+    }
+
     private LambdaQueryWrapper<SysOssConfig> buildQueryWrapper(SysOssConfigBo bo) {
         LambdaQueryWrapper<SysOssConfig> lqw = Wrappers.lambdaQuery();
         lqw.eq(StringUtils.isNotBlank(bo.getConfigName()), SysOssConfig::getConfigName, bo.getConfigName());
         lqw.eq(ObjectUtil.isNotNull(bo.getStorageType()), SysOssConfig::getStorageType, bo.getStorageType());
         lqw.eq(ObjectUtil.isNotNull(bo.getMaster()), SysOssConfig::isMaster, bo.getMaster());
-        lqw.orderByAsc(SysOssConfig::getOssConfigId);
+        lqw.orderByDesc(SysOssConfig::isMaster);
+        lqw.orderByDesc(SysOssConfig::getCreateTime);
         return lqw;
     }
 }
