@@ -52,7 +52,7 @@
         <!-- OSS对象存储模块 - 提供文件上传下载功能 -->
         <dependency>
             <groupId>com.han</groupId>
-            <artifactId>han-common-oss</artifactId>
+            <artifactId>han-common-storage</artifactId>
         </dependency>
 
         <!-- ==================== 安全与加密模块 ==================== -->

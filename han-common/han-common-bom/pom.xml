@@ -99,10 +99,10 @@
                 <version>${revision}</version>
             </dependency>
 
-            <!-- OSS对象存储模块 - 文件上传下载、云存储集成 -->
+            <!-- 文件存储模块 - 文件上传下载、云存储集成 -->
             <dependency>
                 <groupId>com.han</groupId>
-                <artifactId>han-common-oss</artifactId>
+                <artifactId>han-common-storage</artifactId>
                 <version>${revision}</version>
             </dependency>
 

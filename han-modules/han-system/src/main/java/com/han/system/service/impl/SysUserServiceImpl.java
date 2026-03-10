@@ -41,7 +41,7 @@ import cn.hutool.crypto.digest.BCrypt;
 import com.han.common.core.utils.file.MimeTypeUtils;
 import com.han.system.domain.bo.SysUserProfileBo;
 import com.han.system.domain.vo.SysOssVo;
-import com.han.system.service.ISysOssService;
+import com.han.system.service.ISysFileService;
 import org.springframework.web.multipart.MultipartFile;
 
 /**
@@ -57,7 +57,7 @@ public class SysUserServiceImpl implements ISysUserService, UserService {
     private final SysUserMapper baseMapper;
     private final SysRoleMapper roleMapper;
     private final SysUserRoleMapper userRoleMapper;
-    private final ISysOssService ossService;
+    private final ISysFileService ossService;
 
     @Override
     public TableDataInfo<SysUserVo> selectPageUserList(SysUserBo user, PageQuery pageQuery) {

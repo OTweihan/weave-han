@@ -4,7 +4,7 @@ import io.github.linpeilie.annotations.AutoMapper;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import com.han.common.mybatis.core.domain.BaseEntity;
-import com.han.system.domain.SysOss;
+import com.han.system.domain.SysFile;
 
 /**
  * @Author Lion Li
@@ -13,7 +13,7 @@ import com.han.system.domain.SysOss;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-@AutoMapper(target = SysOss.class, reverseConvertGenerate = false)
+@AutoMapper(target = SysFile.class, reverseConvertGenerate = false)
 public class SysOssBo extends BaseEntity {
 
     /**

@@ -2,7 +2,7 @@ package com.han.system.domain.vo;
 
 import io.github.linpeilie.annotations.AutoMapper;
 import lombok.Data;
-import com.han.system.domain.SysOss;
+import com.han.system.domain.SysFile;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -14,7 +14,7 @@ import java.util.Date;
  * @Description: OSS对象存储视图对象 sys_oss
  */
 @Data
-@AutoMapper(target = SysOss.class)
+@AutoMapper(target = SysFile.class)
 public class SysOssVo implements Serializable {
 
     @Serial

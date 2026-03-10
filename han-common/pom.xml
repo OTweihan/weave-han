@@ -45,8 +45,8 @@
         <module>han-common-encrypt</module>
 
         <!-- ==================== 文件与数据处理 ==================== -->
-        <!-- OSS对象存储模块 - 文件上传下载 -->
-        <module>han-common-oss</module>
+        <!-- 文件存储模块 - 文件上传下载 -->
+        <module>han-common-storage</module>
         <!-- Excel处理模块 - Excel导入导出 -->
         <module>han-common-excel</module>
         <!-- JSON处理模块 - JSON序列化和反序列化 -->

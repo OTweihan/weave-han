@@ -59,9 +59,9 @@ public interface CacheNames {
     String SYS_ROLE_CUSTOM = "sys_role_custom#30d";
 
     /**
-     * OSS配置
+     * 存储配置
      */
-    String SYS_OSS_CONFIG = GlobalConstants.GLOBAL_REDIS_KEY + "sys_oss_config";
+    String SYS_STORAGE_CONFIG = GlobalConstants.GLOBAL_REDIS_KEY + "sys_storage_config";
 
     /**
      * 在线用户

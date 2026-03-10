@@ -2,7 +2,7 @@ package com.han.system.runner;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import com.han.system.service.ISysOssConfigService;
+import com.han.system.service.ISysStorageConfigService;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
@@ -17,11 +17,11 @@ import org.springframework.stereotype.Component;
 @Component
 public class SystemApplicationRunner implements ApplicationRunner {
 
-    private final ISysOssConfigService ossConfigService;
+    private final ISysStorageConfigService storageConfigService;
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
-        ossConfigService.init();
-        log.info("初始化 OSS 配置成功");
+        storageConfigService.init();
+        log.info("初始化存储配置成功");
     }
 }
