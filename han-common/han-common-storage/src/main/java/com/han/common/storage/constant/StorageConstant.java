@@ -15,12 +15,12 @@ public interface StorageConstant {
     /**
      * 默认配置KEY
      */
-    String DEFAULT_CONFIG_KEY = GlobalConstants.GLOBAL_REDIS_KEY + "sys_oss:default_config";
+    String DEFAULT_CONFIG_KEY = GlobalConstants.GLOBAL_REDIS_KEY + "sys_storage:default_config";
 
     /**
      * 预览列表资源开关Key
      */
-    String PEREVIEW_LIST_RESOURCE_KEY = "sys.oss.previewListResource";
+    String PEREVIEW_LIST_RESOURCE_KEY = "sys.storage.previewListResource";
 
     /**
      * 系统数据ids

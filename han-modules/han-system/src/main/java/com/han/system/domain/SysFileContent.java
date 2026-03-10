@@ -1,25 +1,27 @@
-package com.han.common.storage.domain;
+package com.han.system.domain;
 
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
+import java.io.Serializable;
+
 /**
- * @Author: WeiHan
- * @CreateTime: 2026-01-30
- * @Description: 存储内容存储对象 sys_file_content
+ * @Author WeiHan
+ * @CreateTime: 2026-03-10
+ * @Description: 数据库文件内容对象
  */
 @Data
 @Accessors(chain = true)
 @TableName("sys_file_content")
-public class StorageFileContent {
+public class SysFileContent implements Serializable {
 
     /**
      * 主键
      */
-    @TableId("id")
-    private Long contentId;
+    @TableId(value = "id")
+    private Long id;
 
     /**
      * 文件ID
@@ -27,7 +29,7 @@ public class StorageFileContent {
     private Long fileId;
 
     /**
-     * 文件内容
+     * 文件二进制内容
      */
     private byte[] content;
 }

@@ -15,7 +15,7 @@ import lombok.experimental.Accessors;
 @NoArgsConstructor
 @AllArgsConstructor
 @Accessors(chain = true)
-public class SysOssPresignedUrlBo {
+public class SysFilePresignedUrlBo {
 
     @Schema(description = "配置编号", requiredMode = Schema.RequiredMode.REQUIRED)
     private Long configId;

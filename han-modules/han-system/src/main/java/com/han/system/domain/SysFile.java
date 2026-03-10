@@ -1,11 +1,11 @@
 package com.han.system.domain;
 
-import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.han.common.mybatis.core.domain.BaseEntity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import com.han.common.mybatis.core.domain.BaseEntity;
 import lombok.experimental.Accessors;
 
 /**
@@ -20,16 +20,14 @@ import lombok.experimental.Accessors;
 public class SysFile extends BaseEntity {
 
     /**
-     * 对象存储主键
+     * 文件ID
      */
     @TableId(value = "id")
-    private Long ossId;
+    private Long id;
 
     /**
-     * 配置编号
-     * 关联 {@link SysStorageConfig#getStorageConfigId()}
+     * 存储配置ID
      */
-    @TableField("config_id")
     private Long configId;
 
     /**
@@ -38,27 +36,48 @@ public class SysFile extends BaseEntity {
     private String storageType;
 
     /**
-     * 文件名
+     * 存储文件名
      */
     private String fileName;
 
     /**
-     * 文件路径
+     * 原始文件名
+     */
+    private String originalName;
+
+    /**
+     * 存储路径
      */
     private String filePath;
 
     /**
-     * URL地址
+     * 访问URL
      */
     private String url;
 
     /**
-     * 文件的 MIME 类型
+     * 文件后缀
+     */
+    private String fileSuffix;
+
+    /**
+     * MIME类型
      */
     private String mimeType;
 
     /**
-     * 文件大小
+     * 文件大小(byte)
      */
     private Long fileSize;
+
+    /**
+     * 文件hash(md5/sha256)
+     */
+    private String hash;
+
+    /**
+     * 逻辑删除
+     */
+    @TableLogic
+    private Integer deleted;
 }

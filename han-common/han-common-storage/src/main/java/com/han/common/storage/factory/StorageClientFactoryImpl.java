@@ -43,7 +43,7 @@ public class StorageClientFactoryImpl implements StorageClientFactory {
         if (client == null) {
             client = this.createFileClient(configId, storage, config);
             client.init();
-            clients.put(client.getOssConfigId(), client);
+            clients.put(client.getStorageConfigId(), client);
         } else {
             client.refresh(config);
         }

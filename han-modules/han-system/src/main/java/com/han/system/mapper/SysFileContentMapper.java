@@ -1,15 +1,14 @@
 package com.han.system.mapper;
 
 import com.han.common.mybatis.core.mapper.BaseMapperPlus;
-import com.han.system.domain.SysFile;
-import com.han.system.domain.vo.SysFileVo;
+import com.han.system.domain.SysFileContent;
 import org.apache.ibatis.annotations.Mapper;
 
 /**
  * @Author WeiHan
  * @CreateTime: 2026-03-10
- * @Description: 文件信息Mapper接口
+ * @Description: 文件内容Mapper接口
  */
 @Mapper
-public interface SysFileMapper extends BaseMapperPlus<SysFile, SysFileVo> {
+public interface SysFileContentMapper extends BaseMapperPlus<SysFileContent, SysFileContent> {
 }

@@ -4,7 +4,7 @@ import cn.dev33.satoken.annotation.SaCheckPermission;
 import com.han.common.core.utils.file.FileUtils;
 import com.han.common.mybatis.core.page.PageQuery;
 import com.han.common.mybatis.core.page.TableDataInfo;
-import com.han.system.domain.bo.SysOssBo;
+import com.han.system.domain.bo.SysFileBo;
 import org.springframework.http.MediaType;
 
 import java.io.IOException;
@@ -14,10 +14,10 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.core.util.URLUtil;
 import com.han.common.core.domain.R;
 import com.han.common.web.core.BaseController;
-import com.han.system.domain.bo.SysOssCreateBo;
-import com.han.system.domain.bo.SysOssPresignedUrlBo;
+import com.han.system.domain.bo.SysFileCreateBo;
+import com.han.system.domain.bo.SysFilePresignedUrlBo;
 import com.han.system.domain.bo.SysFileUploadBo;
-import com.han.system.domain.vo.SysOssVo;
+import com.han.system.domain.vo.SysFileVo;
 import com.han.system.service.ISysFileService;
 import com.han.common.core.utils.MapstructUtils;
 import io.swagger.v3.oas.annotations.Operation;
@@ -47,7 +47,7 @@ import java.util.List;
 @Validated
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/resource/oss")
+@RequestMapping("/resource/file")
 public class SysFileController extends BaseController {
 
     private final ISysFileService fileService;
@@ -68,7 +68,7 @@ public class SysFileController extends BaseController {
         @Parameter(name = "name", description = "文件名称", required = true),
         @Parameter(name = "directory", description = "文件目录")
     })
-    public R<SysOssPresignedUrlBo> getFilePresignedUrl(
+    public R<SysFilePresignedUrlBo> getFilePresignedUrl(
         @RequestParam("name") String name,
         @RequestParam(value = "directory", required = false) String directory) {
         return R.ok(fileService.presignPutUrl(name, directory));
@@ -76,34 +76,34 @@ public class SysFileController extends BaseController {
 
     @PostMapping("/create")
     @Operation(summary = "创建文件", description = "模式二：前端上传文件：配合 presigned-url 接口，记录上传了上传的文件")
-    public R<Long> createFile(@Valid @RequestBody SysOssCreateBo createVo) {
+    public R<Long> createFile(@Valid @RequestBody SysFileCreateBo createVo) {
         return R.ok(fileService.createFile(createVo));
     }
 
     @GetMapping("/get")
     @Operation(summary = "获得文件")
     @Parameter(name = "id", description = "编号", required = true)
-    @SaCheckPermission("system:oss:query")
-    public R<SysOssVo> getFile(@RequestParam("id") Long id) {
-        return R.ok(MapstructUtils.convert(fileService.getOssFile(id), SysOssVo.class));
+    @SaCheckPermission("system:file:query")
+    public R<SysFileVo> getFile(@RequestParam("id") Long id) {
+        return R.ok(MapstructUtils.convert(fileService.getFile(id), SysFileVo.class));
     }
 
     @DeleteMapping("/delete")
     @Operation(summary = "删除文件")
     @Parameter(name = "id", description = "编号", required = true)
-    @SaCheckPermission("system:oss:delete")
+    @SaCheckPermission("system:file:delete")
     public R<Boolean> deleteFile(@RequestParam("ids") List<Long> ids) throws Exception {
         fileService.deleteFile(ids);
         return R.ok(true);
     }
 
-    @GetMapping("/{ossConfigId}/get/**")
+    @GetMapping("/{configId}/get/**")
     @PermitAll
     @Operation(summary = "下载文件")
-    @Parameter(name = "ossConfigId", description = "配置编号", required = true)
+    @Parameter(name = "configId", description = "配置编号", required = true)
     public void getFileContent(HttpServletRequest request,
                                HttpServletResponse response,
-                               @PathVariable Long ossConfigId) throws Exception {
+                               @PathVariable Long configId) throws Exception {
         // 获取请求的路径
         String path = StrUtil.subAfter(request.getRequestURI(), "/get/", false);
         if (StrUtil.isEmpty(path)) {
@@ -112,9 +112,9 @@ public class SysFileController extends BaseController {
         path = URLUtil.decode(path, StandardCharsets.UTF_8, false);
 
         // 读取内容
-        byte[] content = fileService.getFileContent(ossConfigId, path);
+        byte[] content = fileService.getFileContent(configId, path);
         if (content == null) {
-            log.warn("配置编号：{}，路径：{}，文件不存在", ossConfigId, path);
+            log.warn("配置编号：{}，路径：{}，文件不存在", configId, path);
             response.setStatus(HttpStatus.NOT_FOUND.value());
             return;
         }
@@ -123,9 +123,9 @@ public class SysFileController extends BaseController {
 
     @GetMapping("/page")
     @Operation(summary = "获得文件分页")
-    @SaCheckPermission("system:oss:query")
-    public TableDataInfo<SysOssVo> getFilePage(SysOssBo ossBo, PageQuery pageQuery) {
-        return fileService.selectPageOssList(ossBo, pageQuery);
+    @SaCheckPermission("system:file:query")
+    public TableDataInfo<SysFileVo> getFilePage(SysFileBo fileBo, PageQuery pageQuery) {
+        return fileService.selectPageFileList(fileBo, pageQuery);
     }
 
     private void writeAttachment(HttpServletResponse response, String filename, byte[] content) throws IOException {

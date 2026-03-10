@@ -5,7 +5,7 @@ import java.io.Serial;
 /**
  * @Author: Lion Li
  * @CreateTime: 2026-01-22
- * @Description: OSS 异常类
+ * @Description: 存储异常类
  */
 public class StorageException extends RuntimeException {
 

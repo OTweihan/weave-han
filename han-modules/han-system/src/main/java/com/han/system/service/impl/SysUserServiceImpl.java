@@ -40,7 +40,7 @@ import cn.hutool.core.io.FileUtil;
 import cn.hutool.crypto.digest.BCrypt;
 import com.han.common.core.utils.file.MimeTypeUtils;
 import com.han.system.domain.bo.SysUserProfileBo;
-import com.han.system.domain.vo.SysOssVo;
+import com.han.system.domain.vo.SysFileVo;
 import com.han.system.service.ISysFileService;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -432,14 +432,14 @@ public class SysUserServiceImpl implements ISysUserService, UserService {
             if (!StringUtils.equalsAnyIgnoreCase(extension, MimeTypeUtils.IMAGE_EXTENSION)) {
                 throw new ServiceException("文件格式不正确，请上传" + Arrays.toString(MimeTypeUtils.IMAGE_EXTENSION) + "格式");
             }
-            SysOssVo oss = ossService.upload(avatarfile);
-            if (ObjectUtil.isNull(oss)) {
+            SysFileVo fileVo = ossService.upload(avatarfile);
+            if (ObjectUtil.isNull(fileVo)) {
                 throw new ServiceException("上传图片异常，请联系管理员");
             }
-            String avatar = oss.getUrl();
+            String avatar = fileVo.getUrl();
             if (baseMapper.update(null,
                 new LambdaUpdateWrapper<SysUser>()
-                    .set(SysUser::getAvatar, oss.getOssId())
+                    .set(SysUser::getAvatar, fileVo.getId())
                     .eq(SysUser::getUserId, userId)) > 0) {
                 return avatar;
             }

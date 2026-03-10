@@ -7,21 +7,21 @@ import java.io.Serial;
 import java.io.Serializable;
 
 /**
- * @Author: Lion Li
- * @CreateTime: 2026-01-20
- * @Description: OSS DTO
+ * @Author: WeiHan
+ * @CreateTime: 2026-03-10
+ * @Description: 文件 DTO
  */
 @Data
 @NoArgsConstructor
-public class OssDTO implements Serializable {
+public class FileDTO implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
 
     /**
-     * 对象存储主键
+     * 文件ID
      */
-    private Long ossId;
+    private Long id;
 
     /**
      * 文件名

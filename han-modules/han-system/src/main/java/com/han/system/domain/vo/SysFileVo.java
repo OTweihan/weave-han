@@ -9,46 +9,56 @@ import java.io.Serializable;
 import java.util.Date;
 
 /**
- * @Author Lion Li
- * @CreateTime: 2026-01-23
- * @Description: OSS对象存储视图对象 sys_oss
+ * @Author WeiHan
+ * @CreateTime: 2026-03-10
+ * @Description: 文件存储视图对象 sys_file
  */
 @Data
 @AutoMapper(target = SysFile.class)
-public class SysOssVo implements Serializable {
+public class SysFileVo implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
 
     /**
-     * 对象存储主键
+     * 文件ID
      */
-    private Long ossId;
+    private Long id;
 
     /**
-     * 配置编号
+     * 存储配置ID
      */
-    private Long ossConfigId;
+    private Long configId;
 
     /**
-     * 文件名
+     * 存储文件名
      */
     private String fileName;
 
     /**
-     * URL地址
+     * 原始文件名
+     */
+    private String originalName;
+
+    /**
+     * 访问URL
      */
     private String url;
 
     /**
-     * 文件类型
+     * 文件后缀
      */
-    private String type;
+    private String fileSuffix;
+
+    /**
+     * MIME类型
+     */
+    private String mimeType;
 
     /**
      * 文件大小
      */
-    private Long size;
+    private Long fileSize;
 
     /**
      * 创建时间

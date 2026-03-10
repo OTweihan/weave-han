@@ -246,7 +246,7 @@ public class SysStorageConfigServiceImpl implements ISysStorageConfigService {
                 .setMimeType("image/jpeg")
                 .setFileSize((long) content.length);
             fileMapper.insert(sysFile);
-            String url = storageClient.upload(content, path, "image/jpeg", sysFile.getOssId());
+            String url = storageClient.upload(content, path, "image/jpeg", sysFile.getId());
             sysFile.setUrl(url);
             fileMapper.updateById(sysFile);
             return url;

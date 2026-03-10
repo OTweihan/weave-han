@@ -3,7 +3,7 @@ package com.han.common.storage.core;
 /**
  * @Author: WeiHan
  * @CreateTime: 2026-01-30
- * @Description: OSS对象存储客户端接口
+ * @Description: 存储配置客户端接口
  */
 public interface StorageClient {
 
@@ -12,7 +12,7 @@ public interface StorageClient {
      *
      * @return 配置编号
      */
-    Long getOssConfigId();
+    Long getStorageConfigId();
 
     /**
      * 上传文件

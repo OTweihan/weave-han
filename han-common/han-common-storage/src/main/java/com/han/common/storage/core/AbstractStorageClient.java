@@ -6,7 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 /**
  * @Author: WeiHan
  * @CreateTime: 2026-01-30
- * @Description: OSS 抽象客户端
+ * @Description: 存储配置抽象客户端
  */
 @Slf4j
 public abstract class AbstractStorageClient<ConfigData extends StorageClientConfig> implements StorageClient {
@@ -14,7 +14,7 @@ public abstract class AbstractStorageClient<ConfigData extends StorageClientConf
     /**
      * 配置编号
      */
-    private final Long ossConfigId;
+    private final Long storageConfigId;
 
     /**
      * 配置信息
@@ -26,8 +26,8 @@ public abstract class AbstractStorageClient<ConfigData extends StorageClientConf
      */
     private ConfigData originalConfigData;
 
-    public AbstractStorageClient(Long ossConfigId, ConfigData configData) {
-        this.ossConfigId = ossConfigId;
+    public AbstractStorageClient(Long storageConfigId, ConfigData configData) {
+        this.storageConfigId = storageConfigId;
         this.configData = configData;
         this.originalConfigData = configData;
     }
@@ -55,8 +55,8 @@ public abstract class AbstractStorageClient<ConfigData extends StorageClientConf
     }
 
     @Override
-    public Long getOssConfigId() {
-        return ossConfigId;
+    public Long getStorageConfigId() {
+        return storageConfigId;
     }
 
     /**
@@ -68,6 +68,6 @@ public abstract class AbstractStorageClient<ConfigData extends StorageClientConf
      * @return URL 访问地址
      */
     protected String formatFileUrl(String domain, String path) {
-        return StrUtil.format("/resource/oss/{}/get/{}", getOssConfigId(), path);
+        return StrUtil.format("/resource/storage/{}/get/{}", getStorageConfigId(), path);
     }
 }

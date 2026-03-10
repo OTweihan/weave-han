@@ -7,47 +7,47 @@ import com.han.common.mybatis.core.domain.BaseEntity;
 import com.han.system.domain.SysFile;
 
 /**
- * @Author Lion Li
- * @CreateTime: 2026-01-23
- * @Description: OSS对象存储分页查询对象 sys_oss
+ * @Author WeiHan
+ * @CreateTime: 2026-03-10
+ * @Description: 文件分页查询对象 sys_file
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
 @AutoMapper(target = SysFile.class, reverseConvertGenerate = false)
-public class SysOssBo extends BaseEntity {
+public class SysFileBo extends BaseEntity {
 
     /**
-     * ossId
+     * 文件ID
      */
-    private Long ossId;
+    private Long id;
 
     /**
-     * 文件名
+     * 存储配置ID
+     */
+    private Long configId;
+
+    /**
+     * 存储文件名
      */
     private String fileName;
 
     /**
-     * 原名
+     * 原始文件名
      */
     private String originalName;
 
     /**
-     * 文件后缀名
+     * 文件后缀
      */
     private String fileSuffix;
 
     /**
-     * URL地址
+     * 访问URL
      */
     private String url;
 
     /**
-     * 扩展字段
+     * 存储类型
      */
-    private String ext1;
-
-    /**
-     * 服务商
-     */
-    private String service;
+    private String storageType;
 }
