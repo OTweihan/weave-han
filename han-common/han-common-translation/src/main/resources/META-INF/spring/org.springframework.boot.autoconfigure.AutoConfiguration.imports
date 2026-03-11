@@ -1,5 +1,5 @@
 com.han.common.translation.config.TranslationConfig
 com.han.common.translation.core.impl.DictTypeTranslationImpl
-com.han.common.translation.core.impl.OssUrlTranslationImpl
+com.han.common.translation.core.impl.FileUrlTranslationImpl
 com.han.common.translation.core.impl.UserNameTranslationImpl
 com.han.common.translation.core.impl.NicknameTranslationImpl

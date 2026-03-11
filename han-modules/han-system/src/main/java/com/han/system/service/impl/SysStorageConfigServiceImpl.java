@@ -98,7 +98,7 @@ public class SysStorageConfigServiceImpl implements ISysStorageConfigService {
             if (config.isMaster()) {
                 RedisUtils.setCacheObject(StorageConstant.DEFAULT_CONFIG_KEY, configName);
             }
-            CacheUtils.put(CacheNames.SYS_STORAGE_CONFIG, config.getConfigName(), JsonUtils.toJsonString(config.getConfigData()));
+            CacheUtils.put(CacheNames.SYS_STORAGE_CONFIG, config.getConfigName(), JsonUtils.toJsonString(config.getConfigData(), StorageClientConfig.class));
         }
     }
 
@@ -283,7 +283,7 @@ public class SysStorageConfigServiceImpl implements ISysStorageConfigService {
      */
     private void refreshCache(Long id) {
         SysStorageConfig config = storageConfigMapper.selectById(id);
-        CacheUtils.put(CacheNames.SYS_STORAGE_CONFIG, config.getConfigName(), JsonUtils.toJsonString(config.getConfigData()));
+        CacheUtils.put(CacheNames.SYS_STORAGE_CONFIG, config.getConfigName(), JsonUtils.toJsonString(config.getConfigData(), StorageClientConfig.class));
     }
 
     private void checkConfigNameUnique(SysStorageConfigBo bo) {

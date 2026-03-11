@@ -17,7 +17,7 @@ import java.lang.reflect.Field;
  */
 @Slf4j
 @MappedTypes({StorageClientConfig.class})
-public class StorageClientConfigTypeHandler extends AbstractJsonTypeHandler<Object> {
+public class StorageClientConfigTypeHandler extends AbstractJsonTypeHandler<StorageClientConfig> {
 
     public StorageClientConfigTypeHandler(Class<?> type) {
         super(type);
@@ -28,7 +28,7 @@ public class StorageClientConfigTypeHandler extends AbstractJsonTypeHandler<Obje
     }
 
     @Override
-    public Object parse(String json) {
+    public StorageClientConfig parse(String json) {
         if (StringUtils.isBlank(json)) {
             return null;
         }
@@ -48,8 +48,7 @@ public class StorageClientConfigTypeHandler extends AbstractJsonTypeHandler<Obje
     }
 
     @Override
-    public String toJson(Object obj) {
-        // 序列化时，由于 StorageClientConfig 有 @JsonTypeInfo，会自动带上 @class
-        return JsonUtils.toJsonString(obj);
+    public String toJson(StorageClientConfig obj) {
+        return JsonUtils.toJsonString(obj, StorageClientConfig.class);
     }
 }

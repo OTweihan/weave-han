@@ -57,7 +57,7 @@ public class ProfileUserVo implements Serializable {
     /**
      * 头像地址
      */
-    @Translation(type = TransConstant.OSS_ID_TO_URL)
+    @Translation(type = TransConstant.FILE_ID_TO_URL)
     private Long avatar;
 
     /**

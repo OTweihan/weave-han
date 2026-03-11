@@ -49,9 +49,9 @@ public interface CacheNames {
     String SYS_NICKNAME = "sys_nickname#30d";
 
     /**
-     * OSS内容
+     * 文件内容
      */
-    String SYS_OSS = "sys_oss#30d";
+    String SYS_FILE = "sys_file#30d";
 
     /**
      * 角色自定义权限

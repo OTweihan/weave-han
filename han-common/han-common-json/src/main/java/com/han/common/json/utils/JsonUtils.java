@@ -10,6 +10,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import com.han.common.core.utils.SpringUtils;
@@ -46,6 +47,37 @@ public class JsonUtils {
         }
         try {
             return OBJECT_MAPPER.writeValueAsString(object);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * 按指定根类型序列化对象。
+     * 用于接口/抽象类声明了 {@code @JsonTypeInfo}，但运行时对象是具体实现类时，强制带上类型信息。
+     *
+     * @param object   要序列化的对象
+     * @param rootType 根类型
+     * @return JSON格式的字符串，如果对象为null，则返回null
+     */
+    public static String toJsonString(Object object, Class<?> rootType) {
+        if (ObjectUtil.isNull(object)) {
+            return null;
+        }
+        try {
+            String json = OBJECT_MAPPER.writerFor(rootType).writeValueAsString(object);
+            JsonNode jsonNode = OBJECT_MAPPER.readTree(json);
+            if (jsonNode.isObject() && jsonNode.has("@class")) {
+                ObjectNode orderedNode = OBJECT_MAPPER.createObjectNode();
+                orderedNode.set("@class", jsonNode.get("@class"));
+                jsonNode.fields().forEachRemaining(entry -> {
+                    if (!"@class".equals(entry.getKey())) {
+                        orderedNode.set(entry.getKey(), entry.getValue());
+                    }
+                });
+                return OBJECT_MAPPER.writeValueAsString(orderedNode);
+            }
+            return json;
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }

@@ -1,6 +1,7 @@
 package com.han.system.controller.system;
 
 import cn.dev33.satoken.annotation.SaCheckPermission;
+import com.han.common.core.domain.dto.FileDTO;
 import com.han.common.core.utils.file.FileUtils;
 import com.han.common.mybatis.core.page.PageQuery;
 import com.han.common.mybatis.core.page.TableDataInfo;
@@ -56,10 +57,11 @@ public class SysFileController extends BaseController {
     @Operation(summary = "上传文件", description = "模式一：后端上传文件")
     @Parameter(name = "file", description = "文件附件", required = true,
         schema = @Schema(type = "string", format = "binary"))
-    public R<String> uploadFile(@Valid SysFileUploadBo uploadVo) throws Exception {
+    @SaCheckPermission("system:file:upload")
+    public R<SysFileVo> uploadFile(@Valid SysFileUploadBo uploadVo) throws Exception {
         MultipartFile file = uploadVo.getFile();
         byte[] content = IoUtil.readBytes(file.getInputStream());
-        return R.ok(fileService.createFile(content, file.getOriginalFilename(), uploadVo.getDirectory(), file.getContentType()).getUrl());
+        return R.ok(fileService.createFile(content, file.getOriginalFilename(), uploadVo.getDirectory(), file.getContentType()));
     }
 
     @GetMapping("/presigned-url")
@@ -68,6 +70,7 @@ public class SysFileController extends BaseController {
         @Parameter(name = "name", description = "文件名称", required = true),
         @Parameter(name = "directory", description = "文件目录")
     })
+    @SaCheckPermission("system:file:upload")
     public R<SysFilePresignedUrlBo> getFilePresignedUrl(
         @RequestParam("name") String name,
         @RequestParam(value = "directory", required = false) String directory) {
@@ -76,6 +79,7 @@ public class SysFileController extends BaseController {
 
     @PostMapping("/create")
     @Operation(summary = "创建文件", description = "模式二：前端上传文件：配合 presigned-url 接口，记录上传了上传的文件")
+    @SaCheckPermission("system:file:upload")
     public R<Long> createFile(@Valid @RequestBody SysFileCreateBo createVo) {
         return R.ok(fileService.createFile(createVo));
     }
@@ -88,13 +92,34 @@ public class SysFileController extends BaseController {
         return R.ok(MapstructUtils.convert(fileService.getFile(id), SysFileVo.class));
     }
 
+    @GetMapping("/listByIds/{fileIds}")
+    @Operation(summary = "按编号批量获取文件")
+    @Parameter(name = "fileIds", description = "文件编号串，逗号分隔", required = true)
+    public R<List<FileDTO>> listByIds(@PathVariable String fileIds) {
+        return R.ok(fileService.selectByIds(fileIds));
+    }
+
     @DeleteMapping("/delete")
     @Operation(summary = "删除文件")
-    @Parameter(name = "id", description = "编号", required = true)
+    @Parameter(name = "ids", description = "编号列表", required = true)
     @SaCheckPermission("system:file:delete")
     public R<Boolean> deleteFile(@RequestParam("ids") List<Long> ids) throws Exception {
         fileService.deleteFile(ids);
         return R.ok(true);
+    }
+
+    @GetMapping("/download/{id}")
+    @Operation(summary = "下载文件（按编号）")
+    @Parameter(name = "id", description = "文件编号", required = true)
+    @SaCheckPermission("system:file:download")
+    public void downloadFile(HttpServletResponse response, @PathVariable Long id) throws Exception {
+        var sysFile = fileService.getFile(id);
+        byte[] content = fileService.getFileContent(sysFile.getConfigId(), sysFile.getFilePath());
+        if (content == null) {
+            response.setStatus(HttpStatus.NOT_FOUND.value());
+            return;
+        }
+        writeAttachment(response, sysFile.getOriginalName(), content);
     }
 
     @GetMapping("/{configId}/get/**")

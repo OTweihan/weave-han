@@ -57,7 +57,7 @@ public class SysUserServiceImpl implements ISysUserService, UserService {
     private final SysUserMapper baseMapper;
     private final SysRoleMapper roleMapper;
     private final SysUserRoleMapper userRoleMapper;
-    private final ISysFileService ossService;
+    private final ISysFileService fileService;
 
     @Override
     public TableDataInfo<SysUserVo> selectPageUserList(SysUserBo user, PageQuery pageQuery) {
@@ -432,7 +432,7 @@ public class SysUserServiceImpl implements ISysUserService, UserService {
             if (!StringUtils.equalsAnyIgnoreCase(extension, MimeTypeUtils.IMAGE_EXTENSION)) {
                 throw new ServiceException("文件格式不正确，请上传" + Arrays.toString(MimeTypeUtils.IMAGE_EXTENSION) + "格式");
             }
-            SysFileVo fileVo = ossService.upload(avatarfile);
+            SysFileVo fileVo = fileService.upload(avatarfile);
             if (ObjectUtil.isNull(fileVo)) {
                 throw new ServiceException("上传图片异常，请联系管理员");
             }

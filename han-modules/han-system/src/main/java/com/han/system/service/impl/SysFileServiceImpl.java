@@ -21,13 +21,11 @@ import com.han.common.storage.core.StorageClient;
 import com.han.common.storage.core.db.DbStorageClient;
 import com.han.common.storage.enums.StorageTypeEnum;
 import com.han.system.domain.SysFile;
-import com.han.system.domain.SysFileContent;
 import com.han.system.domain.SysStorageConfig;
 import com.han.system.domain.bo.SysFileBo;
 import com.han.system.domain.bo.SysFileCreateBo;
 import com.han.system.domain.bo.SysFilePresignedUrlBo;
 import com.han.system.domain.vo.SysFileVo;
-import com.han.system.mapper.SysFileContentMapper;
 import com.han.system.mapper.SysFileMapper;
 import com.han.system.mapper.SysStorageConfigMapper;
 import com.han.system.service.ISysFileService;
@@ -71,7 +69,6 @@ public class SysFileServiceImpl implements ISysFileService, FileService {
     static boolean PATH_SUFFIX_TIMESTAMP_ENABLE = true;
 
     private final SysFileMapper fileMapper;
-    private final SysFileContentMapper fileContentMapper;
     private final SysStorageConfigMapper sysStorageConfigMapper;
     private final ISysStorageConfigService storageConfigService;
 
@@ -110,12 +107,6 @@ public class SysFileServiceImpl implements ISysFileService, FileService {
         try {
             if (client instanceof DbStorageClient) {
                 fileMapper.insert(sysFile);
-                // 数据库存储：先保存文件信息获取ID，再保存内容
-                SysFileContent fileContent = new SysFileContent();
-                fileContent.setFileId(sysFile.getId());
-                fileContent.setContent(content);
-                fileContentMapper.insert(fileContent);
-
                 String url = client.upload(content, path, type, sysFile.getId());
                 sysFile.setUrl(url);
                 fileMapper.updateById(sysFile);
@@ -239,11 +230,6 @@ public class SysFileServiceImpl implements ISysFileService, FileService {
             Assert.notNull(client, "客户端({}) 不能为空", sysFile.getFilePath());
             // 删除文件
             client.delete(sysFile.getFilePath());
-            // 如果是DB存储，还需要删除文件内容
-            if (client instanceof DbStorageClient) {
-                fileContentMapper.delete(new LambdaQueryWrapper<SysFileContent>()
-                    .eq(SysFileContent::getFileId, sysFile.getId()));
-            }
         }
 
         // 删除记录
@@ -254,22 +240,6 @@ public class SysFileServiceImpl implements ISysFileService, FileService {
     public byte[] getFileContent(Long configId, String path) throws Exception {
         StorageClient client = storageConfigService.getStorageConfigClient(configId);
         Assert.notNull(client, "客户端 {} 不能为空", configId);
-        // 如果是DB存储，尝试从数据库获取内容
-        if (client instanceof DbStorageClient) {
-             // 这里逻辑稍微复杂，因为DbStorageClient.getContent通常需要文件ID或者路径
-             // 假设DbStorageClient内部实现了通过路径查询，或者我们需要先查文件ID
-             // 这里的path参数如果是文件路径，我们可以先查sys_file表
-             SysFile sysFile = fileMapper.selectOne(new LambdaQueryWrapper<SysFile>()
-                 .eq(SysFile::getConfigId, configId)
-                 .eq(SysFile::getFilePath, path));
-             if (sysFile != null) {
-                 SysFileContent content = fileContentMapper.selectOne(new LambdaQueryWrapper<SysFileContent>()
-                     .eq(SysFileContent::getFileId, sysFile.getId()));
-                 if (content != null) {
-                     return content.getContent();
-                 }
-             }
-        }
         return client.getContent(path);
     }
 
@@ -282,8 +252,12 @@ public class SysFileServiceImpl implements ISysFileService, FileService {
     private Wrapper<SysFile> buildQueryWrapper(SysFileBo fileBo) {
         Map<String, Object> params = fileBo.getParams();
         LambdaQueryWrapper<SysFile> wrapper = Wrappers.lambdaQuery();
-        wrapper.like(StringUtils.isNotBlank(fileBo.getFileName()), SysFile::getFileName, fileBo.getFileName())
+        wrapper.eq(fileBo.getConfigId() != null, SysFile::getConfigId, fileBo.getConfigId())
+            .like(StringUtils.isNotBlank(fileBo.getFileName()), SysFile::getFileName, fileBo.getFileName())
+            .like(StringUtils.isNotBlank(fileBo.getOriginalName()), SysFile::getOriginalName, fileBo.getOriginalName())
             .eq(StringUtils.isNotBlank(fileBo.getFileSuffix()), SysFile::getFileSuffix, fileBo.getFileSuffix())
+            .like(StringUtils.isNotBlank(fileBo.getUrl()), SysFile::getUrl, fileBo.getUrl())
+            .eq(StringUtils.isNotBlank(fileBo.getStorageType()), SysFile::getStorageType, fileBo.getStorageType())
             .between(params.get("beginTime") != null && params.get("endTime") != null,
                 SysFile::getCreateTime, params.get("beginTime"), params.get("endTime"))
             .orderByDesc(SysFile::getCreateTime);
@@ -291,15 +265,15 @@ public class SysFileServiceImpl implements ISysFileService, FileService {
     }
 
     @Override
-    public String selectUrlByIds(String ossIds) {
-        if (StringUtils.isBlank(ossIds)) {
+    public String selectUrlByIds(String fileIds) {
+        if (StringUtils.isBlank(fileIds)) {
             return StringUtils.EMPTY;
         }
-        String[] ossIdArray = ossIds.split(",");
+        String[] fileIdArray = fileIds.split(",");
         List<Long> idList = new ArrayList<>();
-        for (String ossId : ossIdArray) {
-            if (StringUtils.isNotBlank(ossId)) {
-                idList.add(Long.valueOf(ossId.trim()));
+        for (String fileId : fileIdArray) {
+            if (StringUtils.isNotBlank(fileId)) {
+                idList.add(Long.valueOf(fileId.trim()));
             }
         }
         if (idList.isEmpty()) {
@@ -310,15 +284,15 @@ public class SysFileServiceImpl implements ISysFileService, FileService {
     }
 
     @Override
-    public List<FileDTO> selectByIds(String ossIds) {
-        if (StringUtils.isBlank(ossIds)) {
+    public List<FileDTO> selectByIds(String fileIds) {
+        if (StringUtils.isBlank(fileIds)) {
             return new ArrayList<>();
         }
-        String[] ossIdArray = ossIds.split(",");
+        String[] fileIdArray = fileIds.split(",");
         List<Long> idList = new ArrayList<>();
-        for (String ossId : ossIdArray) {
-            if (StringUtils.isNotBlank(ossId)) {
-                idList.add(Long.valueOf(ossId.trim()));
+        for (String fileId : fileIdArray) {
+            if (StringUtils.isNotBlank(fileId)) {
+                idList.add(Long.valueOf(fileId.trim()));
             }
         }
         if (idList.isEmpty()) {

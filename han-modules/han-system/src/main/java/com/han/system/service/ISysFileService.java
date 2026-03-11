@@ -1,5 +1,6 @@
 package com.han.system.service;
 
+import com.han.common.core.domain.dto.FileDTO;
 import com.han.common.mybatis.core.page.PageQuery;
 import com.han.common.mybatis.core.page.TableDataInfo;
 import com.han.system.domain.SysFile;
@@ -87,4 +88,12 @@ public interface ISysFileService {
      * @return 文件列表
      */
     TableDataInfo<SysFileVo> selectPageFileList(SysFileBo fileBo, PageQuery pageQuery);
+
+    /**
+     * 通过文件ID串查询列表
+     *
+     * @param fileIds 文件ID串，逗号分隔
+     * @return 文件列表
+     */
+    List<FileDTO> selectByIds(String fileIds);
 }
