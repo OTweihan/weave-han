@@ -14,6 +14,7 @@ import com.han.common.core.domain.dto.FileDTO;
 import com.han.common.core.exception.ServiceException;
 import com.han.common.core.service.FileService;
 import com.han.common.core.utils.MapstructUtils;
+import com.han.common.core.utils.SpringUtils;
 import com.han.common.core.utils.StringUtils;
 import com.han.common.core.utils.file.FileTypeUtils;
 import com.han.common.mybatis.core.page.PageQuery;
@@ -54,7 +55,7 @@ import static cn.hutool.core.date.DatePattern.PURE_DATE_PATTERN;
 public class SysFileServiceImpl implements ISysFileService, FileService {
 
     /**
-     * 上传文件的前缀，是否包含日期（yyyyMMdd）
+     * 上传文件的前缀，是否包含日期（yyyy-MM-dd）
      * 目的：按照日期，进行分目录
      */
     static boolean PATH_PREFIX_DATE_ENABLE = true;
@@ -115,6 +116,7 @@ public class SysFileServiceImpl implements ISysFileService, FileService {
                 fileMapper.insert(sysFile);
             }
         } catch (Exception e) {
+            log.error("文件上传失败，路径: {}, 原始文件名: {}", path, originalName, e);
             try {
                 if (StrUtil.isNotEmpty(sysFile.getFilePath())) {
                     client.delete(sysFile.getFilePath());
@@ -131,7 +133,8 @@ public class SysFileServiceImpl implements ISysFileService, FileService {
     public SysFileVo upload(MultipartFile file) {
         try {
             byte[] content = file.getBytes();
-            return createFile(content, file.getOriginalFilename(), null, file.getContentType());
+            // 通过 AOP 代理调用，避免同类内直接调用导致 @Transactional 失效
+            return SpringUtils.getAopProxy(this).createFile(content, file.getOriginalFilename(), null, file.getContentType());
         } catch (IOException e) {
             throw new ServiceException("读取文件失败");
         }
@@ -168,6 +171,7 @@ public class SysFileServiceImpl implements ISysFileService, FileService {
 
         // 2. 获取文件预签名地址
         StorageClient storageClient = storageConfigService.getStorageConfigMaster();
+        Assert.notNull(storageClient, "客户端主配置不能为空");
         String uploadUrl = storageClient.presignPutUrl(path);
         String visitUrl = storageClient.presignGetUrl(path, null);
         return new SysFilePresignedUrlBo().setConfigId(storageClient.getStorageConfigId())
@@ -176,13 +180,15 @@ public class SysFileServiceImpl implements ISysFileService, FileService {
 
     @Override
     public Long createFile(SysFileCreateBo createVo) {
+        Assert.notNull(createVo, "文件创建参数不能为空");
         createVo.setUrl(StrUtil.subBefore(createVo.getUrl(), "?", false));
         SysFile sysFile = MapstructUtils.convert(createVo, SysFile.class);
-        Assert.notNull(sysFile, "文件创建失败");
-        if (StrUtil.isEmpty(sysFile.getFilePath())) {
-            sysFile.setFilePath(createVo.getFilePath());
+        if (sysFile == null) {
+            throw new ServiceException("文件创建失败");
         }
-        String filePath = sysFile.getFilePath();
+        // 优先使用转换后的 filePath；若为空则回退到请求参数中的 filePath
+        String filePath = StringUtils.defaultIfBlank(sysFile.getFilePath(), createVo.getFilePath());
+        sysFile.setFilePath(filePath);
         String storedName = StringUtils.EMPTY;
         if (StrUtil.isNotEmpty(filePath)) {
             storedName = FileUtil.getName(filePath);
@@ -266,39 +272,24 @@ public class SysFileServiceImpl implements ISysFileService, FileService {
 
     @Override
     public String selectUrlByIds(String fileIds) {
-        if (StringUtils.isBlank(fileIds)) {
-            return StringUtils.EMPTY;
-        }
-        String[] fileIdArray = fileIds.split(",");
-        List<Long> idList = new ArrayList<>();
-        for (String fileId : fileIdArray) {
-            if (StringUtils.isNotBlank(fileId)) {
-                idList.add(Long.valueOf(fileId.trim()));
-            }
-        }
+        List<Long> idList = parseFileIdList(fileIds);
         if (idList.isEmpty()) {
             return StringUtils.EMPTY;
         }
-        List<SysFile> list = fileMapper.selectBatchIds(idList);
-        return list.stream().map(SysFile::getUrl).collect(Collectors.joining(","));
+        List<SysFile> list = fileMapper.selectByIds(idList);
+        return list.stream()
+            .map(SysFile::getUrl)
+            .filter(StringUtils::isNotBlank)
+            .collect(Collectors.joining(","));
     }
 
     @Override
     public List<FileDTO> selectByIds(String fileIds) {
-        if (StringUtils.isBlank(fileIds)) {
-            return new ArrayList<>();
-        }
-        String[] fileIdArray = fileIds.split(",");
-        List<Long> idList = new ArrayList<>();
-        for (String fileId : fileIdArray) {
-            if (StringUtils.isNotBlank(fileId)) {
-                idList.add(Long.valueOf(fileId.trim()));
-            }
-        }
+        List<Long> idList = parseFileIdList(fileIds);
         if (idList.isEmpty()) {
             return new ArrayList<>();
         }
-        List<SysFile> list = fileMapper.selectBatchIds(idList);
+        List<SysFile> list = fileMapper.selectByIds(idList);
         return list.stream().map(sysFile -> {
             FileDTO dto = new FileDTO();
             dto.setId(sysFile.getId());
@@ -308,5 +299,29 @@ public class SysFileServiceImpl implements ISysFileService, FileService {
             dto.setOriginalName(sysFile.getOriginalName());
             return dto;
         }).collect(Collectors.toList());
+    }
+
+    /**
+     * 解析逗号分隔的文件编号串。
+     * 说明：统一解析逻辑，避免各方法重复处理空值、空白字符与格式校验。
+     */
+    private List<Long> parseFileIdList(String fileIds) {
+        if (StringUtils.isBlank(fileIds)) {
+            return new ArrayList<>();
+        }
+        String[] fileIdArray = fileIds.split(",");
+        List<Long> idList = new ArrayList<>(fileIdArray.length);
+        for (String fileId : fileIdArray) {
+            if (StringUtils.isBlank(fileId)) {
+                continue;
+            }
+            String trimmedId = fileId.trim();
+            try {
+                idList.add(Long.valueOf(trimmedId));
+            } catch (NumberFormatException ex) {
+                throw new ServiceException("文件编号格式错误: " + trimmedId);
+            }
+        }
+        return idList;
     }
 }

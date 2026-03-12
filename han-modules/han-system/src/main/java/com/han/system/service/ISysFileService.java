@@ -14,8 +14,8 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 /**
- * @Author Lion Li
- * @CreateTime: 2026-01-23
+ * @Author WeiHan
+ * @CreateTime: 2026-03-10
  * @Description: 文件上传 服务层
  */
 public interface ISysFileService {
