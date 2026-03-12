@@ -23,8 +23,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 /**
- * @Author: Lion Li, 孤舟烟雨
- * @CreateTime: 2026-01-23
+ * @Author: WeiHan
+ * @CreateTime: 2026-03-10
  * @Description: 对象存储配置
  */
 @Validated

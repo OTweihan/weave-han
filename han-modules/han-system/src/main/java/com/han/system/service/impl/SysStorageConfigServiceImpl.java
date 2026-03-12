@@ -4,6 +4,7 @@ import java.time.Duration;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -51,8 +52,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * @Author Lion Li, 孤舟烟雨
- * @CreateTime: 2021-08-13
+ * @Author WeiHan
+ * @CreateTime: 2026-03-10
  * @Description: 对象存储配置Service业务层处理
  */
 @Slf4j
@@ -83,21 +84,7 @@ public class SysStorageConfigServiceImpl implements ISysStorageConfigService {
         clientCache = Caffeine.newBuilder()
                 .expireAfterWrite(Duration.ofSeconds(10))
                 .maximumSize(100)
-                .build(key -> {
-                    SysStorageConfig config;
-                    if (CACHE_MASTER_ID.equals(key)) {
-                        config = storageConfigMapper.selectOne(new LambdaQueryWrapper<SysStorageConfig>()
-                                .eq(SysStorageConfig::isMaster, true));
-                    } else {
-                        config = storageConfigMapper.selectById(key);
-                    }
-                    if (config != null) {
-                        storageClientFactory.createOrUpdateFileClient(config.getStorageConfigId(),
-                                config.getStorageType(), config.getConfigData());
-                        return storageClientFactory.getFileClient(config.getStorageConfigId());
-                    }
-                    return null;
-                });
+                .build(this::loadClientByCacheKey);
 
         List<SysStorageConfig> list = storageConfigMapper.selectList();
         // 加载存储配置
@@ -106,8 +93,7 @@ public class SysStorageConfigServiceImpl implements ISysStorageConfigService {
             if (config.isMaster()) {
                 RedisUtils.setCacheObject(StorageConstant.DEFAULT_CONFIG_KEY, configName);
             }
-            CacheUtils.put(CacheNames.SYS_STORAGE_CONFIG, config.getConfigName(),
-                    JsonUtils.toJsonString(config.getConfigData(), StorageClientConfig.class));
+            cacheConfigData(config);
         }
     }
 
@@ -125,16 +111,11 @@ public class SysStorageConfigServiceImpl implements ISysStorageConfigService {
 
     @Override
     public void insertStorageConfig(SysStorageConfigBo storageConfigBo) {
-        checkConfigNameUnique(storageConfigBo);
-        // 校验配置数据
-        StorageClientConfig clientConfig = parseClientConfig(storageConfigBo.getStorageType(),
-                storageConfigBo.getConfigData());
-        SysStorageConfig storageConfig = MapstructUtils.convert(storageConfigBo, SysStorageConfig.class);
-        if (storageConfig == null) {
-            throw new ServiceException("操作失败，转换对象为空");
+        if (storageConfigBo == null) {
+            throw new ServiceException("存储配置参数不能为空");
         }
-        // 使用解析后的强类型配置对象
-        storageConfig.setConfigData(clientConfig);
+        checkConfigNameUnique(storageConfigBo);
+        SysStorageConfig storageConfig = buildStorageConfig(storageConfigBo);
         storageConfig.setMaster(false);
 
         boolean flag = storageConfigMapper.insert(storageConfig) > 0;
@@ -147,20 +128,15 @@ public class SysStorageConfigServiceImpl implements ISysStorageConfigService {
 
     @Override
     public void updateStorageConfig(SysStorageConfigBo storageConfigBo) {
+        if (storageConfigBo == null) {
+            throw new ServiceException("存储配置参数不能为空");
+        }
         // 校验配置是否存在
         SysStorageConfig oldConfig = validateFileConfigExists(storageConfigBo.getStorageConfigId());
         // 校验配置名是否唯一
         checkConfigNameUnique(storageConfigBo);
 
-        // 校验配置数据
-        StorageClientConfig clientConfig = parseClientConfig(storageConfigBo.getStorageType(),
-                storageConfigBo.getConfigData());
-        SysStorageConfig config = MapstructUtils.convert(storageConfigBo, SysStorageConfig.class);
-        if (config == null) {
-            throw new ServiceException("操作失败，转换对象为空");
-        }
-        // 使用解析后的强类型配置对象
-        config.setConfigData(clientConfig);
+        SysStorageConfig config = buildStorageConfig(storageConfigBo);
         // 保持原有的master状态，防止被重置
         config.setMaster(oldConfig.isMaster());
 
@@ -179,16 +155,16 @@ public class SysStorageConfigServiceImpl implements ISysStorageConfigService {
      */
     @Override
     public void deleteWithValidByIds(Collection<Long> ids, Boolean isValid) {
+        if (CollUtil.isEmpty(ids)) {
+            return;
+        }
         if (isValid) {
             if (CollUtil.containsAny(ids, StorageConstant.SYSTEM_DATA_IDS)) {
                 throw new ServiceException("系统内置, 不可删除!");
             }
         }
-        List<SysStorageConfig> list = CollUtil.newArrayList();
-        for (Long configId : ids) {
-            SysStorageConfig config = storageConfigMapper.selectById(configId);
-            list.add(config);
-        }
+        // 先批量加载并校验配置是否存在，避免逐条查询与空指针问题
+        List<SysStorageConfig> list = listAndValidateConfigs(ids);
         boolean flag = storageConfigMapper.deleteByIds(ids) > 0;
         if (flag) {
             list.forEach(sysStorageConfig -> {
@@ -207,6 +183,9 @@ public class SysStorageConfigServiceImpl implements ISysStorageConfigService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void updateStorageConfigMaster(SysStorageConfigBo storageConfigBo) {
+        if (storageConfigBo == null) {
+            throw new ServiceException("存储配置参数不能为空");
+        }
         SysStorageConfig config = validateFileConfigExists(storageConfigBo.getStorageConfigId());
         // 先全部设置为非主配置
         storageConfigMapper.update(null, new LambdaUpdateWrapper<SysStorageConfig>()
@@ -217,10 +196,12 @@ public class SysStorageConfigServiceImpl implements ISysStorageConfigService {
                 .eq(SysStorageConfig::getStorageConfigId, config.getStorageConfigId()));
         if (row > 0) {
             RedisUtils.setCacheObject(StorageConstant.DEFAULT_CONFIG_KEY, config.getConfigName());
-            // 清空缓存
-            CacheUtils.evict(CacheNames.SYS_STORAGE_CONFIG, config.getConfigName());
+            // 切换主配置后同步刷新配置缓存，避免读取到旧值
+            refreshCache(config.getStorageConfigId());
             clearClientCache(null, true);
+            return;
         }
+        throw new ServiceException("操作失败");
     }
 
     @Override
@@ -239,6 +220,9 @@ public class SysStorageConfigServiceImpl implements ISysStorageConfigService {
 
     @Override
     public StorageClient getStorageConfigClient(Long id) {
+        if (id == null) {
+            throw new ServiceException("配置编号不能为空");
+        }
         return clientCache.get(id);
     }
 
@@ -310,9 +294,12 @@ public class SysStorageConfigServiceImpl implements ISysStorageConfigService {
     }
 
     private StorageClientConfig parseClientConfig(Integer storageType, Map<String, Object> configData) {
-        // 获取配置类
-        Class<? extends StorageClientConfig> configClass = StorageTypeEnum.getByStorageType(storageType)
-                .getConfigClass();
+        // 先解析存储类型，避免无效类型导致空指针
+        StorageTypeEnum storageTypeEnum = StorageTypeEnum.getByStorageType(storageType);
+        if (storageTypeEnum == null) {
+            throw new ServiceException("不支持的存储类型: " + storageType);
+        }
+        Class<? extends StorageClientConfig> configClass = storageTypeEnum.getConfigClass();
         StorageClientConfig clientConfig = JsonUtils.parseObject2(JsonUtils.toJsonString(configData), configClass);
         // 参数校验
         ValidatorUtils.validate(clientConfig);
@@ -332,9 +319,8 @@ public class SysStorageConfigServiceImpl implements ISysStorageConfigService {
      * 刷新缓存
      */
     private void refreshCache(Long id) {
-        SysStorageConfig config = storageConfigMapper.selectById(id);
-        CacheUtils.put(CacheNames.SYS_STORAGE_CONFIG, config.getConfigName(),
-                JsonUtils.toJsonString(config.getConfigData(), StorageClientConfig.class));
+        SysStorageConfig config = validateFileConfigExists(id);
+        cacheConfigData(config);
     }
 
     private void checkConfigNameUnique(SysStorageConfigBo bo) {
@@ -357,5 +343,73 @@ public class SysStorageConfigServiceImpl implements ISysStorageConfigService {
         lqw.orderByDesc(SysStorageConfig::isMaster);
         lqw.orderByDesc(SysStorageConfig::getCreateTime);
         return lqw;
+    }
+
+    /**
+     * 统一构建存储配置实体：
+     * 1. 解析并校验动态配置
+     * 2. BO 转实体
+     * 3. 回填强类型配置对象
+     */
+    private SysStorageConfig buildStorageConfig(SysStorageConfigBo storageConfigBo) {
+        StorageClientConfig clientConfig = parseClientConfig(storageConfigBo.getStorageType(),
+                storageConfigBo.getConfigData());
+        SysStorageConfig config = MapstructUtils.convert(storageConfigBo, SysStorageConfig.class);
+        if (config == null) {
+            throw new ServiceException("操作失败，转换对象为空");
+        }
+        config.setConfigData(clientConfig);
+        return config;
+    }
+
+    /**
+     * 根据缓存键加载客户端。
+     * 说明：LoadingCache 不接受 null 返回值，因此这里统一做存在性校验并返回明确异常。
+     */
+    private StorageClient loadClientByCacheKey(Long key) {
+        SysStorageConfig config;
+        if (CACHE_MASTER_ID.equals(key)) {
+            config = storageConfigMapper.selectOne(new LambdaQueryWrapper<SysStorageConfig>()
+                    .eq(SysStorageConfig::isMaster, true));
+            if (config == null) {
+                throw new ServiceException("主存储配置不存在");
+            }
+        } else {
+            config = validateFileConfigExists(key);
+        }
+        storageClientFactory.createOrUpdateFileClient(config.getStorageConfigId(),
+                config.getStorageType(), config.getConfigData());
+        StorageClient client = storageClientFactory.getFileClient(config.getStorageConfigId());
+        if (client == null) {
+            throw new ServiceException("存储客户端初始化失败，配置ID: " + config.getStorageConfigId());
+        }
+        return client;
+    }
+
+    /**
+     * 回写存储配置到缓存。
+     */
+    private void cacheConfigData(SysStorageConfig config) {
+        CacheUtils.put(CacheNames.SYS_STORAGE_CONFIG, config.getConfigName(),
+                JsonUtils.toJsonString(config.getConfigData(), StorageClientConfig.class));
+    }
+
+    /**
+     * 批量查询并校验配置存在性。
+     * 说明：用于删除前校验，避免存在无效 ID 时出现空指针。
+     */
+    private List<SysStorageConfig> listAndValidateConfigs(Collection<Long> ids) {
+        List<SysStorageConfig> configs = storageConfigMapper.selectByIds(ids);
+        if (CollUtil.isEmpty(configs)) {
+            throw new ServiceException("文件配置不存在");
+        }
+        Map<Long, SysStorageConfig> configMap = configs.stream()
+                .collect(Collectors.toMap(SysStorageConfig::getStorageConfigId, item -> item, (left, right) -> left));
+        for (Long id : ids) {
+            if (!configMap.containsKey(id)) {
+                throw new ServiceException("文件配置不存在，配置ID: " + id);
+            }
+        }
+        return configs;
     }
 }

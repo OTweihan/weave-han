@@ -9,8 +9,8 @@ import com.han.system.domain.vo.SysStorageConfigVo;
 import java.util.Collection;
 
 /**
- * @Author Lion Li, 孤舟烟雨
- * @CreateTime: 2021-08-13
+ * @Author WeiHan
+ * @CreateTime: 2026-03-10
  * @Description: 对象存储配置Service接口
  */
 public interface ISysStorageConfigService {

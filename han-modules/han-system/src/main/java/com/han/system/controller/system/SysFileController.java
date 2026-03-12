@@ -10,6 +10,7 @@ import org.springframework.http.MediaType;
 
 import java.io.IOException;
 
+import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.IoUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.core.util.URLUtil;
@@ -40,8 +41,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 /**
- * @Author: Lion Li
- * @CreateTime: 2026-01-23
+ * @Author: WeiHan
+ * @CreateTime: 2026-03-10
  * @Description: 文件上传 控制层
  */
 @Slf4j
@@ -60,6 +61,7 @@ public class SysFileController extends BaseController {
     @SaCheckPermission("system:file:upload")
     public R<SysFileVo> uploadFile(@Valid SysFileUploadBo uploadVo) throws Exception {
         MultipartFile file = uploadVo.getFile();
+        // 一次性读取内容，沿用现有服务层入参（byte[]）完成上传
         byte[] content = IoUtil.readBytes(file.getInputStream());
         return R.ok(fileService.createFile(content, file.getOriginalFilename(), uploadVo.getDirectory(), file.getContentType()));
     }
@@ -129,21 +131,17 @@ public class SysFileController extends BaseController {
     public void getFileContent(HttpServletRequest request,
                                HttpServletResponse response,
                                @PathVariable Long configId) throws Exception {
-        // 获取请求的路径
-        String path = StrUtil.subAfter(request.getRequestURI(), "/get/", false);
-        if (StrUtil.isEmpty(path)) {
-            throw new IllegalArgumentException("结尾的 path 路径必须传递");
-        }
-        path = URLUtil.decode(path, StandardCharsets.UTF_8, false);
+        // 解析下载路径：/resource/file/{configId}/get/** 中的 **
+        String path = extractPath(request);
 
-        // 读取内容
+        // 读取并输出文件内容
         byte[] content = fileService.getFileContent(configId, path);
         if (content == null) {
             log.warn("配置编号：{}，路径：{}，文件不存在", configId, path);
             response.setStatus(HttpStatus.NOT_FOUND.value());
             return;
         }
-        writeAttachment(response, path, content);
+        writeAttachment(response, FileUtil.getName(path), content);
     }
 
     @GetMapping("/page")
@@ -160,5 +158,16 @@ public class SysFileController extends BaseController {
         response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
         // 输出附件
         IoUtil.write(response.getOutputStream(), false, content);
+    }
+
+    /**
+     * 提取并解码下载路径，统一路径为空时的异常处理。
+     */
+    private String extractPath(HttpServletRequest request) {
+        String path = StrUtil.subAfter(request.getRequestURI(), "/get/", false);
+        if (StrUtil.isEmpty(path)) {
+            throw new IllegalArgumentException("结尾的 path 路径必须传递");
+        }
+        return URLUtil.decode(path, StandardCharsets.UTF_8, false);
     }
 }
