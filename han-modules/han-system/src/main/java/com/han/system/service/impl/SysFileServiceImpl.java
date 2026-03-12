@@ -3,6 +3,7 @@ package com.han.system.service.impl;
 import cn.hutool.core.date.LocalDateTimeUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.lang.Assert;
+import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.crypto.digest.DigestUtil;
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
@@ -19,15 +20,12 @@ import com.han.common.mybatis.core.page.PageQuery;
 import com.han.common.mybatis.core.page.TableDataInfo;
 import com.han.common.storage.core.StorageClient;
 import com.han.common.storage.core.db.DbStorageClient;
-import com.han.common.storage.enums.StorageTypeEnum;
 import com.han.system.domain.SysFile;
-import com.han.system.domain.SysStorageConfig;
 import com.han.system.domain.bo.SysFileBo;
 import com.han.system.domain.bo.SysFileCreateBo;
 import com.han.system.domain.bo.SysFilePresignedUrlBo;
 import com.han.system.domain.vo.SysFileVo;
 import com.han.system.mapper.SysFileMapper;
-import com.han.system.mapper.SysStorageConfigMapper;
 import com.han.system.service.ISysFileService;
 import com.han.system.service.ISysStorageConfigService;
 import lombok.RequiredArgsConstructor;
@@ -69,40 +67,41 @@ public class SysFileServiceImpl implements ISysFileService, FileService {
     static boolean PATH_SUFFIX_TIMESTAMP_ENABLE = true;
 
     private final SysFileMapper fileMapper;
-    private final SysStorageConfigMapper sysStorageConfigMapper;
     private final ISysStorageConfigService storageConfigService;
 
     @Override
     @SneakyThrows
     @Transactional(rollbackFor = Exception.class)
     public SysFileVo createFile(byte[] content, String name, String directory, String type) {
+        String hash = DigestUtil.sha256Hex(content);
+        String originalName = StringUtils.defaultIfBlank(name, hash);
         if (StrUtil.isEmpty(type)) {
-            type = FileTypeUtils.getMineType(content, name);
+            type = FileTypeUtils.getMineType(content, originalName);
         }
-        if (StrUtil.isEmpty(name)) {
-            name = DigestUtil.sha256Hex(content);
-        }
-        if (StrUtil.isEmpty(FileUtil.extName(name))) {
+        if (StrUtil.isEmpty(FileUtil.extName(originalName))) {
             String extension = FileTypeUtils.getExtension(type);
             if (StrUtil.isNotEmpty(extension)) {
-                name = name + extension;
+                originalName = originalName + extension;
             }
         }
-        String path = generateUploadPath(name, directory);
         StorageClient client = storageConfigService.getStorageConfigMaster();
         Assert.notNull(client, "客户端主配置不能为空");
-        String storageType = resolveStorageType(client.getStorageConfigId(), client);
+        SysFile oldFile = fileMapper.selectOneByConfigIdAndHash(client.getStorageConfigId(), hash);
+        if (oldFile != null && StrUtil.isNotEmpty(oldFile.getUrl())) {
+            return MapstructUtils.convert(oldFile, SysFileVo.class);
+        }
+        String path = generateUploadPath(originalName, directory);
+        String storedName = FileUtil.getName(path);
 
         SysFile sysFile = new SysFile();
         sysFile.setConfigId(client.getStorageConfigId());
-        sysFile.setStorageType(storageType);
-        sysFile.setFileName(name);
-        sysFile.setOriginalName(name);
+        sysFile.setFileName(storedName);
+        sysFile.setOriginalName(originalName);
         sysFile.setFilePath(path);
         sysFile.setMimeType(type);
         sysFile.setFileSize((long) content.length);
-        sysFile.setFileSuffix(FileUtil.extName(name));
-        sysFile.setHash(DigestUtil.sha256Hex(content));
+        sysFile.setFileSuffix(FileUtil.extName(storedName));
+        sysFile.setHash(hash);
 
         try {
             if (client instanceof DbStorageClient) {
@@ -139,29 +138,26 @@ public class SysFileServiceImpl implements ISysFileService, FileService {
     }
 
     String generateUploadPath(String name, String directory) {
+        String fileName = IdUtil.fastSimpleUUID();
+        String ext = FileUtil.extName(name);
+        if (PATH_SUFFIX_TIMESTAMP_ENABLE) {
+            fileName = fileName + StrUtil.C_UNDERLINE + System.currentTimeMillis();
+        }
+        if (StrUtil.isNotEmpty(ext)) {
+            fileName = fileName + StrUtil.DOT + ext;
+        }
+
         String prefix = null;
         if (PATH_PREFIX_DATE_ENABLE) {
             prefix = LocalDateTimeUtil.format(LocalDateTimeUtil.now(), PURE_DATE_PATTERN);
         }
-        String suffix = null;
-        if (PATH_SUFFIX_TIMESTAMP_ENABLE) {
-            suffix = String.valueOf(System.currentTimeMillis());
-        }
-        if (StrUtil.isNotEmpty(suffix)) {
-            String ext = FileUtil.extName(name);
-            if (StrUtil.isNotEmpty(ext)) {
-                name = FileUtil.mainName(name) + StrUtil.C_UNDERLINE + suffix + StrUtil.DOT + ext;
-            } else {
-                name = name + StrUtil.C_UNDERLINE + suffix;
-            }
-        }
         if (StrUtil.isNotEmpty(prefix)) {
-            name = prefix + StrUtil.SLASH + name;
+            fileName = prefix + StrUtil.SLASH + fileName;
         }
         if (StrUtil.isNotEmpty(directory)) {
-            name = directory + StrUtil.SLASH + name;
+            fileName = directory + StrUtil.SLASH + fileName;
         }
-        return name;
+        return fileName;
     }
 
     @Override
@@ -186,21 +182,24 @@ public class SysFileServiceImpl implements ISysFileService, FileService {
         if (StrUtil.isEmpty(sysFile.getFilePath())) {
             sysFile.setFilePath(createVo.getFilePath());
         }
-        sysFile.setOriginalName(createVo.getOriginalName());
-        sysFile.setFileName(createVo.getOriginalName());
-        sysFile.setFileSuffix(FileUtil.extName(createVo.getOriginalName()));
+        String filePath = sysFile.getFilePath();
+        String storedName = StringUtils.EMPTY;
+        if (StrUtil.isNotEmpty(filePath)) {
+            storedName = FileUtil.getName(filePath);
+        }
+        if (StrUtil.isEmpty(storedName)) {
+            storedName = createVo.getOriginalName();
+        }
+        String originalName = StringUtils.defaultIfBlank(createVo.getOriginalName(), storedName);
+        String fileSuffix = FileUtil.extName(storedName);
+        if (StrUtil.isEmpty(fileSuffix)) {
+            fileSuffix = FileUtil.extName(originalName);
+        }
+        sysFile.setOriginalName(originalName);
+        sysFile.setFileName(storedName);
+        sysFile.setFileSuffix(fileSuffix);
         sysFile.setFileSize(createVo.getFileSize());
         sysFile.setMimeType(createVo.getMimeType());
-
-        if (StrUtil.isEmpty(sysFile.getStorageType())) {
-            SysStorageConfig config = sysStorageConfigMapper.selectById(createVo.getConfigId());
-            if (config != null) {
-                StorageTypeEnum storageTypeEnum = StorageTypeEnum.getByStorageType(config.getStorageType());
-                if (storageTypeEnum != null) {
-                    sysFile.setStorageType(storageTypeEnum.name());
-                }
-            }
-        }
         fileMapper.insert(sysFile);
         return sysFile.getId();
     }
@@ -251,15 +250,16 @@ public class SysFileServiceImpl implements ISysFileService, FileService {
 
     private Wrapper<SysFile> buildQueryWrapper(SysFileBo fileBo) {
         Map<String, Object> params = fileBo.getParams();
+        Object beginTime = params.get("beginCreateTime") != null ? params.get("beginCreateTime") : params.get("beginTime");
+        Object endTime = params.get("endCreateTime") != null ? params.get("endCreateTime") : params.get("endTime");
         LambdaQueryWrapper<SysFile> wrapper = Wrappers.lambdaQuery();
         wrapper.eq(fileBo.getConfigId() != null, SysFile::getConfigId, fileBo.getConfigId())
             .like(StringUtils.isNotBlank(fileBo.getFileName()), SysFile::getFileName, fileBo.getFileName())
             .like(StringUtils.isNotBlank(fileBo.getOriginalName()), SysFile::getOriginalName, fileBo.getOriginalName())
             .eq(StringUtils.isNotBlank(fileBo.getFileSuffix()), SysFile::getFileSuffix, fileBo.getFileSuffix())
+            .like(StringUtils.isNotBlank(fileBo.getMimeType()), SysFile::getMimeType, fileBo.getMimeType())
             .like(StringUtils.isNotBlank(fileBo.getUrl()), SysFile::getUrl, fileBo.getUrl())
-            .eq(StringUtils.isNotBlank(fileBo.getStorageType()), SysFile::getStorageType, fileBo.getStorageType())
-            .between(params.get("beginTime") != null && params.get("endTime") != null,
-                SysFile::getCreateTime, params.get("beginTime"), params.get("endTime"))
+            .between(beginTime != null && endTime != null, SysFile::getCreateTime, beginTime, endTime)
             .orderByDesc(SysFile::getCreateTime);
         return wrapper;
     }
@@ -308,16 +308,5 @@ public class SysFileServiceImpl implements ISysFileService, FileService {
             dto.setOriginalName(sysFile.getOriginalName());
             return dto;
         }).collect(Collectors.toList());
-    }
-
-    private String resolveStorageType(Long configId, StorageClient client) {
-        SysStorageConfig config = sysStorageConfigMapper.selectById(configId);
-        if (config != null) {
-            StorageTypeEnum storageTypeEnum = StorageTypeEnum.getByStorageType(config.getStorageType());
-            if (storageTypeEnum != null) {
-                return storageTypeEnum.name();
-            }
-        }
-        return client.getClass().getSimpleName();
     }
 }

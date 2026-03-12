@@ -46,11 +46,6 @@ public class SysFileVo implements Serializable {
     private String url;
 
     /**
-     * 存储类型
-     */
-    private String storageType;
-
-    /**
      * 文件后缀
      */
     private String fileSuffix;

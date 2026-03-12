@@ -1,5 +1,6 @@
 package com.han.system.mapper;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.han.common.mybatis.core.mapper.BaseMapperPlus;
 import com.han.system.domain.SysFile;
 import com.han.system.domain.vo.SysFileVo;
@@ -12,4 +13,12 @@ import org.apache.ibatis.annotations.Mapper;
  */
 @Mapper
 public interface SysFileMapper extends BaseMapperPlus<SysFile, SysFileVo> {
+
+    default SysFile selectOneByConfigIdAndHash(Long configId, String hash) {
+        return selectOne(new LambdaQueryWrapper<SysFile>()
+            .eq(SysFile::getConfigId, configId)
+            .eq(SysFile::getHash, hash)
+            .orderByDesc(SysFile::getCreateTime)
+            .last("limit 1"));
+    }
 }

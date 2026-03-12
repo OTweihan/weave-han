@@ -130,6 +130,7 @@ security:
     - /*/api-docs
     - /*/api-docs/**
     - /warm-flow-ui/config
+    - /resource/file/*/get/**
 
 # MyBatisPlus配置
 # https://baomidou.com/config/

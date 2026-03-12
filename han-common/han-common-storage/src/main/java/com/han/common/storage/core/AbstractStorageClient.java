@@ -68,6 +68,6 @@ public abstract class AbstractStorageClient<ConfigData extends StorageClientConf
      * @return URL 访问地址
      */
     protected String formatFileUrl(String domain, String path) {
-        return StrUtil.format("/resource/storage/{}/get/{}", getStorageConfigId(), path);
+        return StrUtil.format("/resource/file/{}/get/{}", getStorageConfigId(), path);
     }
 }

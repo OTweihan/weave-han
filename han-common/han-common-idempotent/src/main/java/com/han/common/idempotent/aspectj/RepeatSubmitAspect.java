@@ -42,6 +42,7 @@ import java.util.StringJoiner;
 public class RepeatSubmitAspect {
 
     private static final ThreadLocal<String> KEY_CACHE = new ThreadLocal<>();
+    private static final int ARG_VALUE_MAX_LENGTH = 512;
 
     private static final ExpressionParser PARSER = new SpelExpressionParser();
 
@@ -139,7 +140,7 @@ public class RepeatSubmitAspect {
         for (Object o : paramsArray) {
             if (ObjectUtil.isNotNull(o) && !isFilterObject(o)) {
                 try {
-                    params.add(JsonUtils.toJsonString(o));
+                    params.add(StringUtils.substring(JsonUtils.toJsonString(o), 0, ARG_VALUE_MAX_LENGTH));
                 } catch (Exception e) {
                     // ignore
                 }
@@ -158,23 +159,25 @@ public class RepeatSubmitAspect {
     public boolean isFilterObject(final Object o) {
         Class<?> clazz = o.getClass();
         if (clazz.isArray()) {
-            return MultipartFile.class.isAssignableFrom(clazz.getComponentType());
+            return MultipartFile.class.isAssignableFrom(clazz.getComponentType())
+                   || byte.class.equals(clazz.getComponentType())
+                   || Byte.class.equals(clazz.getComponentType());
         } else if (Collection.class.isAssignableFrom(clazz)) {
             Collection collection = (Collection) o;
             for (Object value : collection) {
-                if (value instanceof MultipartFile) {
+                if (value instanceof MultipartFile || value instanceof byte[] || value instanceof Byte[]) {
                     return true;
                 }
             }
         } else if (Map.class.isAssignableFrom(clazz)) {
             Map map = (Map) o;
             for (Object value : map.values()) {
-                if (value instanceof MultipartFile) {
+                if (value instanceof MultipartFile || value instanceof byte[] || value instanceof Byte[]) {
                     return true;
                 }
             }
         }
         return o instanceof MultipartFile || o instanceof HttpServletRequest || o instanceof HttpServletResponse
-               || o instanceof BindingResult;
+               || o instanceof BindingResult || o instanceof byte[] || o instanceof Byte[];
     }
 }

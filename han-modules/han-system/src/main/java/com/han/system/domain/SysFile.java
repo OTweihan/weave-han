@@ -1,6 +1,7 @@
 package com.han.system.domain;
 
 import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.han.common.mybatis.core.domain.BaseEntity;
@@ -31,13 +32,9 @@ public class SysFile extends BaseEntity {
     private Long configId;
 
     /**
-     * 存储类型
-     */
-    private String storageType;
-
-    /**
      * 存储文件名
      */
+    @TableField("stored_name")
     private String fileName;
 
     /**

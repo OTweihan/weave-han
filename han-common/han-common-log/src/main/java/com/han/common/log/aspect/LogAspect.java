@@ -24,6 +24,7 @@ import com.han.common.log.event.OperLogEvent;
 import com.han.common.satoken.utils.LoginHelper;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -43,6 +44,7 @@ public class LogAspect {
      * 排除敏感属性字段
      */
     public static final String[] EXCLUDE_PROPERTIES = { "password", "oldPassword", "newPassword", "confirmPassword" };
+    private static final int ARG_VALUE_MAX_LENGTH = 512;
 
     /**
      * 计时 key
@@ -157,6 +159,10 @@ public class LogAspect {
             return;
         }
         Map<String, String> paramsMap = ServletUtils.getParamMap(request);
+        if (StringUtils.startsWithIgnoreCase(request.getContentType(), MediaType.MULTIPART_FORM_DATA_VALUE)) {
+            operLog.setOperParam(StringUtils.substring("multipart/form-data(binary omitted), keys:" + paramsMap.keySet(), 0, 3800));
+            return;
+        }
         String requestMethod = operLog.getRequestMethod();
         if (MapUtil.isEmpty(paramsMap) && StringUtils.equalsAny(requestMethod, HttpMethod.PUT.name(), HttpMethod.POST.name(), HttpMethod.DELETE.name())) {
             String params = argsArrayToString(joinPoint.getArgs(), excludeParamNames);
@@ -183,6 +189,9 @@ public class LogAspect {
                 if (o instanceof List<?> list) {
                     List<Dict> list1 = new ArrayList<>();
                     for (Object obj : list) {
+                        if (ObjectUtil.isNull(obj) || isFilterObject(obj)) {
+                            continue;
+                        }
                         String str1 = JsonUtils.toJsonString(obj);
                         Dict dict = JsonUtils.parseMap(str1);
                         if (MapUtil.isNotEmpty(dict)) {
@@ -190,7 +199,7 @@ public class LogAspect {
                             list1.add(dict);
                         }
                     }
-                    str = JsonUtils.toJsonString(list1);
+                    str = StringUtils.substring(JsonUtils.toJsonString(list1), 0, ARG_VALUE_MAX_LENGTH);
                 } else {
                     str = JsonUtils.toJsonString(o);
                     Dict dict = JsonUtils.parseMap(str);
@@ -198,6 +207,7 @@ public class LogAspect {
                         MapUtil.removeAny(dict, exclude);
                         str = JsonUtils.toJsonString(dict);
                     }
+                    str = StringUtils.substring(str, 0, ARG_VALUE_MAX_LENGTH);
                 }
                 params.add(str);
             }
@@ -215,23 +225,25 @@ public class LogAspect {
     public boolean isFilterObject(final Object o) {
         Class<?> clazz = o.getClass();
         if (clazz.isArray()) {
-            return MultipartFile.class.isAssignableFrom(clazz.getComponentType());
+            return MultipartFile.class.isAssignableFrom(clazz.getComponentType())
+                   || byte.class.equals(clazz.getComponentType())
+                   || Byte.class.equals(clazz.getComponentType());
         } else if (Collection.class.isAssignableFrom(clazz)) {
             Collection collection = (Collection) o;
             for (Object value : collection) {
-                if (value instanceof MultipartFile) {
+                if (value instanceof MultipartFile || value instanceof byte[] || value instanceof Byte[]) {
                     return true;
                 }
             }
         } else if (Map.class.isAssignableFrom(clazz)) {
             Map map = (Map) o;
             for (Object value : map.values()) {
-                if (value instanceof MultipartFile) {
+                if (value instanceof MultipartFile || value instanceof byte[] || value instanceof Byte[]) {
                     return true;
                 }
             }
         }
         return o instanceof MultipartFile || o instanceof HttpServletRequest || o instanceof HttpServletResponse
-               || o instanceof BindingResult;
+               || o instanceof BindingResult || o instanceof byte[] || o instanceof Byte[];
     }
 }

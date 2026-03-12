@@ -42,12 +42,13 @@ public class SysFileBo extends BaseEntity {
     private String fileSuffix;
 
     /**
+     * 文件类型
+     */
+    private String mimeType;
+
+    /**
      * 访问URL
      */
     private String url;
 
-    /**
-     * 存储类型
-     */
-    private String storageType;
 }

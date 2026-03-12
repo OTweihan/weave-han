@@ -26,6 +26,7 @@ import java.util.Map;
 public class PlusWebInvokeTimeInterceptor implements HandlerInterceptor {
 
     private final static ThreadLocal<StopWatch> KEY_CACHE = new ThreadLocal<>();
+    private static final int MAX_LOG_PARAM_LENGTH = 2000;
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
@@ -37,17 +38,21 @@ public class PlusWebInvokeTimeInterceptor implements HandlerInterceptor {
             if (request instanceof RepeatedlyRequestWrapper) {
                 BufferedReader reader = request.getReader();
                 jsonParam = IoUtil.read(reader);
-                // 限制日志长度，避免过长
-                if (jsonParam.length() > 2000) {
-                    jsonParam = jsonParam.substring(0, 2000) + "...(truncated)";
-                }
             }
+            jsonParam = truncateLogParam(jsonParam);
             log.info("[PLUS]开始请求 => URL[{}],参数类型[json],参数:[{}]", url, jsonParam);
+        } else if (isMultipartRequest(request)) {
+            Map<String, String[]> parameterMap = request.getParameterMap();
+            if (MapUtil.isNotEmpty(parameterMap)) {
+                log.info("[PLUS]开始请求 => URL[{}],参数类型[multipart],参数键:[{}]", url, parameterMap.keySet());
+            } else {
+                log.info("[PLUS]开始请求 => URL[{}],参数类型[multipart],包含文件流", url);
+            }
         } else {
             Map<String, String[]> parameterMap = request.getParameterMap();
             if (MapUtil.isNotEmpty(parameterMap)) {
                 String parameters = JsonUtils.toJsonString(parameterMap);
-                log.info("[PLUS]开始请求 => URL[{}],参数类型[param],参数:[{}]", url, parameters);
+                log.info("[PLUS]开始请求 => URL[{}],参数类型[param],参数:[{}]", url, truncateLogParam(parameters));
             } else {
                 log.info("[PLUS]开始请求 => URL[{}],无参数", url);
             }
@@ -86,5 +91,23 @@ public class PlusWebInvokeTimeInterceptor implements HandlerInterceptor {
             return StringUtils.startsWithIgnoreCase(contentType, MediaType.APPLICATION_JSON_VALUE);
         }
         return false;
+    }
+
+    private boolean isMultipartRequest(HttpServletRequest request) {
+        String contentType = request.getContentType();
+        if (contentType != null) {
+            return StringUtils.startsWithIgnoreCase(contentType, MediaType.MULTIPART_FORM_DATA_VALUE);
+        }
+        return false;
+    }
+
+    private String truncateLogParam(String param) {
+        if (StringUtils.isEmpty(param)) {
+            return param;
+        }
+        if (param.length() > MAX_LOG_PARAM_LENGTH) {
+            return param.substring(0, MAX_LOG_PARAM_LENGTH) + "...(truncated)";
+        }
+        return param;
     }
 }
