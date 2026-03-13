@@ -1,5 +1,6 @@
 package com.han.common.storage.domain;
 
+import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
@@ -16,14 +17,9 @@ import lombok.experimental.Accessors;
 public class StorageFileContent {
 
     /**
-     * 主键
+     * 文件ID（主键）
      */
-    @TableId("id")
-    private Long contentId;
-
-    /**
-     * 文件ID
-     */
+    @TableId(value = "file_id", type = IdType.INPUT)
     private Long fileId;
 
     /**

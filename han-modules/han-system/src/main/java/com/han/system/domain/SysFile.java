@@ -76,5 +76,5 @@ public class SysFile extends BaseEntity {
      * 逻辑删除
      */
     @TableLogic
-    private Integer deleted;
+    private Integer delFlag;
 }
