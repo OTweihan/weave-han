@@ -3,7 +3,9 @@ package com.han.blog.domain.bo;
 import com.han.blog.domain.BlogTag;
 import com.han.common.mybatis.core.domain.BaseEntity;
 import io.github.linpeilie.annotations.AutoMapper;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -53,11 +55,13 @@ public class BlogTagBo extends BaseEntity {
     /**
      * 标签颜色
      */
+    @Pattern(regexp = "^#[0-9A-Fa-f]{6}$", message = "标签颜色格式必须为#RRGGBB")
     @Size(max = 7, message = "标签颜色不能超过7个字符")
     private String color;
 
     /**
      * 文章数量
      */
+    @Min(value = 0, message = "文章数量不能小于0")
     private Integer postCount;
 }

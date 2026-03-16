@@ -46,11 +46,6 @@ public class BlogCategory extends BaseEntity {
     private Long parentId;
 
     /**
-     * 排序
-     */
-    private Integer sortOrder;
-
-    /**
      * 分类封面图片ID
      */
     private Long coverImage;
@@ -64,6 +59,6 @@ public class BlogCategory extends BaseEntity {
      * 删除标志（0存在 1删除）
      */
     @TableLogic
-    private Integer delFlag;
+    private Boolean delFlag;
 }
 

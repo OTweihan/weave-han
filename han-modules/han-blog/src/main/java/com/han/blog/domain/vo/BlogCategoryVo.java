@@ -6,6 +6,7 @@ import lombok.Data;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.Date;
 
 /**
  * @Author: WeiHan
@@ -45,11 +46,6 @@ public class BlogCategoryVo implements Serializable {
     private Long parentId;
 
     /**
-     * 排序
-     */
-    private Integer sortOrder;
-
-    /**
      * 分类封面图片ID
      */
     private Long coverImage;
@@ -62,6 +58,16 @@ public class BlogCategoryVo implements Serializable {
     /**
      * 删除标志（0存在 1删除）
      */
-    private Integer delFlag;
+    private Boolean delFlag;
+
+    /**
+     * 创建时间
+     */
+    private Date createTime;
+
+    /**
+     * 更新时间
+     */
+    private Date updateTime;
 }
 
