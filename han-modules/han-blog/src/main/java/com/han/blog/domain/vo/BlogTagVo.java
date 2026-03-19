@@ -6,6 +6,7 @@ import lombok.Data;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.Date;
 
 /**
  * @Author: WeiHan
@@ -48,5 +49,15 @@ public class BlogTagVo implements Serializable {
      * 文章数量
      */
     private Integer postCount;
+
+    /**
+     * 创建时间
+     */
+    private Date createTime;
+
+    /**
+     * 更新时间
+     */
+    private Date updateTime;
 }
 
