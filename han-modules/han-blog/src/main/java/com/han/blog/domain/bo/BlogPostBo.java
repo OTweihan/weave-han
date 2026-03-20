@@ -4,7 +4,6 @@ import com.han.blog.domain.BlogPost;
 import com.han.common.mybatis.core.domain.BaseEntity;
 import io.github.linpeilie.annotations.AutoMapper;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -39,7 +38,6 @@ public class BlogPostBo extends BaseEntity {
     /**
      * 文章别名（URL友好）
      */
-    @NotBlank(message = "文章别名不能为空")
     @Size(max = 200, message = "文章别名不能超过200个字符")
     private String slug;
 
@@ -52,7 +50,6 @@ public class BlogPostBo extends BaseEntity {
     /**
      * 封面图片ID
      */
-    @NotNull(message = "封面图片ID不能为空")
     private Long coverImage;
 
     /**
@@ -63,7 +60,6 @@ public class BlogPostBo extends BaseEntity {
     /**
      * 分类ID
      */
-    @NotNull(message = "分类ID不能为空")
     private Long categoryId;
 
     /**
@@ -74,7 +70,6 @@ public class BlogPostBo extends BaseEntity {
     /**
      * 状态（0草稿 1发布 2下架 3回收站）
      */
-    @NotBlank(message = "文章状态不能为空")
     private String status;
 
     /**
@@ -95,13 +90,13 @@ public class BlogPostBo extends BaseEntity {
     /**
      * 文章访问密码
      */
-    @Size(max = 32, message = "文章访问密码不能超过100个字符")
+    @Size(max = 100, message = "文章访问密码不能超过100个字符")
     private String password;
 
     /**
      * 来源类型（ORIGINAL原创 REPRINT转载 TRANSLATION翻译）
      */
-    @NotBlank(message = "来源类型不能为空")
+    @Size(max = 20, message = "来源类型不能超过20个字符")
     private String sourceType;
 
     /**

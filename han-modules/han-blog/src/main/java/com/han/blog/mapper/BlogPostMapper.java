@@ -26,4 +26,13 @@ public interface BlogPostMapper extends BaseMapperPlus<BlogPost, BlogPostVo> {
      * @return 博客文章列表
      */
     Page<BlogPostVo> selectPagePostList(@Param("page") Page<BlogPost> page, @Param(Constants.WRAPPER) Wrapper<BlogPost> queryWrapper);
+
+    /**
+     * 统计文章别名数量（包含逻辑删除数据）
+     *
+     * @param slug 文章别名
+     * @param excludePostId 排除的文章ID
+     * @return 数量
+     */
+    long selectSlugCount(@Param("slug") String slug, @Param("excludePostId") Long excludePostId);
 }

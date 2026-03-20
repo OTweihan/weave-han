@@ -5,12 +5,10 @@ import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.han.blog.domain.BlogDraftTag;
 import com.han.blog.domain.BlogPostTag;
 import com.han.blog.domain.BlogTag;
 import com.han.blog.domain.bo.BlogTagBo;
 import com.han.blog.domain.vo.BlogTagVo;
-import com.han.blog.mapper.BlogDraftTagMapper;
 import com.han.blog.mapper.BlogPostTagMapper;
 import com.han.blog.mapper.BlogTagMapper;
 import com.han.blog.service.IBlogTagService;
@@ -42,7 +40,6 @@ public class BlogTagServiceImpl implements IBlogTagService {
 
     private final BlogTagMapper blogTagMapper;
     private final BlogPostTagMapper blogPostTagMapper;
-    private final BlogDraftTagMapper blogDraftTagMapper;
 
     /**
      * 根据条件分页查询博客标签列表
@@ -172,15 +169,10 @@ public class BlogTagServiceImpl implements IBlogTagService {
     @Transactional(rollbackFor = Exception.class)
     public int deleteTags(Long[] tagIds) {
         List<Long> ids = List.of(tagIds);
-        boolean postInUse = blogPostTagMapper.exists(new LambdaQueryWrapper<BlogPostTag>()
+        boolean tagInUse = blogPostTagMapper.exists(new LambdaQueryWrapper<BlogPostTag>()
             .in(BlogPostTag::getTagId, ids));
-        if (postInUse) {
-            throw new ServiceException("标签已被文章使用，不能删除");
-        }
-        boolean draftInUse = blogDraftTagMapper.exists(new LambdaQueryWrapper<BlogDraftTag>()
-            .in(BlogDraftTag::getTagId, ids));
-        if (draftInUse) {
-            throw new ServiceException("标签已被草稿使用，不能删除");
+        if (tagInUse) {
+            throw new ServiceException("标签已被文章或草稿使用，不能删除");
         }
         int flag = blogTagMapper.deleteByIds(ids);
         if (flag < 1) {

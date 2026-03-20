@@ -1,7 +1,16 @@
 package com.han.system.controller.system;
 
-import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.crypto.digest.BCrypt;
+import org.springframework.http.MediaType;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+
 import com.han.common.core.domain.R;
 import com.han.common.encrypt.annotation.ApiEncrypt;
 import com.han.common.idempotent.annotation.RepeatSubmit;
@@ -14,11 +23,10 @@ import com.han.system.domain.bo.SysUserProfileBo;
 import com.han.system.domain.vo.ProfileUserVo;
 import com.han.system.domain.vo.SysUserVo;
 import com.han.system.service.ISysUserService;
+
+import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.crypto.digest.BCrypt;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.MediaType;
-import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 /**
  * @Author: Lion Li
@@ -83,13 +91,16 @@ public class SysProfileController extends BaseController {
     /**
      * 头像上传
      *
-     * @param avatarfile 用户头像
+     * @param avatarFile 用户头像
      */
     @RepeatSubmit
     @Log(title = "用户头像", businessType = BusinessType.UPDATE)
     @PostMapping(value = "/avatar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public R<AvatarVo> avatar(@RequestPart("avatarfile") MultipartFile avatarfile) {
-        String avatar = userService.updateUserAvatar(LoginHelper.getUserId(), avatarfile);
+    public R<AvatarVo> avatar(@RequestParam(required = false) MultipartFile avatarFile) {
+        if (avatarFile == null || avatarFile.isEmpty()) {
+            return R.fail("头像文件不能为空");
+        }
+        String avatar = userService.updateUserAvatar(LoginHelper.getUserId(), avatarFile);
         return R.ok(new AvatarVo(avatar));
     }
 
@@ -98,7 +109,8 @@ public class SysProfileController extends BaseController {
      *
      * @param imgUrl 头像地址
      */
-    public record AvatarVo(String imgUrl) {}
+    public record AvatarVo(String imgUrl) {
+    }
 
     /**
      * 用户个人信息
@@ -106,5 +118,6 @@ public class SysProfileController extends BaseController {
      * @param user      用户信息
      * @param roleGroup 用户所属角色组
      */
-    public record ProfileVo(ProfileUserVo user, String roleGroup) {}
+    public record ProfileVo(ProfileUserVo user, String roleGroup) {
+    }
 }

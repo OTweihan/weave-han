@@ -6,14 +6,42 @@
 
     <select id="selectPagePostList" resultType="com.han.blog.domain.vo.BlogPostVo">
         SELECT
-            p.post_id, p.title, p.slug, p.summary, p.cover_image, p.author_id, p.category_id,
-            p.status, p.is_top, p.is_featured, p.allow_comment, p.create_time, p.published_time,
-            c.category_id as c_category_id,
-            c.name as c_name,
-            c.slug as c_slug
+            p.post_id,
+            p.title,
+            p.slug,
+            p.summary,
+            p.cover_image,
+            p.author_id,
+            p.category_id,
+            p.status,
+            p.is_top,
+            p.is_featured,
+            p.allow_comment,
+            p.password,
+            p.source_type,
+            p.source_url,
+            p.seo_keywords,
+            p.seo_description,
+            p.published_time,
+            p.last_comment_time,
+            p.create_by,
+            p.create_time,
+            p.update_by,
+            p.update_time,
+            p.del_flag,
+            u.nick_name AS author_name
         FROM blog_post p
-        LEFT JOIN blog_category c ON p.category_id = c.category_id
+        LEFT JOIN sys_user u ON p.author_id = u.user_id
         ${ew.customSqlSegment}
+    </select>
+
+    <select id="selectSlugCount" resultType="java.lang.Long">
+        SELECT COUNT(1)
+        FROM blog_post
+        WHERE slug = #{slug}
+        <if test="excludePostId != null">
+            AND post_id <![CDATA[<>]]> #{excludePostId}
+        </if>
     </select>
 
 </mapper>

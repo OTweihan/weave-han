@@ -1,5 +1,7 @@
 package com.han.blog.domain;
 
+import com.baomidou.mybatisplus.annotation.FieldStrategy;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -35,16 +37,19 @@ public class BlogPost extends BaseEntity {
     /**
      * 文章别名（URL友好）
      */
+    @TableField(updateStrategy = FieldStrategy.ALWAYS)
     private String slug;
 
     /**
      * 文章摘要
      */
+    @TableField(updateStrategy = FieldStrategy.ALWAYS)
     private String summary;
 
     /**
      * 封面图片ID
      */
+    @TableField(updateStrategy = FieldStrategy.ALWAYS)
     private Long coverImage;
 
     /**
@@ -55,6 +60,7 @@ public class BlogPost extends BaseEntity {
     /**
      * 分类ID
      */
+    @TableField(updateStrategy = FieldStrategy.ALWAYS)
     private Long categoryId;
 
     /**
@@ -80,6 +86,7 @@ public class BlogPost extends BaseEntity {
     /**
      * 文章访问密码
      */
+    @TableField(updateStrategy = FieldStrategy.ALWAYS)
     private String password;
 
     /**
@@ -90,26 +97,31 @@ public class BlogPost extends BaseEntity {
     /**
      * 原文链接
      */
+    @TableField(updateStrategy = FieldStrategy.ALWAYS)
     private String sourceUrl;
 
     /**
      * SEO关键词
      */
+    @TableField(updateStrategy = FieldStrategy.ALWAYS)
     private String seoKeywords;
 
     /**
      * SEO描述
      */
+    @TableField(updateStrategy = FieldStrategy.ALWAYS)
     private String seoDescription;
 
     /**
      * 发布时间
      */
+    @TableField(updateStrategy = FieldStrategy.ALWAYS)
     private Date publishedTime;
 
     /**
      * 最后评论时间
      */
+    @TableField(updateStrategy = FieldStrategy.ALWAYS)
     private Date lastCommentTime;
 
     /**

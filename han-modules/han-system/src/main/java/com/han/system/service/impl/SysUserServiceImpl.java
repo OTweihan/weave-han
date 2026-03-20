@@ -36,6 +36,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.crypto.digest.BCrypt;
 import com.han.common.core.utils.file.MimeTypeUtils;
@@ -422,17 +423,17 @@ public class SysUserServiceImpl implements ISysUserService, UserService {
      * 修改用户头像
      *
      * @param userId     用户ID
-     * @param avatarfile 头像文件
+     * @param avatarFile 头像文件
      * @return 结果
      */
     @Override
-    public String updateUserAvatar(Long userId, MultipartFile avatarfile) {
-        if (!avatarfile.isEmpty()) {
-            String extension = FileUtil.extName(avatarfile.getOriginalFilename());
+    public String updateUserAvatar(Long userId, MultipartFile avatarFile) {
+        if (!avatarFile.isEmpty()) {
+            String extension = FileUtil.extName(avatarFile.getOriginalFilename());
             if (!StringUtils.equalsAnyIgnoreCase(extension, MimeTypeUtils.IMAGE_EXTENSION)) {
                 throw new ServiceException("文件格式不正确，请上传" + Arrays.toString(MimeTypeUtils.IMAGE_EXTENSION) + "格式");
             }
-            SysFileVo fileVo = fileService.upload(avatarfile);
+            SysFileVo fileVo = fileService.upload(avatarFile);
             if (ObjectUtil.isNull(fileVo)) {
                 throw new ServiceException("上传图片异常，请联系管理员");
             }

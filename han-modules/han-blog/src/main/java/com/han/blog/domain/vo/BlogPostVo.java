@@ -137,6 +137,36 @@ public class BlogPostVo implements Serializable {
     private Date publishedTime;
 
     /**
+     * 最后评论时间
+     */
+    private Date lastCommentTime;
+
+    /**
+     * 创建者
+     */
+    private Long createBy;
+
+    /**
+     * 创建时间
+     */
+    private Date createTime;
+
+    /**
+     * 更新者
+     */
+    private Long updateBy;
+
+    /**
+     * 更新时间
+     */
+    private Date updateTime;
+
+    /**
+     * 删除标志（0存在 1删除）
+     */
+    private Integer delFlag;
+
+    /**
      * 文章内容
      */
     private String content;

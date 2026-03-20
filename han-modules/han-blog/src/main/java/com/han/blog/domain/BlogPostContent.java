@@ -1,5 +1,7 @@
 package com.han.blog.domain;
 
+import com.baomidou.mybatisplus.annotation.FieldStrategy;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
@@ -29,15 +31,18 @@ public class BlogPostContent {
     /**
      * 渲染后的HTML内容
      */
+    @TableField(updateStrategy = FieldStrategy.ALWAYS)
     private String contentHtml;
 
     /**
      * 字数统计
      */
+    @TableField(updateStrategy = FieldStrategy.ALWAYS)
     private Integer wordCount;
 
     /**
      * 预计阅读时间（分钟）
      */
+    @TableField(updateStrategy = FieldStrategy.ALWAYS)
     private Integer readingTime;
 }

@@ -180,10 +180,10 @@ public interface ISysUserService {
      * 修改用户头像
      *
      * @param userId     用户ID
-     * @param avatarfile 头像文件
+     * @param avatarFile 头像文件
      * @return 结果
      */
-    String updateUserAvatar(Long userId, MultipartFile avatarfile);
+    String updateUserAvatar(Long userId, MultipartFile avatarFile);
 
     /**
      * 重置用户密码

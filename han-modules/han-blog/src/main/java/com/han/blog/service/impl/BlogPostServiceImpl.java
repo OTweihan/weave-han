@@ -6,14 +6,17 @@ import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.han.blog.domain.BlogCategory;
 import com.han.blog.domain.BlogPost;
 import com.han.blog.domain.BlogPostContent;
 import com.han.blog.domain.BlogPostTag;
+import com.han.blog.domain.BlogTag;
 import com.han.blog.domain.bo.BlogPostBo;
 import com.han.blog.domain.vo.BlogCategoryVo;
 import com.han.blog.domain.vo.BlogPostStatsVo;
 import com.han.blog.domain.vo.BlogPostVo;
 import com.han.blog.domain.vo.BlogTagVo;
+import com.han.blog.enums.PostStatus;
 import com.han.blog.mapper.BlogCategoryMapper;
 import com.han.blog.mapper.BlogPostContentMapper;
 import com.han.blog.mapper.BlogPostMapper;
@@ -24,18 +27,22 @@ import com.han.blog.service.IBlogPostStatsService;
 import com.han.common.core.constant.SystemConstants;
 import com.han.common.core.exception.ServiceException;
 import com.han.common.core.utils.MapstructUtils;
+import com.han.common.core.utils.StringUtils;
 import com.han.common.mybatis.core.page.PageQuery;
 import com.han.common.mybatis.core.page.TableDataInfo;
 import com.han.common.satoken.utils.LoginHelper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @Author: WeiHan
@@ -46,6 +53,10 @@ import java.util.Map;
 @RequiredArgsConstructor
 @Service
 public class BlogPostServiceImpl implements IBlogPostService {
+
+    private static final String SOURCE_TYPE_ORIGINAL = "ORIGINAL";
+    private static final String SOURCE_TYPE_REPRINT = "REPRINT";
+    private static final String SOURCE_TYPE_TRANSLATION = "TRANSLATION";
 
     private final BlogPostMapper blogPostMapper;
     private final BlogPostContentMapper blogPostContentMapper;
@@ -63,24 +74,9 @@ public class BlogPostServiceImpl implements IBlogPostService {
      */
     @Override
     public TableDataInfo<BlogPostVo> selectPagePostList(BlogPostBo post, PageQuery pageQuery) {
-        Page<BlogPostVo> resultPage = blogPostMapper.selectPagePostList(pageQuery.build(), this.buildQueryWrapper(post));
-        
-        // 批量填充统计信息
-        List<BlogPostVo> rows = resultPage.getRecords();
-        if (CollUtil.isNotEmpty(rows)) {
-            List<Long> postIds = rows.stream().map(BlogPostVo::getPostId).toList();
-            Map<Long, BlogPostStatsVo> statsMap = blogPostStatsService.queryStatsByPostIds(postIds);
-            
-            for (BlogPostVo row : rows) {
-                BlogPostStatsVo stats = statsMap.get(row.getPostId());
-                if (stats != null) {
-                    row.setViewCount(Long.valueOf(stats.getViewCount()));
-                    row.setLikeCount(Long.valueOf(stats.getLikeCount()));
-                    row.setCommentCount(Long.valueOf(stats.getCommentCount()));
-                }
-            }
-        }
-        
+        BlogPostBo queryBo = ObjectUtil.defaultIfNull(post, new BlogPostBo());
+        Page<BlogPostVo> resultPage = blogPostMapper.selectPagePostList(pageQuery.build(), buildQueryWrapper(queryBo));
+        fillStats(resultPage.getRecords());
         return TableDataInfo.build(resultPage);
     }
 
@@ -92,16 +88,24 @@ public class BlogPostServiceImpl implements IBlogPostService {
      */
     private Wrapper<BlogPost> buildQueryWrapper(BlogPostBo post) {
         Map<String, Object> params = post.getParams();
+        Long categoryId = normalizeNullableId(post.getCategoryId());
         LambdaQueryWrapper<BlogPost> wrapper = Wrappers.lambdaQuery();
-        // 筛选未删除的文章
         wrapper.eq(BlogPost::getDelFlag, SystemConstants.NORMAL)
-            // 按文章ID精确匹配（条件存在时）
             .eq(ObjectUtil.isNotNull(post.getPostId()), BlogPost::getPostId, post.getPostId())
-            // 按创建时间范围匹配（beginTime和endTime都存在时）
+            .like(StringUtils.isNotBlank(post.getTitle()), BlogPost::getTitle, post.getTitle())
+            .eq(StringUtils.isNotBlank(post.getSlug()), BlogPost::getSlug, StringUtils.trim(post.getSlug()))
+            .eq(ObjectUtil.isNotNull(post.getAuthorId()), BlogPost::getAuthorId, post.getAuthorId())
+            .eq(ObjectUtil.isNotNull(categoryId), BlogPost::getCategoryId, categoryId)
+            .eq(StringUtils.isNotBlank(post.getStatus()), BlogPost::getStatus, post.getStatus())
+            .eq(StringUtils.isNotBlank(post.getSourceType()), BlogPost::getSourceType, StringUtils.upperCase(StringUtils.trim(post.getSourceType())))
+            .eq(StringUtils.isNotBlank(post.getIsTop()), BlogPost::getIsTop, post.getIsTop())
+            .eq(StringUtils.isNotBlank(post.getIsFeatured()), BlogPost::getIsFeatured, post.getIsFeatured())
+            .eq(StringUtils.isNotBlank(post.getAllowComment()), BlogPost::getAllowComment, post.getAllowComment())
             .between(params.get("beginTime") != null && params.get("endTime") != null,
                 BlogPost::getCreateTime, params.get("beginTime"), params.get("endTime"))
-            // 按发布时间升序排列
-            .orderByAsc(BlogPost::getPublishedTime);
+            .orderByDesc(BlogPost::getIsTop)
+            .orderByDesc(BlogPost::getPublishedTime)
+            .orderByDesc(BlogPost::getUpdateTime);
         return wrapper;
     }
 
@@ -114,38 +118,7 @@ public class BlogPostServiceImpl implements IBlogPostService {
     @Override
     public BlogPostVo queryPostDetail(Long postId) {
         BlogPostVo postVo = blogPostMapper.selectVoById(postId);
-        if (postVo != null) {
-            // 查询文章内容
-            BlogPostContent content = blogPostContentMapper.selectById(postId);
-            if (content != null) {
-                postVo.setContent(content.getContent());
-                postVo.setContentHtml(content.getContentHtml());
-                postVo.setWordCount(content.getWordCount());
-                postVo.setReadingTime(content.getReadingTime());
-            }
-
-            // 查询分类信息
-            if (postVo.getCategoryId() != null) {
-                BlogCategoryVo category = blogCategoryMapper.selectVoById(postVo.getCategoryId());
-                postVo.setCategory(category);
-            }
-
-            // 查询标签列表
-            List<Long> tagIds = blogPostTagMapper.selectTagIdsByPostId(postId);
-            if (CollUtil.isNotEmpty(tagIds)) {
-                List<BlogTagVo> tags = blogTagMapper.selectVoList(new LambdaQueryWrapper<com.han.blog.domain.BlogTag>()
-                    .in(com.han.blog.domain.BlogTag::getTagId, tagIds));
-                postVo.setTags(tags);
-            }
-            
-            // 填充统计信息
-            BlogPostStatsVo stats = blogPostStatsService.queryStatsByPostId(postId);
-            if (stats != null) {
-                postVo.setViewCount(Long.valueOf(stats.getViewCount()));
-                postVo.setLikeCount(Long.valueOf(stats.getLikeCount()));
-                postVo.setCommentCount(Long.valueOf(stats.getCommentCount()));
-            }
-        }
+        fillPostExtraInfo(postVo);
         return postVo;
     }
 
@@ -157,38 +130,16 @@ public class BlogPostServiceImpl implements IBlogPostService {
      */
     @Override
     public BlogPostVo queryPostBySlug(String slug) {
-        BlogPostVo postVo = blogPostMapper.selectVoOne(new LambdaQueryWrapper<BlogPost>().eq(BlogPost::getSlug, slug));
+        if (StringUtils.isBlank(slug)) {
+            return null;
+        }
+        BlogPostVo postVo = blogPostMapper.selectVoOne(new LambdaQueryWrapper<BlogPost>()
+            .eq(BlogPost::getDelFlag, SystemConstants.NORMAL)
+            .eq(BlogPost::getStatus, PostStatus.PUBLISHED.getCode())
+            .eq(BlogPost::getSlug, StringUtils.trim(slug)));
+        fillPostExtraInfo(postVo);
         if (postVo != null) {
-            // 查询文章内容
-            BlogPostContent content = blogPostContentMapper.selectById(postVo.getPostId());
-            if (content != null) {
-                postVo.setContent(content.getContent());
-                postVo.setContentHtml(content.getContentHtml());
-                postVo.setWordCount(content.getWordCount());
-                postVo.setReadingTime(content.getReadingTime());
-            }
-
-            // 查询分类信息
-            if (postVo.getCategoryId() != null) {
-                BlogCategoryVo category = blogCategoryMapper.selectVoById(postVo.getCategoryId());
-                postVo.setCategory(category);
-            }
-
-            // 查询标签列表
-            List<Long> tagIds = blogPostTagMapper.selectTagIdsByPostId(postVo.getPostId());
-            if (CollUtil.isNotEmpty(tagIds)) {
-                List<BlogTagVo> tags = blogTagMapper.selectVoList(new LambdaQueryWrapper<com.han.blog.domain.BlogTag>()
-                    .in(com.han.blog.domain.BlogTag::getTagId, tagIds));
-                postVo.setTags(tags);
-            }
-            
-            // 填充统计信息
-            BlogPostStatsVo stats = blogPostStatsService.queryStatsByPostId(postVo.getPostId());
-            if (stats != null) {
-                postVo.setViewCount(Long.valueOf(stats.getViewCount()));
-                postVo.setLikeCount(Long.valueOf(stats.getLikeCount()));
-                postVo.setCommentCount(Long.valueOf(stats.getCommentCount()));
-            }
+            postVo.setPassword(null);
         }
         return postVo;
     }
@@ -203,29 +154,26 @@ public class BlogPostServiceImpl implements IBlogPostService {
     @Transactional(rollbackFor = Exception.class)
     public int insertPost(BlogPostBo post) {
         post.setAuthorId(LoginHelper.getUserId());
+        prepareBeforeSave(post, false);
         BlogPost blogPost = MapstructUtils.convert(post, BlogPost.class);
-        int rows = blogPostMapper.insert(blogPost);
-
-        if (rows > 0) {
-            Long postId = blogPost.getPostId();
-
-            // 保存文章内容
-            if (post.getContent() != null) {
-                BlogPostContent content = new BlogPostContent();
-                content.setPostId(postId);
-                content.setContent(post.getContent());
-                content.setContentHtml(post.getContentHtml());
-                content.setWordCount(post.getWordCount());
-                content.setReadingTime(post.getReadingTime());
-                blogPostContentMapper.insert(content);
-            }
-
-            // 保存文章标签关联
-            if (CollUtil.isNotEmpty(post.getTagIds())) {
-                saveBatchPostTag(postId, post.getTagIds());
-            }
+        int rows;
+        try {
+            rows = blogPostMapper.insert(blogPost);
+        } catch (DuplicateKeyException e) {
+            throw new ServiceException("新增文章'{}'失败，文章别名'{}'已存在", post.getTitle(), post.getSlug());
         }
 
+        if (rows > 0) {
+            Long postId = null;
+            if (blogPost != null) {
+                postId = blogPost.getPostId();
+            } else {
+                throw new ServiceException("新增文章成功，但未获取到文章ID");
+            }
+            saveOrUpdatePostContent(postId, post);
+            saveBatchPostTag(postId, post.getTagIds());
+            blogPostStatsService.initStats(postId);
+        }
         return rows;
     }
 
@@ -238,42 +186,26 @@ public class BlogPostServiceImpl implements IBlogPostService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public int updatePost(BlogPostBo post) {
+        if (ObjectUtil.isNull(post.getPostId())) {
+            throw new ServiceException("文章ID不能为空");
+        }
+        prepareBeforeSave(post, true);
         BlogPost blogPost = MapstructUtils.convert(post, BlogPost.class);
-        // 更新文章
-        int flag = blogPostMapper.updateById(blogPost);
-
-        if (flag < 1) {
+        int rows;
+        try {
+            rows = blogPostMapper.updateById(blogPost);
+        } catch (DuplicateKeyException e) {
+            throw new ServiceException("修改文章'{}'失败，文章别名'{}'已存在", post.getTitle(), post.getSlug());
+        }
+        if (rows < 1) {
             throw new ServiceException("修改文章{}失败", post.getTitle());
         }
 
         Long postId = post.getPostId();
-
-        // 更新或新增文章内容
-        if (post.getContent() != null) {
-            BlogPostContent existContent = blogPostContentMapper.selectById(postId);
-            BlogPostContent content = new BlogPostContent();
-            content.setPostId(postId);
-            content.setContent(post.getContent());
-            content.setContentHtml(post.getContentHtml());
-            content.setWordCount(post.getWordCount());
-            content.setReadingTime(post.getReadingTime());
-
-            if (existContent != null) {
-                // 更新
-                blogPostContentMapper.updateById(content);
-            } else {
-                // 新增
-                blogPostContentMapper.insert(content);
-            }
-        }
-
-        // 更新文章标签关联（先删除再新增）
+        saveOrUpdatePostContent(postId, post);
         blogPostTagMapper.deleteByPostId(postId);
-        if (CollUtil.isNotEmpty(post.getTagIds())) {
-            saveBatchPostTag(postId, post.getTagIds());
-        }
-
-        return flag;
+        saveBatchPostTag(postId, post.getTagIds());
+        return rows;
     }
 
     /**
@@ -286,16 +218,119 @@ public class BlogPostServiceImpl implements IBlogPostService {
     @Transactional(rollbackFor = Exception.class)
     public int deletePosts(Long[] postIds) {
         List<Long> ids = List.of(postIds);
-        // 删除文章
-        int flag = blogPostMapper.deleteByIds(ids);
-        if (flag < 1) {
+        int rows = blogPostMapper.deleteByIds(ids);
+        if (rows < 1) {
             throw new ServiceException("删除文章失败!");
         }
-        // 级联删除文章内容
         blogPostContentMapper.deleteByIds(ids);
-        // 级联删除文章标签关联
         blogPostTagMapper.deleteByPostIds(ids);
-        return flag;
+        blogPostStatsService.deleteStats(postIds);
+        return rows;
+    }
+
+    /**
+     * 更新文章浏览量
+     *
+     * @param postId 文章ID
+     * @return 结果
+     */
+    @Override
+    public int incrementViewCount(Long postId) {
+        boolean exists = blogPostMapper.exists(new LambdaQueryWrapper<BlogPost>()
+            .eq(BlogPost::getPostId, postId)
+            .eq(BlogPost::getDelFlag, SystemConstants.NORMAL));
+        if (!exists) {
+            return 0;
+        }
+        int rows = blogPostStatsService.incrementViewCount(postId);
+        if (rows > 0) {
+            return rows;
+        }
+        blogPostStatsService.initStats(postId);
+        return blogPostStatsService.incrementViewCount(postId);
+    }
+
+    /**
+     * 填充文章扩展信息
+     *
+     * @param postVo 文章视图对象
+     */
+    private void fillPostExtraInfo(BlogPostVo postVo) {
+        if (postVo == null) {
+            return;
+        }
+        BlogPostContent content = blogPostContentMapper.selectById(postVo.getPostId());
+        if (content != null) {
+            postVo.setContent(content.getContent());
+            postVo.setContentHtml(content.getContentHtml());
+            postVo.setWordCount(content.getWordCount());
+            postVo.setReadingTime(content.getReadingTime());
+        }
+
+        if (postVo.getCategoryId() != null) {
+            BlogCategoryVo category = blogCategoryMapper.selectVoById(postVo.getCategoryId());
+            postVo.setCategory(category);
+        }
+
+        List<Long> tagIds = blogPostTagMapper.selectTagIdsByPostId(postVo.getPostId());
+        if (CollUtil.isNotEmpty(tagIds)) {
+            List<BlogTagVo> tags = blogTagMapper.selectVoList(new LambdaQueryWrapper<BlogTag>()
+                .in(BlogTag::getTagId, tagIds));
+            postVo.setTags(tags);
+        }
+
+        BlogPostStatsVo stats = blogPostStatsService.queryStatsByPostId(postVo.getPostId());
+        applyStats(postVo, stats);
+    }
+
+    /**
+     * 批量填充统计信息
+     *
+     * @param rows 文章列表
+     */
+    private void fillStats(List<BlogPostVo> rows) {
+        if (CollUtil.isEmpty(rows)) {
+            return;
+        }
+        List<Long> postIds = rows.stream().map(BlogPostVo::getPostId).toList();
+        Map<Long, BlogPostStatsVo> statsMap = blogPostStatsService.queryStatsByPostIds(postIds);
+        for (BlogPostVo row : rows) {
+            applyStats(row, statsMap.get(row.getPostId()));
+        }
+    }
+
+    /**
+     * 应用统计信息
+     *
+     * @param postVo 文章视图对象
+     * @param stats  统计信息
+     */
+    private void applyStats(BlogPostVo postVo, BlogPostStatsVo stats) {
+        postVo.setViewCount(safeLong(stats == null ? null : stats.getViewCount()));
+        postVo.setLikeCount(safeLong(stats == null ? null : stats.getLikeCount()));
+        postVo.setCommentCount(safeLong(stats == null ? null : stats.getCommentCount()));
+    }
+
+    /**
+     * 保存或更新文章内容
+     *
+     * @param postId 文章ID
+     * @param post   文章业务对象
+     */
+    private void saveOrUpdatePostContent(Long postId, BlogPostBo post) {
+        BlogPostContent content = new BlogPostContent();
+        content.setPostId(postId);
+        content.setContent(StringUtils.defaultString(post.getContent()));
+        content.setContentHtml(post.getContentHtml());
+        content.setWordCount(post.getWordCount());
+        content.setReadingTime(post.getReadingTime());
+
+        BlogPostContent existContent = blogPostContentMapper.selectById(postId);
+        if (existContent == null) {
+            blogPostContentMapper.insert(content);
+        } else {
+            blogPostContentMapper.updateById(content);
+        }
     }
 
     /**
@@ -305,7 +340,10 @@ public class BlogPostServiceImpl implements IBlogPostService {
      * @param tagIds 标签ID列表
      */
     private void saveBatchPostTag(Long postId, List<Long> tagIds) {
-        List<BlogPostTag> postTags = new ArrayList<>();
+        if (CollUtil.isEmpty(tagIds)) {
+            return;
+        }
+        List<BlogPostTag> postTags = new ArrayList<>(tagIds.size());
         Long userId = LoginHelper.getUserId();
         Date now = new Date();
 
@@ -318,19 +356,196 @@ public class BlogPostServiceImpl implements IBlogPostService {
             postTags.add(postTag);
         }
 
-        if (CollUtil.isNotEmpty(postTags)) {
-            blogPostTagMapper.insertBatch(postTags);
+        blogPostTagMapper.insertBatch(postTags);
+    }
+
+    /**
+     * 保存前统一处理默认值与校验
+     *
+     * @param post     文章业务对象
+     * @param isUpdate 是否为更新操作
+     */
+    private void prepareBeforeSave(BlogPostBo post, boolean isUpdate) {
+        if (post == null) {
+            throw new ServiceException("文章参数不能为空");
+        }
+        post.setSlug(normalizeOptionalText(post.getSlug()));
+        post.setSummary(normalizeOptionalText(post.getSummary()));
+        post.setPassword(normalizeOptionalText(post.getPassword()));
+        post.setSourceType(StringUtils.upperCase(StringUtils.blankToDefault(StringUtils.trim(post.getSourceType()), SOURCE_TYPE_ORIGINAL)));
+        post.setSourceUrl(normalizeOptionalText(post.getSourceUrl()));
+        post.setSeoKeywords(normalizeOptionalText(post.getSeoKeywords()));
+        post.setSeoDescription(normalizeOptionalText(post.getSeoDescription()));
+        post.setContent(StringUtils.defaultString(post.getContent()));
+        post.setContentHtml(normalizeOptionalText(post.getContentHtml()));
+        post.setCoverImage(normalizeNullableId(post.getCoverImage()));
+        post.setCategoryId(normalizeNullableId(post.getCategoryId()));
+        post.setStatus(StringUtils.blankToDefault(StringUtils.trim(post.getStatus()), String.valueOf(PostStatus.DRAFT.getCode())));
+        post.setIsTop(StringUtils.blankToDefault(StringUtils.trim(post.getIsTop()), "0"));
+        post.setIsFeatured(StringUtils.blankToDefault(StringUtils.trim(post.getIsFeatured()), "0"));
+        post.setAllowComment(StringUtils.blankToDefault(StringUtils.trim(post.getAllowComment()), "1"));
+        post.setTagIds(normalizeTagIds(post.getTagIds()));
+        populateContentStats(post);
+        validateBeforeSave(post, isUpdate);
+        if (isPublishedStatus(post.getStatus()) && post.getPublishedTime() == null) {
+            post.setPublishedTime(new Date());
         }
     }
 
     /**
-     * 更新文章浏览量
+     * 保存前校验
      *
-     * @param postId 文章ID
-     * @return 结果
+     * @param post     文章业务对象
+     * @param isUpdate 是否为更新操作
      */
-    @Override
-    public int incrementViewCount(Long postId) {
-        return blogPostStatsService.incrementViewCount(postId);
+    private void validateBeforeSave(BlogPostBo post, boolean isUpdate) {
+        if (isUpdate) {
+            if (ObjectUtil.isNull(post.getPostId())) {
+                throw new ServiceException("文章ID不能为空");
+            }
+            if (ObjectUtil.isNull(blogPostMapper.selectById(post.getPostId()))) {
+                throw new ServiceException("文章不存在或已删除");
+            }
+        }
+
+        if (StringUtils.isNotBlank(post.getSlug()) && blogPostMapper.selectSlugCount(post.getSlug(), post.getPostId()) > 0) {
+            throw new ServiceException("文章别名'{}'已存在", post.getSlug());
+        }
+
+        if (post.getCategoryId() != null) {
+            BlogCategory category = blogCategoryMapper.selectById(post.getCategoryId());
+            if (ObjectUtil.isNull(category) || Boolean.TRUE.equals(category.getDelFlag())) {
+                throw new ServiceException("所选分类不存在或已删除");
+            }
+        }
+
+        if (!StringUtils.inStringIgnoreCase(post.getSourceType(), SOURCE_TYPE_ORIGINAL, SOURCE_TYPE_REPRINT, SOURCE_TYPE_TRANSLATION)) {
+            throw new ServiceException("文章来源类型不合法");
+        }
+        if (!StringUtils.inStringIgnoreCase(post.getStatus(),
+            String.valueOf(PostStatus.DRAFT.getCode()),
+            String.valueOf(PostStatus.PUBLISHED.getCode()),
+            String.valueOf(PostStatus.OFFLINE.getCode()),
+            String.valueOf(PostStatus.RECYCLE.getCode()))) {
+            throw new ServiceException("文章状态不合法");
+        }
+        if (!StringUtils.inStringIgnoreCase(post.getIsTop(), "0", "1")) {
+            throw new ServiceException("置顶标识不合法");
+        }
+        if (!StringUtils.inStringIgnoreCase(post.getIsFeatured(), "0", "1")) {
+            throw new ServiceException("推荐标识不合法");
+        }
+        if (!StringUtils.inStringIgnoreCase(post.getAllowComment(), "0", "1")) {
+            throw new ServiceException("评论开关标识不合法");
+        }
+        if (SOURCE_TYPE_ORIGINAL.equals(post.getSourceType())) {
+            post.setSourceUrl(null);
+        } else if (StringUtils.isBlank(post.getSourceUrl())) {
+            throw new ServiceException("转载或翻译文章必须填写原文链接");
+        }
+
+        if (CollUtil.isNotEmpty(post.getTagIds())) {
+            Long validTagCount = blogTagMapper.selectCount(new LambdaQueryWrapper<BlogTag>()
+                .in(BlogTag::getTagId, post.getTagIds()));
+            if (validTagCount == null || validTagCount.intValue() != post.getTagIds().size()) {
+                throw new ServiceException("存在无效的标签数据");
+            }
+        }
+    }
+
+    /**
+     * 归一化标签ID列表
+     *
+     * @param tagIds 标签ID列表
+     * @return 去重后的标签ID列表
+     */
+    private List<Long> normalizeTagIds(List<Long> tagIds) {
+        if (CollUtil.isEmpty(tagIds)) {
+            return List.of();
+        }
+        Set<Long> orderedIds = new LinkedHashSet<>();
+        for (Long tagId : tagIds) {
+            Long value = normalizeNullableId(tagId);
+            if (value != null) {
+                orderedIds.add(value);
+            }
+        }
+        return new ArrayList<>(orderedIds);
+    }
+
+    /**
+     * 归一化可空文本
+     *
+     * @param value 文本
+     * @return 归一化后的文本
+     */
+    private String normalizeOptionalText(String value) {
+        String trimValue = StringUtils.trim(value);
+        return StringUtils.isBlank(trimValue) ? null : trimValue;
+    }
+
+    /**
+     * 归一化可空ID
+     *
+     * @param value 主键值
+     * @return 归一化后的主键值
+     */
+    private Long normalizeNullableId(Long value) {
+        if (value == null || value <= 0) {
+            return null;
+        }
+        return value;
+    }
+
+    /**
+     * 补齐内容统计
+     *
+     * @param post 文章业务对象
+     */
+    private void populateContentStats(BlogPostBo post) {
+        int wordCount = ObjectUtil.defaultIfNull(post.getWordCount(), countWord(post.getContent()));
+        if (wordCount < 0) {
+            wordCount = 0;
+        }
+        post.setWordCount(wordCount);
+
+        Integer readingTime = post.getReadingTime();
+        if (readingTime == null || readingTime < 0) {
+            readingTime = wordCount == 0 ? 0 : Math.max(1, (int) Math.ceil(wordCount / 500D));
+        }
+        post.setReadingTime(readingTime);
+    }
+
+    /**
+     * 简单估算字数
+     *
+     * @param content 文章内容
+     * @return 字数
+     */
+    private int countWord(String content) {
+        String plainText = StringUtils.defaultString(content)
+            .replaceAll("<[^>]+>", StringUtils.EMPTY)
+            .replaceAll("\\s+", StringUtils.EMPTY);
+        return plainText.length();
+    }
+
+    /**
+     * 判断是否为已发布状态
+     *
+     * @param status 状态值
+     * @return true 已发布
+     */
+    private boolean isPublishedStatus(String status) {
+        return String.valueOf(PostStatus.PUBLISHED.getCode()).equals(status);
+    }
+
+    /**
+     * 安全转换为Long
+     *
+     * @param value 数值
+     * @return Long值
+     */
+    private Long safeLong(Integer value) {
+        return value == null ? 0L : value.longValue();
     }
 }
