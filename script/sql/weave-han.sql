@@ -11,7 +11,7 @@
  Target Server Version : 80402 (8.4.2)
  File Encoding         : 65001
 
- Date: 19/03/2026 14:52:39
+ Date: 23/03/2026 16:14:18
 */
 
 SET NAMES utf8mb4;
@@ -44,11 +44,6 @@ CREATE TABLE `blog_category`  (
 -- ----------------------------
 -- Records of blog_category
 -- ----------------------------
-INSERT INTO `blog_category` VALUES (2015679929204887553, 'test', 'asdkfn', '', 0, NULL, 0, 1, '2026-01-26 14:55:19', 1, '2026-01-26 14:56:26', 1);
-INSERT INTO `blog_category` VALUES (2015680112042987521, 'test2', '123123', '', 2015679929204887553, NULL, 0, 1, '2026-01-26 14:56:03', 1, '2026-01-26 14:56:30', 1);
-INSERT INTO `blog_category` VALUES (2033473164581068802, '测试', '123', '', NULL, NULL, 0, 1, '2026-03-16 17:19:17', 1, '2026-03-16 18:00:54', 1);
-INSERT INTO `blog_category` VALUES (2033473375030272001, '123', '123456', '', 2033473164581068802, NULL, 0, 1, '2026-03-16 17:20:07', 1, '2026-03-16 18:00:50', 1);
-INSERT INTO `blog_category` VALUES (2033474642087567362, '测试2', 'sadfjkbk', '', NULL, NULL, 0, 1, '2026-03-16 17:25:09', 1, '2026-03-16 18:00:57', 1);
 
 -- ----------------------------
 -- Table structure for blog_comment
@@ -116,7 +111,7 @@ CREATE TABLE `blog_image`  (
   INDEX `idx_del_flag`(`del_flag` ASC) USING BTREE,
   INDEX `idx_post_del_sort`(`post_id` ASC, `del_flag` ASC, `sort_order` ASC) USING BTREE,
   INDEX `idx_category_del_sort`(`category_id` ASC, `del_flag` ASC, `sort_order` ASC) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '博客图片表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '博客图片表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of blog_image
@@ -590,7 +585,7 @@ CREATE TABLE `sys_file`  (
   INDEX `idx_del_flag_time`(`del_flag` ASC, `create_time` DESC) USING BTREE,
   INDEX `idx_suffix`(`file_suffix` ASC) USING BTREE,
   INDEX `idx_mime_type`(`mime_type` ASC) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '文件信息表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '文件信息表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_file
@@ -604,7 +599,7 @@ CREATE TABLE `sys_file_content`  (
   `file_id` bigint NOT NULL COMMENT '文件ID',
   `content` longblob NULL COMMENT '文件二进制内容',
   PRIMARY KEY (`file_id`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '数据库文件内容表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '数据库文件内容表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_file_content
@@ -746,6 +741,11 @@ INSERT INTO `sys_menu` VALUES (2015676667701514242, '博客管理', 0, 1, 'blog'
 INSERT INTO `sys_menu` VALUES (2015677183395385345, '分类管理', 2015676667701514242, 1, 'category', 'blog/category/index', NULL, 1, 0, 'C', 0, 0, 'blog:category:list', '', 1, '2026-01-26 14:44:25', 1, '2026-01-26 14:44:25', '');
 INSERT INTO `sys_menu` VALUES (2016812194920136706, '文件配置', 118, 1, 'storageConfig', 'system/storageConfig/index', NULL, 1, 0, 'C', 0, 0, '', '#', 1, '2026-01-29 17:54:32', 1, '2026-03-11 17:20:04', '');
 INSERT INTO `sys_menu` VALUES (2016812983382179842, '文件列表', 118, 2, 'file', 'system/file/index', NULL, 1, 0, 'C', 0, 0, NULL, '#', 1, '2026-01-29 17:57:40', 1, '2026-03-11 17:21:21', '');
+INSERT INTO `sys_menu` VALUES (2034526157720027138, '标签管理', 2015676667701514242, 2, 'tag', 'blog/tag/index', NULL, 1, 0, 'C', 0, 0, 'blog:tag:list', '#', 1, '2026-03-19 15:03:30', 1, '2026-03-19 15:04:10', '');
+INSERT INTO `sys_menu` VALUES (2034526380999606273, '标签查询', 2034526157720027138, 1, '', NULL, NULL, 1, 0, 'F', 0, 0, 'blog:tag:query', '#', 1, '2026-03-19 15:04:24', 1, '2026-03-19 15:04:24', '');
+INSERT INTO `sys_menu` VALUES (2034526453967912961, '标签新增', 2034526157720027138, 2, '', NULL, NULL, 1, 0, 'F', 0, 0, 'blog:tag:add', '#', 1, '2026-03-19 15:04:41', 1, '2026-03-19 15:04:41', '');
+INSERT INTO `sys_menu` VALUES (2034526536956411906, '标签修改', 2034526157720027138, 3, '', NULL, NULL, 1, 0, 'F', 0, 0, 'blog:tag:edit', '#', 1, '2026-03-19 15:05:01', 1, '2026-03-19 15:05:09', '');
+INSERT INTO `sys_menu` VALUES (2034526622218223617, '标签删除', 2034526157720027138, 4, '', NULL, NULL, 1, 0, 'F', 0, 0, 'blog:tag:remove', '#', 1, '2026-03-19 15:05:21', 1, '2026-03-19 15:05:27', '');
 
 -- ----------------------------
 -- Table structure for sys_notice
@@ -977,7 +977,7 @@ CREATE TABLE `sys_storage_config`  (
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `idx_storage_type`(`storage_type` ASC) USING BTREE,
   INDEX `idx_is_master`(`is_master` ASC) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '存储配置表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '存储配置表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_storage_config
@@ -1021,7 +1021,7 @@ CREATE TABLE `sys_user`  (
 -- ----------------------------
 -- Records of sys_user
 -- ----------------------------
-INSERT INTO `sys_user` VALUES (1, 'admin', '疯狂的狮子Li', 'sys_user', 'crazyLionLi@163.com', '15888888888', 1, NULL, '$2a$10$7JB720yubVSZvUI0rEqK/.VqGOZTH.ulu33dHOiBE8ByOhJIrdAu2', 0, 0, '0:0:0:0:0:0:0:1', '2026-03-19 13:59:27', 1, '2025-12-20 10:21:11', -1, '2026-03-19 13:59:27', '管理员');
+INSERT INTO `sys_user` VALUES (1, 'admin', 'WeaveHan', 'sys_user', '1844152414@qq.com', '15888888888', 0, 2034861213768499201, '$2a$10$7JB720yubVSZvUI0rEqK/.VqGOZTH.ulu33dHOiBE8ByOhJIrdAu2', 0, 0, '0:0:0:0:0:0:0:1', '2026-03-23 15:26:58', 1, '2025-12-20 10:21:11', -1, '2026-03-23 15:26:58', '管理员');
 INSERT INTO `sys_user` VALUES (3, 'test', '本部门及以下 密码666666', 'sys_user', '', '', 0, NULL, '$2a$10$b8yUzN0C71sbz.PhNOCgJe.Tu1yWC3RNrTyjSQ8p1W0.aaUXUJ.Ne', 0, 0, '127.0.0.1', '2025-12-20 10:21:11', 1, '2025-12-20 10:21:11', 3, '2025-12-20 10:21:11', NULL);
 INSERT INTO `sys_user` VALUES (4, 'test1', '仅本人 密码666666', 'sys_user', '', '', 0, NULL, '$2a$10$b8yUzN0C71sbz.PhNOCgJe.Tu1yWC3RNrTyjSQ8p1W0.aaUXUJ.Ne', 0, 0, '127.0.0.1', '2025-12-20 10:21:11', 1, '2025-12-20 10:21:11', 4, '2025-12-20 10:21:11', NULL);
 

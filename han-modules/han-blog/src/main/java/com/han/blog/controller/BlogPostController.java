@@ -35,6 +35,14 @@ public class BlogPostController extends BaseController {
     private final IBlogVisitService blogVisitService;
 
     /**
+     * 查询公开博客文章列表
+     */
+    @GetMapping("/public/list")
+    public TableDataInfo<BlogPostVo> publicList(BlogPostBo post, PageQuery pageQuery) {
+        return blogPostService.selectPublicPagePostList(post, pageQuery);
+    }
+
+    /**
      * 查询博客文章列表
      */
     @SaCheckPermission("blog:post:list")
@@ -61,7 +69,7 @@ public class BlogPostController extends BaseController {
      * @param slug 文章别名
      * @return 博客文章
      */
-    @GetMapping(value = "/slug/{slug}")
+    @GetMapping(value = {"/slug/{slug}", "/public/slug/{slug}"})
     public R<BlogPostVo> getPostBySlug(@PathVariable String slug) {
         return R.ok(blogPostService.queryPostBySlug(slug));
     }
@@ -115,6 +123,11 @@ public class BlogPostController extends BaseController {
      */
     @PostMapping("/view/{postId}")
     public R<Void> incrementView(@PathVariable Long postId) {
+        int rows = blogPostService.incrementViewCount(postId);
+        if (rows < 1) {
+            return toAjax(rows);
+        }
+
         // 记录访问日志
         BlogVisitBo visitBo = new BlogVisitBo();
         visitBo.setPostId(postId);
@@ -127,6 +140,6 @@ public class BlogPostController extends BaseController {
         }
         blogVisitService.insertByBo(visitBo);
 
-        return toAjax(blogPostService.incrementViewCount(postId));
+        return toAjax(rows);
     }
 }

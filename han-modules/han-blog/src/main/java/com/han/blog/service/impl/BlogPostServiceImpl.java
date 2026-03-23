@@ -42,7 +42,9 @@ import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @Author: WeiHan
@@ -66,6 +68,22 @@ public class BlogPostServiceImpl implements IBlogPostService {
     private final IBlogPostStatsService blogPostStatsService;
 
     /**
+     * 查询公开博客文章列表（分页）
+     *
+     * @param post      查询条件
+     * @param pageQuery 分页参数
+     * @return 公开博客文章列表
+     */
+    @Override
+    public TableDataInfo<BlogPostVo> selectPublicPagePostList(BlogPostBo post, PageQuery pageQuery) {
+        BlogPostBo queryBo = ObjectUtil.defaultIfNull(post, new BlogPostBo());
+        Page<BlogPostVo> resultPage = blogPostMapper.selectPagePostList(pageQuery.build(), buildPublicQueryWrapper(queryBo));
+        fillListExtraInfo(resultPage.getRecords());
+        hidePublicSensitiveFields(resultPage.getRecords());
+        return TableDataInfo.build(resultPage);
+    }
+
+    /**
      * 根据条件分页查询博客文章列表
      *
      * @param post      查询条件
@@ -76,7 +94,7 @@ public class BlogPostServiceImpl implements IBlogPostService {
     public TableDataInfo<BlogPostVo> selectPagePostList(BlogPostBo post, PageQuery pageQuery) {
         BlogPostBo queryBo = ObjectUtil.defaultIfNull(post, new BlogPostBo());
         Page<BlogPostVo> resultPage = blogPostMapper.selectPagePostList(pageQuery.build(), buildQueryWrapper(queryBo));
-        fillStats(resultPage.getRecords());
+        fillListExtraInfo(resultPage.getRecords());
         return TableDataInfo.build(resultPage);
     }
 
@@ -110,6 +128,31 @@ public class BlogPostServiceImpl implements IBlogPostService {
     }
 
     /**
+     * 构建公开文章列表查询条件
+     *
+     * @param post 文章查询参数
+     * @return 查询条件包装器
+     */
+    private Wrapper<BlogPost> buildPublicQueryWrapper(BlogPostBo post) {
+        Long categoryId = normalizeNullableId(post.getCategoryId());
+        LambdaQueryWrapper<BlogPost> wrapper = Wrappers.lambdaQuery();
+        wrapper.eq(BlogPost::getDelFlag, SystemConstants.NORMAL)
+            .eq(BlogPost::getStatus, PostStatus.PUBLISHED.getCode())
+            .like(StringUtils.isNotBlank(post.getTitle()), BlogPost::getTitle, StringUtils.trim(post.getTitle()))
+            .eq(ObjectUtil.isNotNull(post.getAuthorId()), BlogPost::getAuthorId, post.getAuthorId())
+            .eq(ObjectUtil.isNotNull(categoryId), BlogPost::getCategoryId, categoryId)
+            .eq(StringUtils.isNotBlank(post.getSourceType()), BlogPost::getSourceType, StringUtils.upperCase(StringUtils.trim(post.getSourceType())))
+            .eq(StringUtils.isNotBlank(post.getIsTop()), BlogPost::getIsTop, post.getIsTop())
+            .eq(StringUtils.isNotBlank(post.getIsFeatured()), BlogPost::getIsFeatured, post.getIsFeatured())
+            .isNotNull(BlogPost::getPublishedTime)
+            .orderByDesc(BlogPost::getIsTop)
+            .orderByDesc(BlogPost::getIsFeatured)
+            .orderByDesc(BlogPost::getPublishedTime)
+            .orderByDesc(BlogPost::getUpdateTime);
+        return wrapper;
+    }
+
+    /**
      * 查询博客文章详细信息
      *
      * @param postId 文章ID
@@ -136,11 +179,10 @@ public class BlogPostServiceImpl implements IBlogPostService {
         BlogPostVo postVo = blogPostMapper.selectVoOne(new LambdaQueryWrapper<BlogPost>()
             .eq(BlogPost::getDelFlag, SystemConstants.NORMAL)
             .eq(BlogPost::getStatus, PostStatus.PUBLISHED.getCode())
+            .isNotNull(BlogPost::getPublishedTime)
             .eq(BlogPost::getSlug, StringUtils.trim(slug)));
         fillPostExtraInfo(postVo);
-        if (postVo != null) {
-            postVo.setPassword(null);
-        }
+        hidePublicSensitiveField(postVo);
         return postVo;
     }
 
@@ -238,7 +280,9 @@ public class BlogPostServiceImpl implements IBlogPostService {
     public int incrementViewCount(Long postId) {
         boolean exists = blogPostMapper.exists(new LambdaQueryWrapper<BlogPost>()
             .eq(BlogPost::getPostId, postId)
-            .eq(BlogPost::getDelFlag, SystemConstants.NORMAL));
+            .eq(BlogPost::getDelFlag, SystemConstants.NORMAL)
+            .eq(BlogPost::getStatus, PostStatus.PUBLISHED.getCode())
+            .isNotNull(BlogPost::getPublishedTime));
         if (!exists) {
             return 0;
         }
@@ -296,6 +340,41 @@ public class BlogPostServiceImpl implements IBlogPostService {
         Map<Long, BlogPostStatsVo> statsMap = blogPostStatsService.queryStatsByPostIds(postIds);
         for (BlogPostVo row : rows) {
             applyStats(row, statsMap.get(row.getPostId()));
+        }
+    }
+
+    /**
+     * 批量填充列表页所需的扩展信息
+     *
+     * @param rows 文章列表
+     */
+    private void fillListExtraInfo(List<BlogPostVo> rows) {
+        if (CollUtil.isEmpty(rows)) {
+            return;
+        }
+        fillStats(rows);
+        fillCategories(rows);
+    }
+
+    /**
+     * 批量补充分类型信息
+     *
+     * @param rows 文章列表
+     */
+    private void fillCategories(List<BlogPostVo> rows) {
+        List<Long> categoryIds = rows.stream()
+            .map(BlogPostVo::getCategoryId)
+            .filter(Objects::nonNull)
+            .distinct()
+            .toList();
+        if (CollUtil.isEmpty(categoryIds)) {
+            return;
+        }
+        Map<Long, BlogCategoryVo> categoryMap = blogCategoryMapper.selectVoList(
+            new LambdaQueryWrapper<BlogCategory>().in(BlogCategory::getCategoryId, categoryIds)
+        ).stream().collect(Collectors.toMap(BlogCategoryVo::getCategoryId, category -> category));
+        for (BlogPostVo row : rows) {
+            row.setCategory(categoryMap.get(row.getCategoryId()));
         }
     }
 
@@ -547,5 +626,29 @@ public class BlogPostServiceImpl implements IBlogPostService {
      */
     private Long safeLong(Integer value) {
         return value == null ? 0L : value.longValue();
+    }
+
+    /**
+     * 隐藏公开接口不应返回的敏感字段
+     *
+     * @param rows 文章列表
+     */
+    private void hidePublicSensitiveFields(List<BlogPostVo> rows) {
+        if (CollUtil.isEmpty(rows)) {
+            return;
+        }
+        rows.forEach(this::hidePublicSensitiveField);
+    }
+
+    /**
+     * 隐藏公开接口不应返回的敏感字段
+     *
+     * @param postVo 文章视图对象
+     */
+    private void hidePublicSensitiveField(BlogPostVo postVo) {
+        if (postVo == null) {
+            return;
+        }
+        postVo.setPassword(null);
     }
 }

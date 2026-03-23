@@ -13,6 +13,15 @@ import com.han.common.mybatis.core.page.TableDataInfo;
 public interface IBlogPostService {
 
     /**
+     * 查询公开博客文章列表（分页）
+     *
+     * @param bo 查询条件
+     * @param pageQuery 分页参数
+     * @return 公开博客文章列表
+     */
+    TableDataInfo<BlogPostVo> selectPublicPagePostList(BlogPostBo bo, PageQuery pageQuery);
+
+    /**
      * 查询博客文章列表（分页）
      *
      * @param bo 查询条件
